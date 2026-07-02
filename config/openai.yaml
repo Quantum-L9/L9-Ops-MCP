@@ -1,0 +1,11 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+interface:
+  display_name: Compliance Execution Command Center
+  short_description: Execute advisor-created compliance guides from YAML profiles with task graphs, approval gates, evidence logs, and handoff packets.

@@ -1,0 +1,147 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# L9 Playbook: Vendor Onboarding — Industrial Recycling
+# Disposition: FORK_AND_MODIFY (from storious/agent-playbook workflow pattern)
+# Aligned to: Frontier-Grade-AI-Playbook-Architecture.md Component 1 canonical schema
+# ACAP: Section 3 authority + Section 4 controls enforced via hooks
+
+id: "vendor-onboarding-v1"
+spec_version: "l9.playbook/1.0"
+version: "1.0.0"
+name: "Vendor Onboarding — Industrial Recycling GY"
+description: >
+  End-to-end vendor qualification and Odoo 19 registration for the Guyanese
+  industrial recycling supply chain. Encodes document extraction → compliance
+  check → human review gate → Odoo registration → audit close.
+owner:
+  team: "procurement-ops"
+  contact: "ops@cryptoxdog"
+risk_tier: 2
+domain_pack: "industrial-recycling-v1"
+
+sla:
+  max_duration_seconds: 3600
+  max_cost_usd: 0.50
+  latency_budget_p95_ms: 30000
+
+inputs:
+  vendor_name:    { type: string, required: true }
+  country_code:   { type: string, pattern: "^[A-Z]{2}$", required: true, default: "GY" }
+  permit_number:  { type: string, required: true }
+  waste_classes:  { type: array, items: { type: string }, required: false }
+  documents:      { type: array, items: { type: string, format: uri }, required: false }
+
+outputs:
+  vendor_id:          { type: string }
+  onboarding_status:  { type: string, enum: [approved, rejected, pending_review] }
+  audit_record_id:    { type: string }
+  compliance_score:   { type: number }
+
+steps:
+  - id: "doc_extraction"
+    type: "llm_reasoning"
+    acap_tier: 2
+    skill_binding:
+      skill_id: "document.pdf"
+      version_pin: "^1.0"
+      fallback: "native_prompt"
+    inputs_from: ["$.inputs.documents"]
+    outputs_to: "$.state.extracted_fields"
+    output_schema:
+      type: object
+      required: [vendor_name, permit_number, waste_classes, confidence]
+    retry: { max_attempts: 3, backoff_seconds: 5, idempotency_key: "{{ run_id }}-doc" }
+    timeout_ms: 15000
+
+  - id: "compliance_check"
+    type: "deterministic_code"
+    acap_tier: 2
+    skill_binding:
+      skill_id: "ops.recycling-compliance"
+      version_pin: "^1.0"
+      fallback: "native_compliance_stub"
+    impl: "compliance_checker.check_vendor"
+    inputs_from: ["$.state.extracted_fields", "$.inputs.country_code", "$.inputs.permit_number"]
+    outputs_to: "$.state.compliance_result"
+    output_schema:
+      type: object
+      required: [risk_score, compliant, violations]
+    guard:
+      condition: "$.state.extracted_fields.confidence >= 0.7"
+      on_fail: "escalate_human"
+    idempotency_key: "{{ run_id }}-compliance"
+    timeout_ms: 10000
+
+  - id: "human_review_gate"
+    type: "human_in_loop"
+    acap_tier: 1
+    trigger_condition: "$.state.compliance_result.risk_score >= 0.5"
+    approvers: ["role:environmental-compliance-officer"]
+    timeout_seconds: 43200
+    escalation_path: "role:compliance-manager"
+    skip_condition: "$.state.compliance_result.risk_score < 0.5"
+    idempotency_key: "{{ run_id }}-human-review"
+
+  - id: "odoo_registration"
+    type: "tool_call"
+    acap_tier: 2
+    tool: "mcp://odoo19/vendor.create"
+    inputs_from: ["$.state.extracted_fields", "$.state.compliance_result"]
+    outputs_to: "$.state.odoo_record"
+    output_schema:
+      type: object
+      required: [vendor_id, created_at]
+    idempotency_key: "{{ run_id }}-odoo"
+    compensation:
+      action: "mcp://odoo19/vendor.delete"
+      trigger: "on_downstream_failure"
+    timeout_ms: 8000
+
+  - id: "audit_close"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "audit.close_run"
+    inputs_from: ["$.state.odoo_record", "$.state.compliance_result", "$.inputs.vendor_name"]
+    outputs_to: "$.outputs"
+    idempotency_key: "{{ run_id }}-audit-close"
+    timeout_ms: 3000
+
+guards:
+  pre_run:
+    - "inputs.vendor_name.length > 2"
+    - "inputs.country_code IN ['GY', 'BB', 'TT']"
+    - "inputs.permit_number.length > 0"
+  per_step: true
+
+acap_profile:
+  identity_scope: "vendor-onboarding-agent"
+  permitted_actions: [doc_extraction, compliance_check, odoo_registration, audit_close]
+  prohibited_actions: [financial_disbursement, contract_signing, hazardous_waste_approval]
+  checkpoints:
+    at_steps: [human_review_gate]
+    approver_roles: ["environmental-compliance-officer"]
+  authority_expansion: "requires_re_authorization"
+
+loop_bounds:
+  max_iterations: 10
+  max_wall_time_seconds: 300
+  cost_ceiling_usd: 0.50
+  stuck_detection:
+    similarity_threshold: 0.90
+    stuck_window: 3
+    on_stuck: "escalate_human"
+
+metadata:
+  tags: ["vendor", "onboarding", "odoo", "recycling", "gy"]
+  domain_pack: "industrial-recycling-v1"
+  created_at: "2026-06-10T00:00:00Z"
+  changelog: "v1.0.0: Initial L9-aligned playbook"
+  harvest_sources:
+    - "storious/agent-playbook#.agent/workflows/ — workflow phase-gate pattern"
+    - "Frontier-Grade-AI-Playbook-Architecture.md — canonical PlaybookSpec schema"

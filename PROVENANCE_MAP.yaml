@@ -1,0 +1,1983 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+generated: '2026-06-18'
+input_packs:
+- archive: compliance_execution_command_center_packet(3).zip
+  sha256: ab5073d0250fc3953e3ca24802cbd0c34113d5d32e0dc187290965fa73e9c381
+  file_count: 16
+  top_level:
+  - compliance_execution_packet
+- archive: l9_action_governor_pack(3).zip
+  sha256: 1e887a663a28d64990a89a62fe4d0de6c31cca0cc99f6eb3c29431ee95a3a3d4
+  file_count: 45
+  top_level:
+  - l9_action_governor
+- archive: Github Actions(2).zip
+  sha256: 87c918c98b1a15a0b73c4888624b198d5c603a277bf10e43b42f3d00088d7958
+  file_count: 28
+  top_level:
+  - Github Actions
+- archive: l9-pack-v3.4.1(3).zip
+  sha256: 890f8368b940140cb60d196f05fdc8c87bb770e865b9cd65eaa9739a3091f5a9
+  file_count: 21
+  top_level:
+  - l9-pack-v3.4.1
+- archive: l9-igoros-pack-v3.4.0(3).zip
+  sha256: 69dcde8f8b546635ca888f7c734f12674a109936c8d5761efb3cfc879de39c60
+  file_count: 20
+  top_level:
+  - AGENTS.md
+  - MANIFEST.json
+  - Makefile
+  - README.md
+  - docs
+  - evals
+  - scripts
+  - skills
+- archive: l9_playbook_commit_pack_v1.0.0(3).zip
+  sha256: 27e1eb06f99dd27c2616fcc8c5767ab30232d9d259ecdac38dc63db049f1d127
+  file_count: 22
+  top_level:
+  - l9_commit_pack
+- archive: l9-ops-v1.2.2(3).zip
+  sha256: a3e19f46e79e4fe413af71fa4084ee439ea5e5b1d9b164a6861e47d04f0df977
+  file_count: 50
+  top_level:
+  - l9-ops
+- archive: l9_final_pack_v3.3.0(3).zip
+  sha256: 35ed4345896e9a562feadbd67b3f187407922cacd3d27d5a1d9f50907d74f5bb
+  file_count: 27
+  top_level:
+  - l9_final_pack
+- archive: governance(3).zip
+  sha256: afbf541dceedd6f105f6b6ce20464cb7f26fc53ade2682065586eb9deef87eb2
+  file_count: 4
+  top_level:
+  - governance
+- archive: canonical_persistent_cognitive_entity_stack_v1(3).zip
+  sha256: 8e8a7b2a7e40103472441cc2c245e1ad3e0d800528c4ac0c75bb2b80e97c2ef7
+  file_count: 16
+  top_level:
+  - canonical_persistent_cognitive_entity_stack_v1
+artifacts:
+  .github/workflows/01-L11-PIPELINE-CONFIG.yaml:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/01-L11-PIPELINE-CONFIG.yaml
+      sha256: 4c5d600da7b2afdb5317216dec5554ac485181b1b04f38e899fab345a0188c52
+      selection_score: 114.62
+    merged_from: []
+    discarded: []
+  .github/workflows/08-L11-CI-WORKFLOW-v3.3.yaml:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/08-L11-CI-WORKFLOW-v3.3.yaml
+      sha256: 6d5bbc3a4e2b28dea0147c69598d83fb0fcf9e5103298fcc86417c5a8dd1924b
+      selection_score: 166.64
+    merged_from: []
+    discarded: []
+  .github/workflows/NEW_WORKFLOW_JOBS.yaml:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/NEW_WORKFLOW_JOBS.yaml
+      sha256: 8d19ceb66d0b6544ff0e9a5f4231b5589dcf13f6df51d549a3c4b38ef8f761b1
+      selection_score: 67.94
+    merged_from: []
+    discarded: []
+  .github/workflows/governance.yml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/.github/workflows/governance.yml
+      sha256: 57b9be5581f4a23ec518da50f2b1ec226b869550b15b60041f8fc379b1af18eb
+      selection_score: 213.56
+    merged_from: []
+    discarded: []
+  .github/workflows/protected_files.yaml:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/protected_files.yaml
+      sha256: 226d80bbac203d48668b81382c3f6298a4195ffc9f74d9d1ff1c86cfd9ac7443
+      selection_score: 102.81
+    merged_from: []
+    discarded: []
+  AGENTS.md:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: AGENTS.md
+      sha256: 6f956317c697e5d658bd27c802c0ce312239d9747110fc430c73f757f39acbe3
+      selection_score: 303.4
+    merged_from:
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/AGENTS.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/AGENTS.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/AGENTS.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/AGENTS.md
+      reason: unique markdown content appended to preserve non-regressive material
+    discarded: []
+  CHANGELOG.md:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/CHANGELOG.md
+      sha256: d65d5d22d305b939e373f0173f26ed440f8c305ebb410d458029b217fb446a0a
+      selection_score: 224.13
+    merged_from: []
+    discarded: []
+  MANIFEST.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/MANIFEST.md
+      sha256: 8dcb18723a9d17c3aa07150c2eb93e20923c0ae2b8dbd572b287c913a8f9ec4b
+      selection_score: 71.47
+    merged_from: []
+    discarded: []
+  README.md:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: README.md
+      sha256: b54d1ff95d0c0782d82eaa9880ea681f28f6dd40ca3656bae27dc6d5691ad103
+      selection_score: 281.48
+    merged_from:
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/memory/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/.pytest_cache/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/README.md
+      reason: unique markdown content appended to preserve non-regressive material
+    discarded: []
+  RUNBOOK.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/RUNBOOK.md
+      sha256: 76539dea1d0bef16b541d0088548d0db4dd7f312dfd8d32f14bba37a4afc838b
+      selection_score: 250.5
+    merged_from: []
+    discarded: []
+  assets/.l9/playbooks/vendor-onboarding/golden_tests/edge_cases.jsonl:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/playbooks/vendor-onboarding/golden_tests/edge_cases.jsonl
+      sha256: 00961f9ec155941f198cc7a5bf07ea32218d19e56a8c331dd7ff54a0c6d251a1
+      selection_score: 193.26
+    merged_from: []
+    discarded: []
+  assets/.l9/playbooks/vendor-onboarding/golden_tests/happy_path.jsonl:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/playbooks/vendor-onboarding/golden_tests/happy_path.jsonl
+      sha256: dc5c83b39616caef6fbb8282e02fe43029776677b587c37a2a3f74b2207ff050
+      selection_score: 193.19
+    merged_from: []
+    discarded: []
+  assets/.pytest_cache/.gitignore:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/.pytest_cache/.gitignore
+      sha256: 3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd
+      selection_score: 197.84
+    merged_from: []
+    discarded: []
+  assets/.pytest_cache/CACHEDIR.TAG:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/.pytest_cache/CACHEDIR.TAG
+      sha256: 37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4
+      selection_score: 197.99
+    merged_from: []
+    discarded: []
+  assets/.pytest_cache/v/cache/nodeids:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/.pytest_cache/v/cache/nodeids
+      sha256: 424b1559c95d29ca8f2b0577903dbabd17a0bdbad71bff86243d08f31b5b4209
+      selection_score: 187.89
+    merged_from: []
+    discarded: []
+  assets/CODEOWNERS:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/CODEOWNERS
+      sha256: 9f29cef213263d5623715d7f48a6934a8d57d4cb58630f544c5911b878e49bf2
+      selection_score: 63.8
+    merged_from: []
+    discarded: []
+  assets/COMMIT_MESSAGE.txt:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/COMMIT_MESSAGE.txt
+      sha256: f01a3e9b3a344bd29ce30ecd5973ecb1d26983c421001be6b647af15597572ad
+      selection_score: 239.15
+    merged_from: []
+    discarded: []
+  assets/Makefile:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: Makefile
+      sha256: 630dbca8f36b787f85e44c655e35a4036002016d15951e7ae889c2e7c40fe510
+      selection_score: 282.42
+    merged_from: []
+    discarded:
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/Makefile
+      sha256: cacd46899355b65f9bce8ef5017422ca8523ce2ab5b6f330365964b80ba7d5e1
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+  assets/evals/datasets/blue_sky_analysis.txt:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: evals/datasets/blue_sky_analysis.txt
+      sha256: 0dbf1a787999a0e33f670aefca6e68ba6780afa268a408aed9fd17da7e57a48b
+      selection_score: 246.89
+    merged_from: []
+    discarded: []
+  assets/evals/datasets/hydrator_view_enforcement_001.txt:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/evals/datasets/hydrator_view_enforcement_001.txt
+      sha256: 6e07e049aff3860812163481516fae8ac40f5e90930ebd8845ee5f8935486f0e
+      selection_score: 267.61
+    merged_from: []
+    discarded: []
+  assets/evals/datasets/memory_admission_gate_001.txt:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/evals/datasets/memory_admission_gate_001.txt
+      sha256: a1bcd890471aa5a249e01811cd7d72fa7f2fd86f98996aae7e0f158b266a9dc3
+      selection_score: 277.76
+    merged_from: []
+    discarded: []
+  assets/evals/datasets/memory_kernel_session_start.txt:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: evals/datasets/memory_kernel_session_start.txt
+      sha256: bc972c01ec0bfcd022eb605330b52a49b80b801f573c2d6a815b1c266602b08b
+      selection_score: 246.89
+    merged_from: []
+    discarded: []
+  assets/evals/datasets/module_spec_gen.txt:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: evals/datasets/module_spec_gen.txt
+      sha256: 2cbd87f792e5c56fe8d300a9118255f38c190c7f98e97c6213b34cfca1b26ea2
+      selection_score: 246.97
+    merged_from: []
+    discarded: []
+  assets/evals/datasets/soul_kernel_identity.txt:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: evals/datasets/soul_kernel_identity.txt
+      sha256: f2531e15bb9faf12061d86d9f46f83a81deb0fcc813cdc99a9416b2370610c85
+      selection_score: 246.86
+    merged_from: []
+    discarded: []
+  assets/evals/datasets/soul_kernel_planner_trigger.txt:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: evals/datasets/soul_kernel_planner_trigger.txt
+      sha256: d7d32cf0b476fc3df9566f378df86ae76d0d90acedb6491d70886796da000967
+      selection_score: 246.87
+    merged_from: []
+    discarded: []
+  assets/evals/datasets/trust_ladder_l3_gate.txt:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/evals/datasets/trust_ladder_l3_gate.txt
+      sha256: e5c31750c891a2521422d1698aec3561d91aa7ea9a1d2ad6ec77cce5b62d3842
+      selection_score: 277.66
+    merged_from: []
+    discarded: []
+  assets/pyproject.toml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/pyproject.toml
+      sha256: 0d3d322d6caa75754a7bf728536c7cac3c2299723e5f41504b514150bd6e2937
+      selection_score: 218.18
+    merged_from: []
+    discarded: []
+  config/.pre-commit-config.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/.pre-commit-config.yaml
+      sha256: 9ad54b1877eb33e00339141cd7d6792df9d14c6c1925cc1222aa370400816ba8
+      selection_score: 203.29
+    merged_from: []
+    discarded: []
+  config/INDEX.yaml:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/skills/INDEX.yaml
+      sha256: 74822918de67a3ad3a167b54edeb609058973ecee4039ea5621aa8ba11f4c162
+      selection_score: 216.16
+    merged_from: []
+    discarded: []
+  config/MANIFEST.json:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: MANIFEST.json
+      sha256: 3ea935728aaea8a43e184caafd164d58c93c957c043dece41648c9bb8cef7f74
+      selection_score: 281.04
+    merged_from: []
+    discarded:
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/MANIFEST.json
+      sha256: 55192901e77a01a8bba613c8554f4c6acb8db28e050239883e04f1421da8d3e8
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+    - source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/MANIFEST.json
+      sha256: 6ab838d2d6453e8e3d0a2a53d11de3a1868e5f63fe08caba83fe8e188e91f814
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+  config/aci_tool_design_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/aci_tool_design_kernel.v1-basic.yaml
+      sha256: 6a1e37d16453bf998f6251d3606e973da14ff4ac8c4067fd232e86ed4a88df71
+      selection_score: 133.34
+    merged_from: []
+    discarded: []
+  config/aci_tool_design_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/aci_tool_design_kernel.v1.yaml
+      sha256: 305bc52ec7233a70c81c755ded9f548fefda07c27ea9da0d8989cd67270f8326
+      selection_score: 216.28
+    merged_from: []
+    discarded: []
+  config/agent_observability_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/agent_observability_kernel.v1-basic.yaml
+      sha256: bd90630cebb3a0a07be4295c3c3de668075149f0aefab2697dbbe9ea0504c2bc
+      selection_score: 133.37
+    merged_from: []
+    discarded: []
+  config/agent_observability_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/agent_observability_kernel.v1.yaml
+      sha256: 208cace8b861c44ef66b7e877d538336a2b2e7852cfe1e8476d89f1f64614e24
+      selection_score: 206.18
+    merged_from: []
+    discarded: []
+  config/agent_review_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/agent_review_kernel.v1-basic.yaml
+      sha256: 2c1883a0e73bb5e55f4b9fe45b6aa142846fa1cd75a3c9feb1ad8679db5f3ee6
+      selection_score: 133.32
+    merged_from: []
+    discarded: []
+  config/agent_review_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/agent_review_kernel.v1.yaml
+      sha256: f3f0fb38cb95f235f3a7011d41886a1973aa5975916af004b5d4b4cdc9f00c79
+      selection_score: 216.44
+    merged_from: []
+    discarded: []
+  config/canonical-execution-profile.schema.yaml:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/canonical-execution-profile.schema.yaml
+      sha256: 50bf4f1494a865d49aff2ab79694b9ac98a703009e88b385e808c8eedd1501ff
+      selection_score: 63.18
+    merged_from: []
+    discarded: []
+  config/competitor-teardown-v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/competitor-teardown-v1-basic.yaml
+      sha256: bb218106e35b2ff2612ed95c2db99ad448083c4eb38d11ff5f7f4243590a3f50
+      selection_score: 133.34
+    merged_from: []
+    discarded: []
+  config/competitor-teardown-v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/prompts/analysis/competitor-teardown-v1.yaml
+      sha256: 5b80f388c53ef49397f217c929221904e955cbade1b96cf948173cefb2bf56e1
+      selection_score: 183.5
+    merged_from: []
+    discarded: []
+  config/context_budget_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/context_budget_kernel.v1-basic.yaml
+      sha256: 0aae947c218d218491bd5b4d74555fdb9c8ec11f0e67108151265bb188da43c1
+      selection_score: 133.34
+    merged_from: []
+    discarded: []
+  config/context_budget_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/context_budget_kernel.v1.yaml
+      sha256: 1fe750955edac000cf74f94917b0526453fc018ecb82ca463d1eb5eef0d31e21
+      selection_score: 206.2
+    merged_from: []
+    discarded: []
+  config/convergence_plan.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_runs/example_run/convergence_plan.yaml
+      sha256: 5526aa084129b742170996caa60f41d205595ad8c0c5d101aeefbdeb0cff18e3
+      selection_score: 199.24
+    merged_from: []
+    discarded: []
+  config/doc_gardener_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/doc_gardener_kernel.v1-basic.yaml
+      sha256: c853744e37da30780212dd621c22075036801b1eef0b62a5be6555b261b3ef39
+      selection_score: 133.32
+    merged_from: []
+    discarded: []
+  config/doc_gardener_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/doc_gardener_kernel.v1.yaml
+      sha256: a387b12fe517eeb1eb67cfaad01b26f061eca637e933acc35fa4b3e1b0a853d1
+      selection_score: 205.91
+    merged_from: []
+    discarded: []
+  config/escalation_queue.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_decisions/example_decision/escalation_queue.yaml
+      sha256: 8de54def66e9626e774c1b6b01f94e0fea5d0dcd70efcbfd5535dd0e2b4fe203
+      selection_score: 208.75
+    merged_from: []
+    discarded: []
+  config/eval_harness_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/eval_harness_kernel.v1-basic.yaml
+      sha256: 17d6625d1ce53d696287ed898822e108c3f92201a662aff8924516a83c8fa5e0
+      selection_score: 133.32
+    merged_from: []
+    discarded: []
+  config/eval_harness_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/eval_harness_kernel.v1.yaml
+      sha256: 33549d7e2f38cb82de830955858af74056de5c23a376aaeeddc8d20a637003b3
+      selection_score: 206.01
+    merged_from: []
+    discarded: []
+  config/execution_plan_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/execution_plan_kernel.v1-basic.yaml
+      sha256: bef05c3abae33f50933abd7bfdaeb29b41ba2d0ee54cb01c4a749cc37a83d217
+      selection_score: 133.34
+    merged_from: []
+    discarded: []
+  config/execution_plan_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/execution_plan_kernel.v1.yaml
+      sha256: f077d7402c02cd96ebe94c69b75eb3e28842fcbc79ce0391d286f6c80371ee6a
+      selection_score: 205.7
+    merged_from: []
+    discarded: []
+  config/execution_queue.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_decisions/example_decision/execution_queue.yaml
+      sha256: 427174c5c5b540f05105165330d02aa4698dddf7f98fb869866fac211390fd69
+      selection_score: 198.56
+    merged_from: []
+    discarded: []
+  config/generate-execution-plan-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/generate-execution-plan-basic.yaml
+      sha256: 9529fc4c72946604482018dc8c2281ef73f3ff7f68a8b5a533b37a6d47c39795
+      selection_score: 133.35
+    merged_from: []
+    discarded: []
+  config/generate-skill-md-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/generate-skill-md-basic.yaml
+      sha256: 374d258f04f6c961a0e2f0aa7ff6caa7d96312779622a08251d399e3b3074ff8
+      selection_score: 133.31
+    merged_from: []
+    discarded: []
+  config/governance_graph_ir.json:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_runs/example_run/governance_graph_ir.json
+      sha256: a2c63415b20ff211ef8c8dfd1ddfe1f85c24b1f1e654b1475ad930d18029ab39
+      selection_score: 210.42
+    merged_from: []
+    discarded: []
+  config/improvement-pass-v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/improvement-pass-v1-basic.yaml
+      sha256: b39a961738c102c86908ccfc80993dba459116fcbb48ab78fdb8d4a13c542ba6
+      selection_score: 133.32
+    merged_from: []
+    discarded: []
+  config/improvement-pass-v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/prompts/ops/improvement-pass-v1.yaml
+      sha256: 8d3a61513f1a61d6d00e23643a1692304ed51fcbae1a887549e8bb48a6ece06b
+      selection_score: 193.68
+    merged_from: []
+    discarded: []
+  config/industrial-recycling-v1.yaml:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/domain_packs/industrial-recycling-v1.yaml
+      sha256: d147ebc7109ff65e143607015aeeda4775af4cbc3292d130e0bbe8791f297e0c
+      selection_score: 193.62
+    merged_from: []
+    discarded: []
+  config/l9_agents.yaml:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/l9_agents.yaml
+      sha256: ab3afa886468204313b7e3aa2aca7c5d935a416dcca9abe410d4243bea4116e7
+      selection_score: 205.2
+    merged_from: []
+    discarded: []
+  config/llc_1a_ty2025_profile.yaml:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/samples/llc_1a_ty2025_profile.yaml
+      sha256: dfbadd9ead454312c8016c55ac43245516179f5b658bf50f635c8184c71df7d3
+      selection_score: 470.76
+    merged_from: []
+    discarded: []
+  config/microservice-build-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/microservice-build-basic.yaml
+      sha256: 4f4f7cd0608bb4868183582706e7397c6ec3e74f67f9ada54f8e86c30e36ed1e
+      selection_score: 133.32
+    merged_from: []
+    discarded: []
+  config/node-spec.schema.yaml:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/handoffs/node-spec.schema.yaml
+      sha256: bba0b06717acbce994137469d9114014bb4ef4ce15d1807dba4fe23a6dc94948
+      selection_score: 227.53
+    merged_from: []
+    discarded: []
+  config/nonprofit_launch_profile.yaml:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/samples/nonprofit_launch_profile.yaml
+      sha256: ae7df26db91a82721f2898798461bfecab283901a8593f71abb722f44cf9c6a0
+      selection_score: 22.87
+    merged_from: []
+    discarded: []
+  config/openai.yaml:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/agents/openai.yaml
+      sha256: 3660e5f9c819f4f1250f80cc2f78f5a93abb23b636aa575e886110fd64ed9025
+      selection_score: 60.22
+    merged_from: []
+    discarded: []
+  config/optimize-kernel-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/optimize-kernel-basic.yaml
+      sha256: b374496fb9ae1c56177d3492f056f29df52cc90a0bedbbfdf9c30d711dce8f72
+      selection_score: 133.3
+    merged_from: []
+    discarded: []
+  config/optimize-kernel-fixture.yaml:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/evals/datasets/optimize-kernel-fixture.yaml
+      sha256: 8aab5876f72ed608ed3cd549a9db37e89768d3637f8d2684e40054e7f6cd8697
+      selection_score: 247.13
+    merged_from: []
+    discarded: []
+  config/playbook.yaml:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/playbooks/invoice-ar-processing/playbook.yaml
+      sha256: f87a95b21c460c2366b8cd01acf52e13326f3a4d2671788fb1f878f06a63245f
+      selection_score: 227.25
+    merged_from: []
+    discarded:
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/playbooks/vendor-onboarding/playbook.yaml
+      sha256: 521d631e1db090ccbb22e17446d2d6105216f47ad902eb004eca01455ccc100b
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/playbooks/document-extraction/playbook.yaml
+      sha256: 77142ad211c865ac627fd406f31b20e67fb042365192a67cc3fb73fd65e454e3
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/playbooks/multi-agent-routing/playbook.yaml
+      sha256: 575ae78407964c7e68e51db2fe6c031f6d4a3a916a9a3f0e4d3eecf8d5b1ce20
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+  config/promptfooconfig.yaml:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/evals/promptfooconfig.yaml
+      sha256: 05a186175fb9fbea00f29ab7c35054ff1239f6345b1669c46c4f443dad3e1788
+      selection_score: 271.32
+    merged_from: []
+    discarded:
+    - source: l9-igoros-pack-v3.4.0(3).zip
+      rel: evals/promptfooconfig.yaml
+      sha256: 168dee7598bc02395523475832e852beca8dc43a0774069388ed92485b4df5e3
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/promptfooconfig.yaml
+      sha256: 77a663c0995521c5f789ab9b7d09d4be457a70ed9550441dccec1ffb55c2f30f
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+  config/ranked_decisions.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_decisions/example_decision/ranked_decisions.yaml
+      sha256: 49a27b97b318bcfee485dca5976194d9d20d6ca0c1e57eea9de13d7429c1c31d
+      selection_score: 210.71
+    merged_from: []
+    discarded: []
+  config/registration-result.schema.yaml:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/handoffs/registration-result.schema.yaml
+      sha256: 371345d35e873fdc4efea48a1b872ed3cd78338f0e15d4562a57e1027e997644
+      selection_score: 227.2
+    merged_from: []
+    discarded: []
+  config/remediation_queue.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_decisions/example_decision/remediation_queue.yaml
+      sha256: c0cbf0cfc07e75baa493b7e7380e64c6d4e59bc4068a89a46ca27d67ccb56358
+      selection_score: 199.36
+    merged_from: []
+    discarded: []
+  config/rename_plan.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_decisions/example_decision/rename_plan.yaml
+      sha256: 74a7eb548b8bdb2f429ef269c015d563eebc34c8925fafa5e012d679a1246eb4
+      selection_score: 188.86
+    merged_from: []
+    discarded: []
+  config/reorg_plan.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_decisions/example_decision/reorg_plan.yaml
+      sha256: 741011fe6a1e1d117fd3013f258bd367e7dfbb242428492fec9293dd4729b818
+      selection_score: 188.73
+    merged_from: []
+    discarded: []
+  config/review-code-l9-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/review-code-l9-basic.yaml
+      sha256: 8cf58e6fb6bae1b4b7ec109fc313cbbd52a6bb7065db28ec668428d28d508e1a
+      selection_score: 133.29
+    merged_from: []
+    discarded: []
+  config/runtime_findings.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_runs/example_run/runtime_findings.yaml
+      sha256: 98111afdeaed19e13fa37ba0a5cd7cde8f30978676c2b42d05e3e30280ce0489
+      selection_score: 188.47
+    merged_from: []
+    discarded: []
+  config/sandbox_isolation_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/sandbox_isolation_kernel.v1-basic.yaml
+      sha256: a4ce6dee2b76081c2f944b31342e1ac5af443018447f0bca9cd7e35e60cc339a
+      selection_score: 133.35
+    merged_from: []
+    discarded: []
+  config/sandbox_isolation_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/sandbox_isolation_kernel.v1.yaml
+      sha256: e43c6d5417ed43cd7fa4c7d58e53741da5a3c257114a79e3bb8a1b21644e83c8
+      selection_score: 215.89
+    merged_from: []
+    discarded: []
+  docs/00-L11-MASTER-README.md:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/00-L11-MASTER-README.md
+      sha256: 73e6a915332f3cf6a075e918cfe885aba480e00e9e9dfc8d63bd3711f6c36735
+      selection_score: 128.27
+    merged_from: []
+    discarded: []
+  docs/01-capture-spec.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/steps/01-capture-spec.md
+      sha256: 000749ca2df6513add4c11c8315ff5d1e422d8f677c8391b3a6726821e01b116
+      selection_score: 237.48
+    merged_from: []
+    discarded: []
+  docs/02-validate-spec.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/steps/02-validate-spec.md
+      sha256: 16243e039484ea5c119c7f8bf3fbbde860c2775fdc654682c81ee4068dfae0b6
+      selection_score: 237.41
+    merged_from: []
+    discarded: []
+  docs/03-scaffold-node.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/steps/03-scaffold-node.md
+      sha256: 4249c88ede7fdec94606cdf43bd73177fe700c9e7f21b4343d2d3c19d29653d1
+      selection_score: 247.52
+    merged_from: []
+    discarded: []
+  docs/04-write-domain-logic.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/steps/04-write-domain-logic.md
+      sha256: c142b83e4eea15abe379aacc1ce42ebc2113cde8c3105815ff22fdaa4b6ff255
+      selection_score: 257.81
+    merged_from: []
+    discarded: []
+  docs/05-run-ci.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/steps/05-run-ci.md
+      sha256: 14eb272ff39b7b3b27b8075f0133ce0089b934122ddef84ad305b5442c4fa169
+      selection_score: 277.61
+    merged_from: []
+    discarded: []
+  docs/06-register-gate.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/steps/06-register-gate.md
+      sha256: 6dd333c8d1ba09cce6a6573752c4bcd01c9d3fc8c596a10a0bcee2a08304bcae
+      selection_score: 237.73
+    merged_from: []
+    discarded: []
+  docs/07-verify-health.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/steps/07-verify-health.md
+      sha256: 87d7ba196615f3b8fc25700862fe3b1493fc9a28e8e19cfff9aff32363c7ac2a
+      selection_score: 237.53
+    merged_from: []
+    discarded: []
+  docs/09-L11-RUNBOOK.md:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/09-L11-RUNBOOK.md
+      sha256: 7eb27b63af1000a9f6191df934cefd19a1cddd09bbe9921898887caea33743ef
+      selection_score: 117.64
+    merged_from: []
+    discarded: []
+  docs/10-L11-METRICS-DASHBOARD.md:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/10-L11-METRICS-DASHBOARD.md
+      sha256: e6bbf17620f1572504e4392a206110f487b3c29fc03eb1ed23a9082bca1ef539
+      selection_score: 100.16
+    merged_from: []
+    discarded: []
+  docs/AI_Model_Drift_Monitoring_Policy_v6.0.md:
+    selected_from:
+      source: governance(3).zip
+      rel: governance/AI_Model_Drift_Monitoring_Policy_v6.0.md
+      sha256: e430a2b8d1097ead9ee7ad38a672a7ed650e2534e69934fa6d2f897061c4e105
+      selection_score: 110.78
+    merged_from: []
+    discarded: []
+  docs/BRANCH-PROTECTION-SETTINGS.md:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/BRANCH-PROTECTION-SETTINGS.md
+      sha256: e400bc59bfdcc0018e80aee084ab6ceeb0af649612c920244198b9bb9a90be85
+      selection_score: 61.57
+    merged_from: []
+    discarded: []
+  docs/COMPLETION_STATUS.md:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/COMPLETION_STATUS.md
+      sha256: c9f5f944377035d1ded5a700534c2979b135ae619cded542b62482239baddc4f
+      selection_score: 194.48
+    merged_from: []
+    discarded: []
+  docs/Decision_Ledger_v6.0.md:
+    selected_from:
+      source: governance(3).zip
+      rel: governance/Decision_Ledger_v6.0.md
+      sha256: 581052a1ac412aa91cc16afc1804030e01f63cb6d2a714a97ee9ff1bdd6a4ce2
+      selection_score: 117.79
+    merged_from: []
+    discarded: []
+  docs/FILETREE.md:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/FILETREE.md
+      sha256: 3f2362c2235bfc27df35a80f3fc340559c98e631ea0a4a04ae3e99631ff781de
+      selection_score: 199.34
+    merged_from: []
+    discarded: []
+  docs/Governance_Engine_v6.0.md:
+    selected_from:
+      source: governance(3).zip
+      rel: governance/Governance_Engine_v6.0.md
+      sha256: 15bf0ad0c9cca824e30eb3a1c8c3afdfc06ca5b59e08617083794ac35e9ce043
+      selection_score: 138.32
+    merged_from: []
+    discarded: []
+  docs/HARNESS_DOCTRINE.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/docs/HARNESS_DOCTRINE.md
+      sha256: 4a6dc6a4a4064d4e94a0b919b3b942fddc189048df26d245e573361392a27de0
+      selection_score: 260.76
+    merged_from: []
+    discarded: []
+  docs/INTEGRATION_GUIDE.md:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/INTEGRATION_GUIDE.md
+      sha256: 9cc892d7427039fce673590c6414c1c633527b4f1bb80aa0287132fa0e28101b
+      selection_score: 72.24
+    merged_from: []
+    discarded: []
+  docs/KERNEL_DOCTRINE.md:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/KERNEL_DOCTRINE.md
+      sha256: 3454e57c11476d448c14b9f1bd8bac96ae602967446c77429626ad00861a9521
+      selection_score: 276.04
+    merged_from:
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/docs/KERNEL_DOCTRINE.md
+      reason: unique markdown content appended to preserve non-regressive material
+    discarded: []
+  docs/L9-Microservice-Build-Pipeline.md:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/playbooks/microservice-build/source/L9-Microservice-Build-Pipeline.md
+      sha256: aaa1b8e9733e88a415328497ca1f820f2a7b1ae9bce9223ff627c7da54dc8985
+      selection_score: 263.08
+    merged_from: []
+    discarded: []
+  docs/L9_GOVERNANCE.md:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/governance/L9_GOVERNANCE.md
+      sha256: 2f8b7f59ede99940133d18932bd69704fe505ed63b4f1222d98dd2e136d3e579
+      selection_score: 204.29
+    merged_from: []
+    discarded: []
+  docs/MASTER_LOAD_INSTRUCTIONS.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/00_load_instructions/MASTER_LOAD_INSTRUCTIONS.md
+      sha256: 1f597d0422bf1b3809715af450416d8acaf2f490dd1c63c742f58335ded561f0
+      selection_score: 37.49
+    merged_from: []
+    discarded: []
+  docs/PLAYBOOK.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/playbooks/new-constellation-node/PLAYBOOK.md
+      sha256: ae2a7fc09b3df4aa0e45074dcefa699b22f80bf99d63e452c6d40c95a623e851
+      selection_score: 239.35
+    merged_from:
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/playbooks/microservice-build/PLAYBOOK.md
+      reason: unique markdown content appended to preserve non-regressive material
+    discarded: []
+  docs/PLAYBOOKS_DOCTRINE.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/docs/PLAYBOOKS_DOCTRINE.md
+      sha256: 13a6fb5b6db3c37c5a0f1f44c5e1c591a2c4859bc5baba1181d0c79e30eba336
+      selection_score: 264.23
+    merged_from:
+    - source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/PLAYBOOKS_DOCTRINE.md
+      reason: unique markdown content appended to preserve non-regressive material
+    discarded: []
+  docs/PostToolUse.md:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/governance/hooks/PostToolUse.md
+      sha256: f49da15d6b2cd9ff5c03243e1e26c681146ede78dd65084e69919fd2f039e726
+      selection_score: 213.67
+    merged_from: []
+    discarded: []
+  docs/PreToolUse.md:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/governance/hooks/PreToolUse.md
+      sha256: e93f72aa86162d9fb69590eb6ffd1f95a2a419c0442641b49d1dd550ef603729
+      selection_score: 203.78
+    merged_from: []
+    discarded: []
+  docs/Relational_Trust_Model_v6.0.md:
+    selected_from:
+      source: governance(3).zip
+      rel: governance/Relational_Trust_Model_v6.0.md
+      sha256: 23d1967c2eb4fee910851d2a45de3ecdb28f4ce163de288df4ac3fbee9a3348e
+      selection_score: 116.72
+    merged_from: []
+    discarded: []
+  docs/SKILL.md:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/skills/memory/cursor-memory-kernel/SKILL.md
+      sha256: 75cf7ca6ab32574599c771781fbda6e31fbc9542dcb8e34db49eea6ea1bb4c96
+      selection_score: 291.42
+    merged_from:
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/skills/coding/scaffold-node/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-igoros-pack-v3.4.0(3).zip
+      rel: skills/memory/cursor-memory-kernel/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-igoros-pack-v3.4.0(3).zip
+      rel: skills/strategy/blue-sky-analysis/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/skills/harness/optimize-kernel/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/skills/kernels/optimize-kernel/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/skills/coding/review-code-l9/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/skills/harness/validate-harness/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-igoros-pack-v3.4.0(3).zip
+      rel: skills/coding/generate-module-spec/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/skills/governance-hooks/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/skills/code/review-code-l9/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/skills/kernels/optimize-kernel/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/skills/docs/generate-skill-md/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/skills/agent/generate-execution-plan/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/skills/ops-recycling-compliance/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/skills/agents-project-memory/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    - source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/SKILL.md
+      reason: unique markdown content appended to preserve non-regressive material
+    discarded: []
+  docs/SKILLS_DOCTRINE.md:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/SKILLS_DOCTRINE.md
+      sha256: b55dbdd8e7eb4a2c29fecc7b70ba6656b708c6e137d5226caef4d3a03436c0ed
+      selection_score: 254.49
+    merged_from:
+    - source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/docs/SKILLS_DOCTRINE.md
+      reason: unique markdown content appended to preserve non-regressive material
+    discarded: []
+  docs/Stop.md:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/governance/hooks/Stop.md
+      sha256: 1f13009aa567bbd1974bc518e024080134c4003bcbc677b1fe5512d6182c6904
+      selection_score: 192.94
+    merged_from: []
+    discarded: []
+  docs/WIRING.md:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/WIRING.md
+      sha256: 63f41e342a60133131b15723be7b1d92d8c8810e078a3639806dbdb6704835e4
+      selection_score: 215.32
+    merged_from: []
+    discarded: []
+  docs/action_governor_spec.md:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/docs/action_governor_spec.md
+      sha256: 05280a525ac6b3d865470f12f39e2109a9d22d03d4f3ce08856ca33108792741
+      selection_score: 200.29
+    merged_from: []
+    discarded: []
+  docs/advisor-guide-parser.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/advisor-guide-parser.md
+      sha256: dc7fca22166fe67a069cd3d09857c31b32f642cf2fd0db7583788d49941a7b8e
+      selection_score: 61.12
+    merged_from: []
+    discarded: []
+  docs/approval-policy.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/approval-policy.md
+      sha256: 8c4c408de880f02d0bb88b50e07e284a79eba98fa0661e219bee3f397fee65ec
+      selection_score: 61.51
+    merged_from: []
+    discarded: []
+  docs/architecture/identityos_adr_index.md:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/docs/architecture/identityos_adr_index.md
+      sha256: a6cb6991f7d9bbc3fe219d181ebd5e7ffc23ee639da19dc305c64f984ce857f2
+      selection_score: 239.28
+    merged_from: []
+    discarded: []
+  docs/canonical_epistemic_reality_validation_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_epistemic_reality_validation_layer_v1.md
+      sha256: 5e583fa08b2e7070b2afb9c1fcad0f6a5791ad0822941aa53310490a374298c2
+      selection_score: 46.98
+    merged_from: []
+    discarded: []
+  docs/canonical_evaluation_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_evaluation_layer_v1.md
+      sha256: 778ee38312e39d6ce9ada8bac38c28654f0c854f4c65bf93e8a5a890dcafc305
+      selection_score: 26.89
+    merged_from: []
+    discarded: []
+  docs/canonical_identity_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_identity_layer_v1.md
+      sha256: 4957518b32243d7a1a0b3bf871a937310a88b9ccbb43f656df158908ecee737e
+      selection_score: 26.88
+    merged_from: []
+    discarded: []
+  docs/canonical_operational_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_operational_layer_v1.md
+      sha256: 604401d69353b83ab17da1d7062abac0243b259e2faf93514e0ebca127006de7
+      selection_score: 36.85
+    merged_from: []
+    discarded: []
+  docs/canonical_psyche_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_psyche_layer_v1.md
+      sha256: ae1a09b528cfd073b085a3fb88da01d9a540dacaabdace3f7392e23ca0cc0ab8
+      selection_score: 36.92
+    merged_from: []
+    discarded: []
+  docs/canonical_relationship_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_relationship_layer_v1.md
+      sha256: 993ba570ca99d2ff13364e23e8a39c20044ed8c15d4db53b69acac5c806acc63
+      selection_score: 26.9
+    merged_from: []
+    discarded: []
+  docs/canonical_semantic_language_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_semantic_language_layer_v1.md
+      sha256: c8431b05c413bfbb22992a3b5c8df98b59d86703745bc870ee5f4bc07d61f47c
+      selection_score: 26.87
+    merged_from: []
+    discarded: []
+  docs/canonical_state_routing_layer_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/01_core_agent_stack/canonical_state_routing_layer_v1.md
+      sha256: 2f60ded7b3ca972044806afef59d29c68f321434dbfa4b4a36b86e4184d50edf
+      selection_score: 27.02
+    merged_from: []
+    discarded: []
+  docs/continuity_handoff_packet_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/02_cross_substrate_continuity/continuity_handoff_packet_v1.md
+      sha256: 386a4f494f24940781026825bec8f4123a40db6a00de8dbd4de77fc37b799792
+      selection_score: 37.58
+    merged_from: []
+    discarded: []
+  docs/conventions.md:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/memory/global/conventions.md
+      sha256: a4d4b392366dae5214be29a59dd9b297e365496fd39be34e7d9cfac5dec32998
+      selection_score: 193.01
+    merged_from: []
+    discarded: []
+  docs/credential-requirements-contract.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/credential-requirements-contract.md
+      sha256: 820ade4d0b88ceeb72a19b062e7eabb4d528fe7d4437618f43298c3268b08e7d
+      selection_score: 61.13
+    merged_from: []
+    discarded: []
+  docs/decision_model.md:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/docs/decision_model.md
+      sha256: 7e95945be242e4a1238d3815be830d47ef657d1d1294715ce629d278cc16abf7
+      selection_score: 198.95
+    merged_from: []
+    discarded: []
+  docs/decision_report.md:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_decisions/example_decision/decision_report.md
+      sha256: b5512a241119a1a1c35161e04418aaf7e4b416583631ac52150543863782a85a
+      selection_score: 209.55
+    merged_from: []
+    discarded: []
+  docs/embodiment_context_schema_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/02_cross_substrate_continuity/embodiment_context_schema_v1.md
+      sha256: 64adb1398ebdfaeb9e1b495821c032ae7515165199da8a6c7ad713183199d6df
+      selection_score: 27.38
+    merged_from: []
+    discarded: []
+  docs/evidence-log-contract.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/evidence-log-contract.md
+      sha256: fe7d12a15083063cfc92c0392185926f30b7ff48df42274ec6d4d3d860586048
+      selection_score: 60.98
+    merged_from: []
+    discarded: []
+  docs/follow-up-engine.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/follow-up-engine.md
+      sha256: bb20ac50b25a459e89228c6a47256da82b753624f484693b4b5db09251639fdc
+      selection_score: 62.77
+    merged_from: []
+    discarded: []
+  docs/handoff-packet-contract.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/handoff-packet-contract.md
+      sha256: bc5adfd3f801f140a27c38d22935b66b85cbdfd22b23283beff03a71dca28259
+      selection_score: 60.75
+    merged_from: []
+    discarded: []
+  docs/jurisdiction-court-contract.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/jurisdiction-court-contract.md
+      sha256: feb0d470e71e8540da84015a4408f0cc506a52cd4aac2155056e511c6c20f23e
+      selection_score: 61.03
+    merged_from: []
+    discarded: []
+  docs/kernels/R0/soul_kernel.v1.yaml:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: docs/kernels/R0/soul_kernel.v1.yaml
+      sha256: b819309e135d0fc15d96d5923023621ea272984541f8c5d1e25ab41264ca86b6
+      selection_score: 272.77
+    merged_from: []
+    discarded: []
+  docs/kernels/R5/context_budget_kernel.v1.yaml:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/docs/kernels/R5/context_budget_kernel.v1.yaml
+      sha256: 724551b43d6fc85a8c935e9a6f9a6c93edbe549fa969177c769d7b6724401fb4
+      selection_score: 292.53
+    merged_from: []
+    discarded: []
+  docs/kernels/R5/l9_build_kernel.v1.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/docs/kernels/R5/l9_build_kernel.v1.md
+      sha256: bc7780e58a2733630ab0aba1c8dd79ca5b91a7ab8a87f118c3fcedec0d83d89c
+      selection_score: 217.23
+    merged_from: []
+    discarded: []
+  docs/kernels/R5/l9_coding_kernel.v1.md:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/docs/kernels/R5/l9_coding_kernel.v1.md
+      sha256: bed820ecd0b1216cb70fafe67212c9f38109a25bf5979ed16853130177226f8c
+      selection_score: 322.96
+    merged_from: []
+    discarded: []
+  docs/kernels/R5/memory_admission_kernel.v1.yaml:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/docs/kernels/R5/memory_admission_kernel.v1.yaml
+      sha256: 2c6a56494c7e9799badee30a7e6d5f2b5525e0e928a847ec741f02ff92957418
+      selection_score: 301.5
+    merged_from: []
+    discarded: []
+  docs/kernels/R5/model_governance_kernel.v1.yaml:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/docs/kernels/R5/model_governance_kernel.v1.yaml
+      sha256: 795323838e3d3543edd0f9e45a4a2422ef750bdea831a2cabe4a48d10ace6d8e
+      selection_score: 292.16
+    merged_from: []
+    discarded: []
+  docs/kernels/R5/preferences_kernel.v1.yaml:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: docs/kernels/R5/preferences_kernel.v1.yaml
+      sha256: db2b6ecbb7a3eb76fafb5d2889d40b074966b832e95f9c84de8bea7fce2c2a02
+      selection_score: 271.39
+    merged_from: []
+    discarded: []
+  docs/kernels/R5/trust_ladder_kernel.v1.yaml:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/docs/kernels/R5/trust_ladder_kernel.v1.yaml
+      sha256: 30a257586cfdb7f05df5649266809e32998de50e8a63e4d867db2338ef4b5da7
+      selection_score: 292.15
+    merged_from: []
+    discarded: []
+  docs/l9-operating-contract.md:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/system/l9-operating-contract.md
+      sha256: 821a5ff6198f944c35af38618519dec90de7c1fa09de3f7f9c221ac9064ed838
+      selection_score: 205.18
+    merged_from: []
+    discarded: []
+  docs/portable_identity_contract_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/02_cross_substrate_continuity/portable_identity_contract_v1.md
+      sha256: 5eaaea9a977bdbe14b11cb3a4aa703ae484fa0909cb492394decd1d3de3c3acf
+      selection_score: 27.43
+    merged_from: []
+    discarded: []
+  docs/profiles/USER.md:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: docs/profiles/USER.md
+      sha256: 32732a49dcbd1cc900f3952fabbf3256bac5bd9a50b70f4eabd2fc347125efbf
+      selection_score: 292.25
+    merged_from: []
+    discarded: []
+  docs/substrate_adapter_schema_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/02_cross_substrate_continuity/substrate_adapter_schema_v1.md
+      sha256: 98ff707f38e9ff988386d681ca5f9acdb0695bff439998b27bf76ab64415b29b
+      selection_score: 27.88
+    merged_from: []
+    discarded: []
+  docs/task-graph-contract.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/task-graph-contract.md
+      sha256: 0fac7e7aec465b2ff3f74f4bfb6be219877ba4cef25a908d2b324e6512ff81ae
+      selection_score: 61.67
+    merged_from: []
+    discarded: []
+  docs/topology_merge_rationale.md:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/docs/topology_merge_rationale.md
+      sha256: 275810caa2a4436c57f4ca5512c7670cf3805c34f8460464c93d11eb3ef4cc60
+      selection_score: 209.19
+    merged_from: []
+    discarded: []
+  docs/trust_permission_ladder_v1.md:
+    selected_from:
+      source: canonical_persistent_cognitive_entity_stack_v1(3).zip
+      rel: canonical_persistent_cognitive_entity_stack_v1/02_cross_substrate_continuity/trust_permission_ladder_v1.md
+      sha256: 68c40987b148390d93d895a3ddd1ae41867f7eaf3cb660de30014679e6bdca97
+      selection_score: 47.52
+    merged_from: []
+    discarded: []
+  docs/universal_hardbans.md:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/doctrines/universal_hardbans.md
+      sha256: d38f447cdb35d968da6ceaecb78eeb9af249e7892b09af3e6aea3f4731f39bf6
+      selection_score: 163.95
+    merged_from: []
+    discarded: []
+  docs/validation-checklist.md:
+    selected_from:
+      source: compliance_execution_command_center_packet(3).zip
+      rel: compliance_execution_packet/compliance-execution-command-center/references/validation-checklist.md
+      sha256: 3edc297043fb9d3fb14edba91a61cd4c1e9a066310f55ee5666b2faddcb24014
+      selection_score: 71.05
+    merged_from: []
+    discarded: []
+  governance/acap-profile-template.yaml:
+    selected_from:
+      source: l9_playbook_commit_pack_v1.0.0(3).zip
+      rel: l9_commit_pack/.l9/governance/acap-profile-template.yaml
+      sha256: 2f19d0f26588feaff7e14e4cb430c575fba6705205cba4b253e729db9c9ad4ea
+      selection_score: 214.65
+    merged_from: []
+    discarded: []
+  governance/governance_scores.yaml:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/examples/l9_runs/example_run/governance_scores.yaml
+      sha256: 6a8fb9e7c1fcc6c95d2db1119c800930c391e56ada6b2335c86b326686648e89
+      selection_score: 199.06
+    merged_from: []
+    discarded: []
+  governance/model_governance_kernel.v1-basic.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/evals/datasets/model_governance_kernel.v1-basic.yaml
+      sha256: 8cce0c5334316dbfa9052e762f8d674cc2b636f28bb0e9d5af4a314f20f2dc45
+      selection_score: 143.35
+    merged_from: []
+    discarded: []
+  governance/model_governance_kernel.v1.yaml:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/kernels/optimized/model_governance_kernel.v1.yaml
+      sha256: b41da4690faaf7f9607c3e88edbc527113fef878e71a9c710c0f8bed1972acb1
+      selection_score: 206.56
+    merged_from: []
+    discarded: []
+  schemas/action_governor_outputs.schema.json:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/schemas/action_governor_outputs.schema.json
+      sha256: 09b0d622545e0fd34ea1f4adb47023b9abdde6fde66b87e471b0b1208408578c
+      selection_score: 187.96
+    merged_from: []
+    discarded: []
+  schemas/convergence_plan.schema.json:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/schemas/convergence_plan.schema.json
+      sha256: 4c6b2f477146c82141f9f70c6697e751a6a1051cee7a6574bdbd0fa8f225b3ae
+      selection_score: 187.96
+    merged_from: []
+    discarded: []
+  schemas/governance_graph_ir.schema.json:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/schemas/governance_graph_ir.schema.json
+      sha256: a187f47927c32e166bf76a65ec1e23f4cf086bb9107ebe052e23765a040fcb11
+      selection_score: 197.96
+    merged_from: []
+    discarded: []
+  schemas/governance_scores.schema.json:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/schemas/governance_scores.schema.json
+      sha256: e13fdb7b7225bb884d635ca198b21d9e56e7a11f87f5437e6bf6e38c3213ca95
+      selection_score: 197.96
+    merged_from: []
+    discarded: []
+  schemas/identityos/agent.schema.json:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/schemas/identityos/agent.schema.json
+      sha256: 89aed1064ec68f79380772716fa8c2f4d1345d6fc4652504cef37875852e293d
+      selection_score: 267.95
+    merged_from: []
+    discarded: []
+  schemas/identityos/profile.schema.json:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/schemas/identityos/profile.schema.json
+      sha256: 8e3b7c35ab9b085e5fee7354335e6c3ab926fa8712766012d6c8ef6856e6844d
+      selection_score: 267.68
+    merged_from: []
+    discarded: []
+  schemas/identityos/runtime_context.schema.json:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/schemas/identityos/runtime_context.schema.json
+      sha256: 1c113c7ed63ba748b6ca03e2317adb31d59f2c797c68fcfae8d04d5d14a4e651
+      selection_score: 267.71
+    merged_from: []
+    discarded: []
+  schemas/identityos/runtime_payload.schema.json:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/schemas/identityos/runtime_payload.schema.json
+      sha256: ca2a52f014f8f75940457341c0d85adcaf899ff6ee570bdbb970f1c6f26a3c65
+      selection_score: 268.17
+    merged_from: []
+    discarded: []
+  schemas/runtime_findings.schema.json:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/schemas/runtime_findings.schema.json
+      sha256: ac161959363da56f3631b6e6259e5d46fda82b3e5b3a000834074d4819d18670
+      selection_score: 187.96
+    merged_from: []
+    discarded: []
+  scripts/02-L11-ORCHESTRATOR.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/02-L11-ORCHESTRATOR.py
+      sha256: 6003497cdaaa4c92a3a8d7b03b0ed2f3fe6a8e1d094a0a929122ccb44168bb28
+      selection_score: 65.72
+    merged_from: []
+    discarded: []
+  scripts/03-L11-DETERMINISTIC-ENGINE.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/03-L11-DETERMINISTIC-ENGINE.py
+      sha256: 7cac444dac4b12238cd4df7390235cbce9895d0aed852dbadf5fdd283da2e920
+      selection_score: 106.15
+    merged_from: []
+    discarded: []
+  scripts/04-L11-AI-ENRICHMENT-ENGINE.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/04-L11-AI-ENRICHMENT-ENGINE.py
+      sha256: 335f12c942c520009b774ec37710a33593ecd207b9f129b7309f589829d717de
+      selection_score: 69.19
+    merged_from: []
+    discarded: []
+  scripts/05-L11-DEBT-GRAPH-SERVICE.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/05-L11-DEBT-GRAPH-SERVICE.py
+      sha256: 6b175526085babd8d867a934e539d8597c5be182f20b3cb2c7ddd62603016a3a
+      selection_score: 63.08
+    merged_from: []
+    discarded: []
+  scripts/06-L11-RISK-SCORER.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/06-L11-RISK-SCORER.py
+      sha256: 9b9ec6d948324eec6feb8b190bcf808dd0bbd06e54cfdfcb5b950eab90217670
+      selection_score: 58.97
+    merged_from: []
+    discarded: []
+  scripts/07-L11-AUTO-FIX-ENGINE.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/07-L11-AUTO-FIX-ENGINE.py
+      sha256: 6ccdd2016ea011ffe9ade88cb69c6c06cfeee44aba97233099bcb196b3da3863
+      selection_score: 94.84
+    merged_from: []
+    discarded: []
+  scripts/DEPLOY-v3.3.sh:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/DEPLOY-v3.3.sh
+      sha256: 431c6be08ab91dbdc18fe546a8bf7c4dec517c3d5e931e4a81802a96a4018904
+      selection_score: 122.49
+    merged_from: []
+    discarded: []
+  scripts/DEPLOY_ADDITIONS.sh:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/DEPLOY_ADDITIONS.sh
+      sha256: 8b30475775811571ae86ea71777455726e72c50bdb880ced3d95959aa3d34ea4
+      selection_score: 41.79
+    merged_from: []
+    discarded: []
+  scripts/__init__.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/__init__.py
+      sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      selection_score: 40.0
+    merged_from: []
+    discarded: []
+  scripts/add_artifact.py:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/scripts/add_artifact.py
+      sha256: fe21cd28bfe82d7aee6df9549286c303a25787a85a4e5c50c1fa439076fdac36
+      selection_score: 178.03
+    merged_from: []
+    discarded: []
+  scripts/audit_hardban_duplication.sh:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/scripts/audit_hardban_duplication.sh
+      sha256: 543a030ac1eeb0ce5afe10ce869ec0f75511c01b76d8ee60d55ed6f85bafba8f
+      selection_score: 237.71
+    merged_from: []
+    discarded:
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/scripts/audit_hardban_duplication.sh
+      sha256: bce3a682c79043e3ca22caa3318d452153b3d9fc7663f8b12e5a1d363ff220a9
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+  scripts/conftest.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/conftest.py
+      sha256: 708d140ad5b631a8f6e15ad7348f1a154c829a020b0ef3651370d6880cd4cbc4
+      selection_score: 84.56
+    merged_from: []
+    discarded: []
+  scripts/convergence_tracker.py:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/scripts/convergence_tracker.py
+      sha256: 8180cb0a688167611c1ac2dc6bf1632164e2b1c4e7bbe2cbd10efe49b33ab28a
+      selection_score: 188.43
+    merged_from: []
+    discarded: []
+  scripts/enforce_progressive_disclosure.sh:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/scripts/enforce_progressive_disclosure.sh
+      sha256: 3329d4ed93228b7797f07edb77da4708b416b5842b5e7fa7855c777887e25e2a
+      selection_score: 194.9
+    merged_from: []
+    discarded: []
+  scripts/harvest_audit.py:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: scripts/harvest_audit.py
+      sha256: 37a2fbe3d072da63e1c562048397203af18fb70d8fccbe7517303101e525119e
+      selection_score: 258.32
+    merged_from: []
+    discarded: []
+  scripts/impact_analysis.py:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/scripts/impact_analysis.py
+      sha256: f07326a9b95a34527b77d1a7ae638ade4767e9f2274669f710c8a0c65f637547
+      selection_score: 186.02
+    merged_from: []
+    discarded: []
+  scripts/inject_dora_complete.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/inject_dora_complete.py
+      sha256: fcce9a1d0e67e6b8cdab9f59a5dfa028e75a08d03ea1e0dc775b40250f715217
+      selection_score: 91.81
+    merged_from: []
+    discarded: []
+  scripts/library_health.py:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: scripts/library_health.py
+      sha256: 7567e09c1917ec9cef2074c8935361d30b422e5f966e1b3856ddafbf303ee811
+      selection_score: 249.89
+    merged_from: []
+    discarded: []
+  scripts/library_health.sh:
+    selected_from:
+      source: l9_final_pack_v3.3.0(3).zip
+      rel: l9_final_pack/scripts/library_health.sh
+      sha256: 493f93279c20fefe778e86eae2bfaebc68ff63a840d63725b5148fbf577858a1
+      selection_score: 232.16
+    merged_from: []
+    discarded:
+    - source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/scripts/library_health.sh
+      sha256: d71434d062aaf37dd656736187c0520ae8691a63809e9b7415433c7550fe446b
+      reason: lower-ranked duplicate/overlapping responsibility or exact duplicate
+  scripts/library_health_v341.sh:
+    selected_from:
+      source: l9-pack-v3.4.1(3).zip
+      rel: l9-pack-v3.4.1/scripts/library_health_v341.sh
+      sha256: 617932df8f0343b054b351733277d3129ae781b1d9079bd7131122882b1a77a2
+      selection_score: 219.57
+    merged_from: []
+    discarded: []
+  scripts/skill_endpoint_audit.py:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: scripts/skill_endpoint_audit.py
+      sha256: 5c63598c3dd3394e69a3a8c17c0ae0e31a7e08ad9038937737acd938fa5ef098
+      selection_score: 258.83
+    merged_from: []
+    discarded: []
+  scripts/test_ai_enrichment_engine.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/test_ai_enrichment_engine.py
+      sha256: 5c07b8d7fc6064df93dba8ff45fc784a431cceec1459c2b7594955c6df3231dd
+      selection_score: 74.35
+    merged_from: []
+    discarded: []
+  scripts/test_auto_fix_engine.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/test_auto_fix_engine.py
+      sha256: 6b50b0bc0239049c203b8feab56802990709f224878b1dcf2d969a5801558812
+      selection_score: 62.09
+    merged_from: []
+    discarded: []
+  scripts/test_debt_graph_service.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/test_debt_graph_service.py
+      sha256: 88af6c544bfbaf7acfd6d20f76df74d2fe1cc36dab302bd315d11672c8df6735
+      selection_score: 63.52
+    merged_from: []
+    discarded: []
+  scripts/test_deterministic_engine.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/test_deterministic_engine.py
+      sha256: 53760e8473d4f71d5d6ba2bff983755b40191b9b5cadc69d9b072f957f3da41f
+      selection_score: 73.97
+    merged_from: []
+    discarded: []
+  scripts/test_orchestrator.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/test_orchestrator.py
+      sha256: 9b11d3c6e59fcc8fff9a4176dece87955794fe44c269d32bb44d3b3fc1799839
+      selection_score: 62.93
+    merged_from: []
+    discarded: []
+  scripts/test_risk_scorer.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/test_risk_scorer.py
+      sha256: 64f6690964ed6cba4613b8cf53915146d5d2f251bb916406dd790f92ee381f35
+      selection_score: 52.8
+    merged_from: []
+    discarded: []
+  scripts/validate-protected-files-v6.py:
+    selected_from:
+      source: Github Actions(2).zip
+      rel: Github Actions/validate-protected-files-v6.py
+      sha256: 5df30741799b8ee9e35af492361308b149644c80780360c64926515914aa4817
+      selection_score: 91.69
+    merged_from: []
+    discarded: []
+  scripts/validate_headers.py:
+    selected_from:
+      source: l9-igoros-pack-v3.4.0(3).zip
+      rel: scripts/validate_headers.py
+      sha256: 52a90a6e03a0b1b46931aecd3a43e63046f3697319aece491125a1d18a27b23c
+      selection_score: 248.98
+    merged_from: []
+    discarded: []
+  scripts/validate_wiring.py:
+    selected_from:
+      source: l9-ops-v1.2.2(3).zip
+      rel: l9-ops/scripts/validate_wiring.py
+      sha256: 2b16fbe151add4f55caca9e521d7ac6b357dc5e19f5a6216e8c302d8bba577c2
+      selection_score: 143.77
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/__init__.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/__init__.py
+      sha256: e6e94d6a54b4daf46d157a55886e27c19915964a6854ac8d7884e1cf5731424d
+      selection_score: 188.18
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/cli.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/cli.py
+      sha256: fa72ce3e8c77f735657b822201eaab6301c998bf69e5638febd2e736bc5870b3
+      selection_score: 188.91
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/loader.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/loader.py
+      sha256: 449d86f9cc1f64f1eca5296644bf92294a082dbe5a752fb25eed1516cce3730e
+      selection_score: 199.4
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/models.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/models.py
+      sha256: af3720c0f140212a356c931b9af327c77f23edcd4a0d6ae70c8c8817ccc41d35
+      selection_score: 201.52
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/planner.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/planner.py
+      sha256: ff1aa2fa32ed3cc7dda2f511868bd4a7f9d15bcc25d256ffdbed5366d643279c
+      selection_score: 210.67
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/renderer.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/renderer.py
+      sha256: cecd9ee8ad61b24b65d90f531e634da58ce987e2a2b41a9c56e86ed62344c29a
+      selection_score: 189.46
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/scorer.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/scorer.py
+      sha256: cf4ca8d8cc3d446423f4fef8c68b951aeae1aabe969655c0d59d7fc91a61eb50
+      selection_score: 199.22
+    merged_from: []
+    discarded: []
+  src/l9_action_governor/writer.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/src/l9_action_governor/writer.py
+      sha256: 10d4b4875ff9de17450c9fbb1df6e404c96c32f8d700fa7dd826827458295fa8
+      selection_score: 189.34
+    merged_from: []
+    discarded: []
+  tests/test_action_governor.py:
+    selected_from:
+      source: l9_action_governor_pack(3).zip
+      rel: l9_action_governor/tests/test_action_governor.py
+      sha256: e6d57e6497edf4dec5f974c7a293b7f820990e71d72bfe1c768b957fc1e23d3c
+      selection_score: 188.32
+    merged_from: []
+    discarded: []
+final_validation_addendum:
+  skills/: restored from l9-igoros-pack-v3.4.0(3)/skills
+  scripts/l11/: normalized from Github Actions(2) L11 scripts and deployment wiring
+  examples/l9_runs/example_run/: assembled from existing config/governance artifacts
+    in final repo
+  pyproject.toml: moved from assets/pyproject.toml and dependency metadata corrected
+doctrine_restoration_pass_2026_06_18:
+- final_path: skills/agent/generate-execution-plan/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/skills/agent/generate-execution-plan/SKILL.md
+  decision: restored L9 Ops skills doctrine and executable skill docs
+- final_path: skills/docs/generate-skill-md/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/skills/docs/generate-skill-md/SKILL.md
+  decision: restored L9 Ops skills doctrine and executable skill docs
+- final_path: skills/code/review-code-l9/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/skills/code/review-code-l9/SKILL.md
+  decision: restored L9 Ops skills doctrine and executable skill docs
+- final_path: skills/kernels/optimize-kernel/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/skills/kernels/optimize-kernel/SKILL.md
+  decision: restored L9 Ops skills doctrine and executable skill docs
+- final_path: skills/coding/review-code-l9/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/skills/coding/review-code-l9/SKILL.md
+  decision: restored L9 Final Pack harness/coding skills
+- final_path: skills/coding/scaffold-node/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/skills/coding/scaffold-node/SKILL.md
+  decision: restored L9 Final Pack harness/coding skills
+- final_path: skills/harness/optimize-kernel/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/skills/harness/optimize-kernel/SKILL.md
+  decision: restored L9 Final Pack harness/coding skills
+- final_path: skills/harness/validate-harness/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/skills/harness/validate-harness/SKILL.md
+  decision: restored L9 Final Pack harness/coding skills
+- final_path: skills/INDEX.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/skills/INDEX.yaml
+  decision: restored commit pack governance/project/compliance skills
+- final_path: skills/governance-hooks/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/skills/governance-hooks/SKILL.md
+  decision: restored commit pack governance/project/compliance skills
+- final_path: skills/agents-project-memory/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/skills/agents-project-memory/SKILL.md
+  decision: restored commit pack governance/project/compliance skills
+- final_path: skills/ops-recycling-compliance/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/skills/ops-recycling-compliance/SKILL.md
+  decision: restored commit pack governance/project/compliance skills
+- final_path: skills/meta/optimize-kernel/SKILL.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-pack-v3.4.1(3)/l9-pack-v3.4.1/skills/kernels/optimize-kernel/SKILL.md
+  decision: restored optimize-kernel at AGENTS canonical path
+- final_path: skills/meta/optimize-kernel/SKILL__source_ecaa3134.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/skills/kernels/optimize-kernel/SKILL.md
+  decision: preserved variant without overwriting stronger existing file
+- final_path: playbooks/new-constellation-node/PLAYBOOK.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/PLAYBOOK.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/steps/01-capture-spec.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/steps/01-capture-spec.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/steps/02-validate-spec.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/steps/02-validate-spec.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/steps/03-scaffold-node.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/steps/03-scaffold-node.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/steps/04-write-domain-logic.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/steps/04-write-domain-logic.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/steps/05-run-ci.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/steps/05-run-ci.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/steps/06-register-gate.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/steps/06-register-gate.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/steps/07-verify-health.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/steps/07-verify-health.md
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/handoffs/node-spec.schema.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/handoffs/node-spec.schema.yaml
+  decision: restored L9 final playbooks
+- final_path: playbooks/new-constellation-node/handoffs/registration-result.schema.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/playbooks/new-constellation-node/handoffs/registration-result.schema.yaml
+  decision: restored L9 final playbooks
+- final_path: playbooks/microservice-build/PLAYBOOK.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/playbooks/microservice-build/PLAYBOOK.md
+  decision: restored L9 ops playbooks
+- final_path: playbooks/microservice-build/source/L9-Microservice-Build-Pipeline.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/playbooks/microservice-build/source/L9-Microservice-Build-Pipeline.md
+  decision: restored L9 ops playbooks
+- final_path: playbooks/vendor-onboarding/playbook.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/playbooks/vendor-onboarding/playbook.yaml
+  decision: restored commit pack playbooks
+- final_path: playbooks/invoice-ar-processing/playbook.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/playbooks/invoice-ar-processing/playbook.yaml
+  decision: restored commit pack playbooks
+- final_path: playbooks/document-extraction/playbook.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/playbooks/document-extraction/playbook.yaml
+  decision: restored commit pack playbooks
+- final_path: playbooks/multi-agent-routing/playbook.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/playbooks/multi-agent-routing/playbook.yaml
+  decision: restored commit pack playbooks
+- final_path: playbooks/vendor-onboarding/golden_tests/happy_path.jsonl
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/playbooks/vendor-onboarding/golden_tests/happy_path.jsonl
+  decision: restored commit pack playbooks
+- final_path: playbooks/vendor-onboarding/golden_tests/edge_cases.jsonl
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_playbook_commit_pack_v1.0.0(3)/l9_commit_pack/.l9/playbooks/vendor-onboarding/golden_tests/edge_cases.jsonl
+  decision: restored commit pack playbooks
+- final_path: assets/evals/promptfooconfig.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/promptfooconfig.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/aci_tool_design_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/aci_tool_design_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/agent_observability_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/agent_observability_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/agent_review_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/agent_review_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/context_budget_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/context_budget_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/doc_gardener_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/doc_gardener_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/eval_harness_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/eval_harness_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/execution_plan_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/execution_plan_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/model_governance_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/model_governance_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/sandbox_isolation_kernel.v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/sandbox_isolation_kernel.v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/optimize-kernel-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/optimize-kernel-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/review-code-l9-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/review-code-l9-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/generate-skill-md-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/generate-skill-md-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/generate-execution-plan-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/generate-execution-plan-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/microservice-build-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/microservice-build-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/competitor-teardown-v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/competitor-teardown-v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/datasets/improvement-pass-v1-basic.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/evals/datasets/improvement-pass-v1-basic.yaml
+  decision: restored L9 Ops eval datasets
+- final_path: assets/evals/promptfooconfig__source_2fc57668.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-igoros-pack-v3.4.0(3)/evals/promptfooconfig.yaml
+  decision: preserved variant without overwriting stronger existing file
+- final_path: prompts/analysis/competitor-teardown-v1.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/prompts/analysis/competitor-teardown-v1.yaml
+  decision: restored executable prompt doctrine
+- final_path: prompts/ops/improvement-pass-v1.yaml
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-ops-v1.2.2(3)/l9-ops/prompts/ops/improvement-pass-v1.yaml
+  decision: restored executable prompt doctrine
+- final_path: docs/source_doctrine/l9-pack-v3.4.1(3)__KERNEL_DOCTRINE.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-pack-v3.4.1(3)/l9-pack-v3.4.1/KERNEL_DOCTRINE.md
+  decision: preserved source doctrine variant for provenance/no-regression
+- final_path: docs/source_doctrine/l9-pack-v3.4.1(3)__SKILLS_DOCTRINE.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-pack-v3.4.1(3)/l9-pack-v3.4.1/SKILLS_DOCTRINE.md
+  decision: preserved source doctrine variant for provenance/no-regression
+- final_path: docs/source_doctrine/l9-pack-v3.4.1(3)__PLAYBOOKS_DOCTRINE.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9-pack-v3.4.1(3)/l9-pack-v3.4.1/PLAYBOOKS_DOCTRINE.md
+  decision: preserved source doctrine variant for provenance/no-regression
+- final_path: docs/source_doctrine/l9_final_pack__KERNEL_DOCTRINE.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/docs/KERNEL_DOCTRINE.md
+  decision: preserved source doctrine variant for provenance/no-regression
+- final_path: docs/source_doctrine/l9_final_pack__SKILLS_DOCTRINE.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/docs/SKILLS_DOCTRINE.md
+  decision: preserved source doctrine variant for provenance/no-regression
+- final_path: docs/source_doctrine/l9_final_pack__PLAYBOOKS_DOCTRINE.md
+  source: /mnt/data/igor_sandbox/pack_consolidation_2026_06_18/extracted/l9_final_pack_v3.3.0(3)/l9_final_pack/docs/PLAYBOOKS_DOCTRINE.md
+  decision: preserved source doctrine variant for provenance/no-regression
+- final_path: docs/contracts/L9_CONTRACT_SPECIFICATIONS.md
+  source: derived from consolidated docs/*contract*.md
+  decision: created real contract index from source contracts
+- final_path: docs/governance/L9_GOVERNANCE_STACK.md
+  source: derived from consolidated governance docs
+  decision: created real governance index from source governance docs
+- final_path: docs/architecture.md
+  source: ARCHITECTURE.md + docs/architecture/identityos_adr_index.md
+  decision: created canonical local architecture entrypoint
+- final_path: docs/domain-specs/industrial-recycling-v1.yaml
+  source: config/industrial-recycling-v1.yaml
+  decision: made domain spec discoverable at AGENTS canonical path
+- final_path: schemas/kernel.canonical.schema.json
+  source: derived from observed docs/kernels and config kernel YAML documents
+  decision: created permissive validation schema for actual kernel doctrine files
+- final_path: AGENTS.md
+  source: rewritten from current consolidated repo inventory
+  decision: removed broken links and promoted doctrine registry to first-class load
+    map

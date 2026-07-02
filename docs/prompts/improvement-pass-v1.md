@@ -1,0 +1,50 @@
+---
+l9_schema: 1
+artifact_type: documentation
+tags: ['docs']
+retrieval: on_demand
+status: active
+---
+# improvement-pass-v1
+
+```yaml
+---
+id: improvement-pass-v1
+version: 1.0.0
+author: Igor Beylin
+use-case: Run a structured improvement pass on any artifact — identify leverage gaps and prioritize
+model-target: claude-sonnet-4
+eval-status: untested
+last-tested: 2026-06-17
+tags: [improvement, meta, self-referential, quality]
+kernel-alignment: []
+
+inputs:
+  - name: ARTIFACT
+    type: string
+    required: true
+    description: The artifact content or path to analyze
+    example: "paste skill YAML or playbook PLAYBOOK.md content"
+  - name: FOCUS
+    type: string
+    required: false
+    description: Specific improvement lens
+    example: "maximize reusability, harden security surface, reduce token weight"
+
+expected-output: |
+  Format: markdown
+  Content: hidden leverage, limiting assumptions, double-down recommendations, removal candidates
+  Length: 300-600 words
+---
+Run an improvement pass on the following artifact.
+Focus: {FOCUS}
+
+{ARTIFACT}
+
+Structure your output as:
+1. Hidden Leverage (underexploited capabilities)
+2. Limiting Assumptions (what the artifact assumes that may be wrong)
+3. Double Down (what to amplify — with specific evidence)
+4. Remove (what to cut — with specific reasoning)
+5. Priority Action (single most impactful next move)
+```

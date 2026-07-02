@@ -1,0 +1,111 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: agent_observability_kernel.v1
+version: 1.0.0
+ring: R5
+category: developer_support
+title: Agent-queryable observability surface
+purpose: 'Exposes the L9 observability stack (structured logs, OTEL traces, Prometheus metrics) as a first-class agent-queryable
+  surface: trace_query, log_query, and metric_query tool contracts that agents invoke to debug their own execution rather
+  than relying on human-mediated log retrieval.'
+activation_phase: on_demand
+status: active
+
+description: |
+  CAPABILITY: Instrument agent runs with OTEL traces, structured logging, and Prometheus metrics.
+  Use when: adding telemetry to an agent, debugging agent behavior via traces, setting up observability, or auditing agent run history.
+  Do NOT use when: prototyping throwaway scripts with no production telemetry need.
+  Signals: observability, OTEL, tracing, structlog, Prometheus, telemetry, agent metrics, instrument, span, trace agent
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-05 and GAP-13: wires OTEL traces, structlog JSON events, and Prometheus metrics into agent-callable
+    tool contracts. Agents can query their own execution state without human mediation.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - observability
+  - otel
+  - prometheus
+  - structlog
+  - agent_debug
+  - trace_query
+  - log_query
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires:
+- developer_core_kernel.v1
+init:
+  behavior: 'On load, activate agent-side observability tool contracts: trace_query(trace_id, span_filter), log_query(correlation_id,
+    level, since_iso8601), and metric_query(metric_name, labels, window). All queries return structured JSON. All agent tasks
+    MUST inject correlation_id into every log event and OTEL span. Activate span ownership — each agent task owns a root span
+    whose children map to its tool calls.'
+  overload_weight: 0.8
+  session_hooks:
+  - hook: correlation_id_inject
+    trigger: on_load
+    description: Generate and bind a correlation_id for the session. All emitted log events and OTEL spans MUST carry this
+      id.
+  - hook: span_close_guard
+    trigger: on_session_end
+    description: Assert all open OTEL spans owned by this session are closed. Emit warning for any unclosed spans.
+
+hard_bans:
+- MUST NOT emit structured log events without a correlation_id field.
+- MUST NOT query the observability stack via human-mediated retrieval (copy-paste of log output) — use trace_query, log_query,
+  or metric_query tool contracts only.
+- MUST NOT expose raw PII in log_query results — redaction is applied before returning to agent.
+- MUST NOT create OTEL spans that are never closed.
+- MUST NOT emit metric_query results without labeling the metric_name, labels, and window in the response.
+fail_closed: false
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  amplifies:
+  - kernel_id: repo_auditor_kernel.v1
+    multiplier: 1.5
+  - kernel_id: eval_harness_kernel.v1
+    multiplier: 1.4
+  max_overlap_percent: 15
+routing_hints:
+  relevance_keywords:
+  - observability
+  - tracing
+  - otel
+  - prometheus
+  - structlog
+  - log_query
+  - trace_query
+  - agent_debug
+  - correlation_id
+  artifact_types:
+  - yaml_spec
+  - code
+  objective_classes:
+  - audit
+  - build
+  leverage_score: 8.0
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-06: Tempo vs Jaeger as OTEL backend not decided'
+sha256: 8c7a82b6454e6cad887421f9e1dcecc2d1578f3f2276fbd2dbd9f16aa26ce605

@@ -1,0 +1,33 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+- decision_id: decision_remediation_engine
+  rank: 4
+  component_id: remediation_engine
+  component_name: Remediation Engine
+  canonical_name: l9_remediation_engine
+  decision_class: escalate
+  priority_score: 68
+  confidence: high
+  reason: Remediation Engine is blocked by approval workflow not implemented, rollback
+    policy not implemented and requires governed escalation.
+  next_action: Resolve blocker authority and re-run Action Governor.
+  evidence:
+  - governance
+  - mutation authority not approved for MVP
+  - node_type=runtime_component
+  - repo
+  - runtime
+  dependencies:
+  - action_governor
+  risks:
+  - high_drift
+  - blocked_by_dependencies_or_authority
+  - runtime_risk
+  target_folder: /l9_system/07_remediation_engine
+  approval_required: true

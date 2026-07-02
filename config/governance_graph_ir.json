@@ -1,0 +1,57 @@
+{
+  "graph_id": "example_l9_governance_system",
+  "nodes": [
+    {
+      "node_id": "intake_layer",
+      "name": "Artifact Intake Layer",
+      "node_type": "repo_component",
+      "source_topologies": ["repo", "governance"],
+      "description": "Reads folders, repos, and zip packs into deterministic inventories.",
+      "current_path": null,
+      "capabilities": ["zip intake", "folder scan", "artifact hashing"],
+      "dependencies": [],
+      "governed_by": ["read_only_mvp"]
+    },
+    {
+      "node_id": "inventory_node",
+      "name": "Constellation Inventory Node Phase3 L9 Alignment Pack v3 1",
+      "node_type": "repo_component",
+      "source_topologies": ["repo", "governance"],
+      "description": "Converts raw artifact inventories into capability and node proposals.",
+      "current_path": "/packs/constellation_inventory_node_phase3_l9_alignment_pack_v3_1",
+      "capabilities": ["artifact classification", "capability archaeology", "semantic inventory"],
+      "dependencies": ["intake_layer"],
+      "governed_by": ["proposal_only_mutation"]
+    },
+    {
+      "node_id": "action_governor",
+      "name": "Action Governor",
+      "node_type": "governance_component",
+      "source_topologies": ["repo", "governance", "runtime"],
+      "description": "Ranks build, remediation, escalation, rename, and reorg actions from L9 run outputs.",
+      "current_path": null,
+      "capabilities": ["decision ranking", "execution queue", "escalation queue", "rename plan", "reorg plan"],
+      "dependencies": ["inventory_node", "governance_graph_ir"],
+      "governed_by": ["approval_required_for_mutation"]
+    },
+    {
+      "node_id": "remediation_engine",
+      "name": "Remediation Engine",
+      "node_type": "runtime_component",
+      "source_topologies": ["repo", "governance", "runtime"],
+      "description": "Applies verified changes after approval.",
+      "current_path": null,
+      "capabilities": ["patch generation", "diff validation", "rollback"],
+      "dependencies": ["action_governor"],
+      "governed_by": ["human_approval_required"]
+    }
+  ],
+  "edges": [
+    {"source": "intake_layer", "target": "inventory_node", "edge_type": "feeds"},
+    {"source": "inventory_node", "target": "action_governor", "edge_type": "feeds"},
+    {"source": "action_governor", "target": "remediation_engine", "edge_type": "authorizes_proposals"}
+  ],
+  "metadata": {
+    "created_for": "L9 Action Governor MVP"
+  }
+}

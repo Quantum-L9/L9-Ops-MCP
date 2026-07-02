@@ -1,0 +1,106 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: aci_tool_design_kernel.v1
+version: 1.0.0
+ring: R5
+category: developer_support
+title: ACI tool design and ergonomics standard
+purpose: 'Defines the canonical Agent-Computer Interface (ACI) tool design standard for L9: tool schema ergonomics, docstring
+  format, parameter concision, error surface design, and tool registry validation — ensuring every L9 tool is agent-optimized,
+  not human-optimized.'
+activation_phase: on_demand
+status: active
+
+description: |
+  CAPABILITY: Design agent-computer interface tools, function schemas, and tool manifests for reliable invocation.
+  Use when: defining a new tool/function for an agent, writing a tool schema, designing tool-use ergonomics, or auditing a tool manifest.
+  Do NOT use when: consuming existing tools without modifying their definitions.
+  Signals: tool design, function schema, ACI, tool manifest, define tool, tool ergonomics, parameter schema, tool description, agent tool
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-09 and GAP-11: establishes ACI tool design ergonomics standard, tool schema validation, docstring
+    requirements, error surface contract, and tool registry integrity checks.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - aci
+  - tool_design
+  - tool_schema
+  - agent_ergonomics
+  - tool_registry
+  - error_surface
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires:
+- developer_core_kernel.v1
+init:
+  behavior: 'On load, enforce ACI tool design rules on any tool schema authoring or tool registry update task. Every tool
+    MUST have: a gerund-form name (e.g. execute_query, not query_executor), a third-person present-tense description (e.g.
+    Executes a parameterized Cypher query...), all required parameters documented with type+description+example, a structured
+    error schema listing every error code the tool can emit, and an idempotency declaration (idempotent: true/false). Tools
+    with side effects MUST declare side_effects as a non-empty list.'
+  overload_weight: 1.0
+  session_hooks:
+  - hook: tool_schema_lint
+    trigger: on_artifact_emit
+    description: 'Before emitting any tool schema or tool registry update, validate against aci_ergonomics_rules: gerund name,
+      third-person description, complete parameter docs, error schema present, idempotency declared.'
+
+hard_bans:
+- MUST NOT register a tool without an error_schema listing every error code it can emit.
+- MUST NOT name a tool with a noun-form identifier (query_executor, file_reader) — gerund form required (execute_query, read_file).
+- MUST NOT register a tool with side effects without declaring side_effects as a non-empty list.
+- MUST NOT emit a tool description written in imperative form (Do X) or first person (I will X) — third-person present tense
+  only.
+- MUST NOT register a tool that accepts free-form JSON blob parameters without a schema — all parameters must be typed.
+fail_closed: false
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  amplifies:
+  - kernel_id: developer_core_kernel.v1
+    multiplier: 1.5
+  max_overlap_percent: 25
+routing_hints:
+  relevance_keywords:
+  - aci
+  - tool_design
+  - tool_schema
+  - tool_registry
+  - ergonomics
+  - agent_tool
+  - side_effects
+  - idempotent
+  artifact_types:
+  - yaml_spec
+  - code
+  - json_schema
+  objective_classes:
+  - build
+  - audit
+  leverage_score: 8.0
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-10: tool registry backend (YAML manifest vs DB) not finalized'
+sha256: de7465818508985da67f043c42b13a04c3dd8c7a0f70286276294e91fd2d91c6

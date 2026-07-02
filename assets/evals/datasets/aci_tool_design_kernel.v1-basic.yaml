@@ -1,0 +1,41 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+fixture-id: aci_tool_design_kernel.v1-basic
+artifact-type: kernel
+artifact-id: aci_tool_design_kernel.v1
+version: 1.0.0
+author: Igor Beylin
+created: 2026-06-17
+eval-status: stub
+
+scenario:
+  description: Basic happy-path — ACI Tool Design
+  type: happy-path
+
+input:
+  user-message: "FILL IN: concrete invocation for 'aci_tool_design_kernel.v1'"
+
+expected-output:
+  format: markdown
+  required-elements: [FILL IN]
+  forbidden-elements: [TODO, PLACEHOLDER, "FILL IN"]
+
+assertions:
+  - type: llm-rubric
+    value: "FILL IN: specific, verifiable assertion for ACI Tool Design"
+  - type: not-contains
+    value: "TODO"
+
+pass-threshold: 0.85
+
+next-steps: |
+  1. Fill in input.user-message
+  2. Fill in required-elements and assertions
+  3. npx promptfoo eval --config evals/promptfooconfig.yaml
+  4. python3 scripts/convergence_tracker.py --update-kernel aci_tool_design_kernel.v1 --pass-rate <rate>

@@ -1,0 +1,156 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# L9 Playbook: Invoice & Accounts Receivable Processing
+# Disposition: FORK_AND_MODIFY (storious/agent-playbook + vasilyu1983 finance.payments skill)
+# Domain: Invoice financing / AR automation for industrial recycling ops
+
+id: "invoice-ar-processing-v1"
+spec_version: "l9.playbook/1.0"
+version: "1.0.0"
+name: "Invoice & AR Processing — Industrial Recycling"
+description: >
+  End-to-end accounts receivable workflow: ingest invoice document →
+  extract structured fields → validate against PO → post to Odoo 19 →
+  trigger payment follow-up → close with audit record.
+owner:
+  team: "finance-ops"
+  contact: "finance@cryptoxdog"
+risk_tier: 3
+
+sla:
+  max_duration_seconds: 7200
+  max_cost_usd: 0.75
+  latency_budget_p95_ms: 45000
+
+inputs:
+  invoice_uri:     { type: string, format: uri, required: true }
+  vendor_id:       { type: string, required: true }
+  expected_amount: { type: number, required: false }
+  currency:        { type: string, default: "GYD", required: false }
+  po_reference:    { type: string, required: false }
+
+outputs:
+  invoice_id:      { type: string }
+  payment_status:  { type: string, enum: [posted, pending_approval, disputed, paid] }
+  discrepancy_flag: { type: boolean }
+  audit_record_id: { type: string }
+
+steps:
+  - id: "invoice_extraction"
+    type: "llm_reasoning"
+    acap_tier: 2
+    skill_binding:
+      skill_id: "document.pdf"
+      version_pin: "^1.0"
+      fallback: "native_prompt"
+    inputs_from: ["$.inputs.invoice_uri"]
+    outputs_to: "$.state.invoice_fields"
+    output_schema:
+      type: object
+      required: [invoice_number, vendor_id, line_items, total_amount, currency, invoice_date]
+    retry: { max_attempts: 3, backoff_seconds: 5, idempotency_key: "{{ run_id }}-extract" }
+    timeout_ms: 15000
+
+  - id: "po_validation"
+    type: "deterministic_code"
+    acap_tier: 2
+    tool: "mcp://odoo19/purchase_order.validate"
+    inputs_from: ["$.state.invoice_fields", "$.inputs.po_reference", "$.inputs.expected_amount"]
+    outputs_to: "$.state.validation_result"
+    output_schema:
+      type: object
+      required: [po_match, amount_match, discrepancy_amount, discrepancy_flag]
+    idempotency_key: "{{ run_id }}-po-validate"
+    timeout_ms: 8000
+
+  - id: "discrepancy_review_gate"
+    type: "human_in_loop"
+    acap_tier: 1
+    trigger_condition: "$.state.validation_result.discrepancy_flag == true OR $.state.invoice_fields.total_amount > 50000"
+    approvers: ["role:finance-controller"]
+    timeout_seconds: 86400
+    escalation_path: "role:cfo"
+    skip_condition: "$.state.validation_result.discrepancy_flag == false AND $.state.invoice_fields.total_amount <= 50000"
+    idempotency_key: "{{ run_id }}-discrepancy-review"
+
+  - id: "odoo_invoice_post"
+    type: "tool_call"
+    acap_tier: 2
+    tool: "mcp://odoo19/account_move.create_and_post"
+    inputs_from: ["$.state.invoice_fields", "$.state.validation_result", "$.inputs.vendor_id"]
+    outputs_to: "$.state.odoo_invoice"
+    output_schema:
+      type: object
+      required: [invoice_id, journal_entry_id, posted_at]
+    idempotency_key: "{{ run_id }}-odoo-post"
+    compensation:
+      action: "mcp://odoo19/account_move.reset_to_draft"
+      trigger: "on_downstream_failure"
+    timeout_ms: 10000
+
+  - id: "payment_followup"
+    type: "tool_call"
+    acap_tier: 2
+    skill_binding:
+      skill_id: "finance.payments"
+      version_pin: "^1.0"
+      fallback: "native_payment_stub"
+    tool: "mcp://odoo19/payment_followup.send"
+    inputs_from: ["$.state.odoo_invoice", "$.inputs.vendor_id"]
+    outputs_to: "$.state.followup_result"
+    output_schema:
+      type: object
+      required: [followup_sent, due_date]
+    idempotency_key: "{{ run_id }}-payment-followup"
+    timeout_ms: 5000
+
+  - id: "audit_close"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "audit.close_run"
+    inputs_from: ["$.state.odoo_invoice", "$.state.validation_result", "$.state.followup_result"]
+    outputs_to: "$.outputs"
+    idempotency_key: "{{ run_id }}-audit-close"
+    timeout_ms: 3000
+
+guards:
+  pre_run:
+    - "inputs.invoice_uri != null"
+    - "inputs.vendor_id.length > 0"
+  per_step: true
+
+acap_profile:
+  identity_scope: "invoice-ar-agent"
+  permitted_actions:
+    [invoice_extraction, po_validation, odoo_invoice_post, payment_followup, audit_close]
+  prohibited_actions:
+    [financial_disbursement_above_limit, contract_signing, audit_record_deletion]
+  checkpoints:
+    at_steps: [discrepancy_review_gate]
+    approver_roles: ["finance-controller"]
+  authority_expansion: "requires_re_authorization"
+
+loop_bounds:
+  max_iterations: 5
+  max_wall_time_seconds: 300
+  cost_ceiling_usd: 0.75
+  stuck_detection:
+    similarity_threshold: 0.90
+    stuck_window: 3
+    on_stuck: "escalate_human"
+
+metadata:
+  tags: ["invoice", "ar", "accounts-receivable", "odoo", "finance", "recycling"]
+  domain_pack: "industrial-recycling-v1"
+  created_at: "2026-06-10T00:00:00Z"
+  changelog: "v1.0.0: Initial L9-aligned playbook"
+  harvest_sources:
+    - "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/software-payments/SKILL.md"
+    - "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/document-pdf/SKILL.md"
+    - "Frontier-Grade-AI-Playbook-Architecture.md — canonical PlaybookSpec schema"

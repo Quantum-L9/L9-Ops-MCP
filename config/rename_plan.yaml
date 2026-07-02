@@ -1,0 +1,28 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+- component_id: intake_layer
+  current_name: Artifact Intake Layer
+  canonical_name: l9_intake_layer
+  reason: Canonical name describes durable function instead of pack history or temporary
+    phase naming.
+- component_id: inventory_node
+  current_name: Constellation Inventory Node Phase3 L9 Alignment Pack v3 1
+  canonical_name: l9_inventory_node
+  reason: Canonical name describes durable function instead of pack history or temporary
+    phase naming.
+- component_id: action_governor
+  current_name: Action Governor
+  canonical_name: l9_action_governor
+  reason: Canonical name describes durable function instead of pack history or temporary
+    phase naming.
+- component_id: remediation_engine
+  current_name: Remediation Engine
+  canonical_name: l9_remediation_engine
+  reason: Canonical name describes durable function instead of pack history or temporary
+    phase naming.

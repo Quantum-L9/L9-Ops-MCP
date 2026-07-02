@@ -1,0 +1,45 @@
+{
+  "$id": "https://identityos.dev/schemas/profile.schema.json",
+  "_l9_meta": {
+    "origin": "identityos-harvest",
+    "source_date": "2026-05-16",
+    "layer": "schema",
+    "status": "active",
+    "retrieval_keys": [
+      "profile",
+      "user_profile",
+      "profile_id",
+      "default_trust_level"
+    ]
+  },
+  "type": "object",
+  "required": [
+    "profile_id",
+    "display_name"
+  ],
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "default_trust_level": {
+      "enum": [
+        "L0",
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "description": "Default trust level granted to agents for this profile"
+    },
+    "allowed_substrates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

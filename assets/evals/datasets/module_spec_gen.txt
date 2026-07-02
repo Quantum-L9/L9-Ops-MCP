@@ -1,0 +1,1 @@
+Generate a complete Module-Spec-v2.5.yaml for a Slack adapter: receives webhooks, HMAC-verifies, threads with UUIDv5, calls AIOS /chat, stores PacketEnvelopeIn.

@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: l9-ops-mcp
+Version: 0.3.0
+Summary: L9 MCP operations control plane for TransportPacket routing, skill/kernel retrieval, and downstream agent consumers.
+Requires-Python: >=3.11
+Requires-Dist: pydantic>=2.8
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: structlog>=24.0

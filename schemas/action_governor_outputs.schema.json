@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "L9 action governor outputs schema",
+  "type": "object",
+  "additionalProperties": true
+}

@@ -1,0 +1,114 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: model_governance_kernel.v1
+version: 1.0.0
+ring: R5
+category: developer_support
+title: Model-tier capability gate and governance
+purpose: 'Governs model-tier transitions in the L9 system: defines capability assessment gates for moving agent tasks between
+  model tiers (economy, standard, frontier), enforces eval pass requirements before tier promotions, and logs all tier routing
+  decisions for audit.'
+activation_phase: on_demand
+status: active
+
+description: |
+  CAPABILITY: Govern model tier selection, cost guards, and routing decisions across agent runs.
+  Use when: deciding which model tier to use, promoting a task to a higher tier, enforcing cost ceilings, or routing between models.
+  Do NOT use when: the model is fixed by the user or task, or when no cost/tier decision is in play.
+  Signals: model selection, tier promotion, cost guard, routing decision, escalate to opus, downgrade to haiku, budget ceiling, which model, model governance
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-10: establishes formal model-tier governance — capability assessment gates, eval-pass requirement
+    for tier promotion, cost guard, and tier routing audit log.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - model_governance
+  - model_tier
+  - capability_gate
+  - tier_routing
+  - cost_guard
+  - audit
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires:
+- developer_core_kernel.v1
+init:
+  behavior: 'On load, activate model-tier routing governance. Three tiers: ECONOMY (haiku-class, tasks with confidence >=
+    0.85, cost < $0.002/call), STANDARD (sonnet-class, default, confidence 0.6-0.85 or complexity >= MEDIUM), FRONTIER (opus-class,
+    confidence < 0.6 or complexity HIGH or destructive action). Tier promotions require eval_harness_kernel evidence: >= 5
+    task fixtures passing at the target tier. Cost guard blocks FRONTIER use > $2.00/session without Igor explicit override.
+    All routing decisions append to tier-routing-audit.jsonl.'
+  overload_weight: 1.0
+  session_hooks:
+  - hook: tier_routing_log
+    trigger: on_every_turn
+    description: After each model call, append routing decision (task_id, tier_selected, confidence, cost, rationale) to tier-routing-audit.jsonl.
+  - hook: cost_guard
+    trigger: on_every_turn
+    description: After each FRONTIER call, accumulate session cost. Emit warning at $1.00 cumulative. Block at $2.00 without
+      override.
+  locked_fields:
+  - field: frontier_session_cost_limit
+    locked_value: 2.0
+    unlock_authority: Igor Beylin
+
+hard_bans:
+- MUST NOT route a task to FRONTIER tier without a documented confidence score or complexity classification justifying it.
+- MUST NOT promote an agent capability to a higher model tier without eval_harness_kernel evidence of >= 5 passing fixtures
+  at the target tier.
+- MUST NOT allow cumulative FRONTIER spend to exceed $2.00 per session without an explicit Igor Beylin override in the session
+  log.
+- MUST NOT skip tier routing audit logging — every model call must produce a tier-routing-audit.jsonl entry.
+- MUST NOT use ECONOMY tier for tasks classified as destructive_action, auth_change, or data_deletion.
+fail_closed: true
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  amplifies:
+  - kernel_id: eval_harness_kernel.v1
+    multiplier: 1.6
+  max_overlap_percent: 20
+routing_hints:
+  relevance_keywords:
+  - model_tier
+  - tier_routing
+  - capability_gate
+  - cost_guard
+  - frontier
+  - economy
+  - model_governance
+  - tier_promotion
+  artifact_types:
+  - yaml_spec
+  - json_schema
+  objective_classes:
+  - audit
+  - meta
+  - build
+  leverage_score: 9.0
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-11: confidence scoring method for moderouter not yet formalized'
+sha256: 73ed644059dc40a2db8fd2c0794ca12367cf30cabf941ebddd036d46e6c463b8

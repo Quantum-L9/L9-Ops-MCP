@@ -1,0 +1,19 @@
+# L9_META: origin: l9-kernel | layer: evals | status: active
+# Eval fixture for optimize-kernel skill
+# File: evals/datasets/optimize-kernel-fixture.yaml
+
+- description: "Kernel missing Tier 1 structure"
+  input:
+    kernel_content: |
+      l9_schema: 1
+      origin: test-repo
+      owner: platform
+      status: active
+      use_when: "code tasks"
+      rules:
+        - MUST use TransportPacket
+  expected:
+    tier_1_present: false
+    trigger_triad_satisfied: false
+    audit_report_present: true
+    version_bumped: true

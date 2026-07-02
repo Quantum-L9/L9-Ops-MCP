@@ -1,0 +1,46 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: NodeSpec
+description: Typed handoff object — Step 01 through Step 03 of new-constellation-node playbook
+version: "1.0.0"
+type: object
+required:
+  - node_id
+  - actions
+  - domain
+  - priority_class
+  - type
+properties:
+  node_id:
+    type: string
+    pattern: "^[a-z0-9][a-z0-9-]{0,62}$"
+    description: Lowercase hyphenated node identifier
+  actions:
+    type: array
+    items:
+      type: string
+      pattern: "^[a-z0-9][a-z0-9-]{0,63}$"
+    minItems: 1
+    description: Gate-routable actions this node handles
+  domain:
+    type: string
+    minLength: 1
+    description: Business domain this node belongs to
+  priority_class:
+    type: string
+    enum: [P0, P1, P2, P3]
+    default: P2
+  type:
+    type: string
+    enum: [worker, orchestrator]
+  internal_url:
+    type: string
+    format: uri
+    description: "Optional — defaults to http://{node_id}:8000"

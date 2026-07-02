@@ -1,0 +1,190 @@
+# ── Add these jobs to l11-debt-governance.yaml ──
+
+  # ════════════════════════════════════════════════════════════
+  # JOB 7: Protected Files Gate (NEW — Spec v6.0.0)
+  # ────────────────────────────────────────────────────────────
+  # Fail-closed: blocks merge if protected files modified
+  # without LCTO_APPROVED / IGOR_APPROVED label or commit token.
+  # Self-protecting: validator + policy + workflow are protected.
+  # ════════════════════════════════════════════════════════════
+  protected-files:
+    name: "🛡️ Protected Files Gate"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Dependencies
+        run: pip install pyyaml structlog
+
+      - name: Run Protected Files Validator
+        env:
+          PR_LABELS: "${{ join(github.event.pull_request.labels.*.name, ',') }}"
+        run: python .github/scripts/validate-protected-files-v6.py
+
+      - name: Upload Gate Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: protected-files-gate-report
+          path: protected_files_gate_report.json
+
+
+  # ════════════════════════════════════════════════════════════
+  # JOB: Drift Reconciliation (Nightly — Spec v6.0.0)
+  # ────────────────────────────────────────────────────────────
+  # Detects drift between policy YAML, validator script,
+  # workflow file, and GitHub ruleset configuration.
+  # ════════════════════════════════════════════════════════════
+  drift-reconciliation:
+    name: "🔍 Drift Reconciliation"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Dependencies
+        run: pip install pyyaml structlog
+
+      - name: Check Policy-Validator-Workflow Consistency
+        run: |
+          python3 << 'DRIFT_CHECK'
+          import yaml, json, sys, hashlib
+          from pathlib import Path
+
+          POLICY = Path("config/policies/protected_files.yaml")
+          VALIDATOR = Path(".github/scripts/validate-protected-files-v6.py")
+          WORKFLOW = Path(".github/workflows/l11-debt-governance.yaml")
+
+          drift_issues = []
+
+          # 1. Policy exists
+          if not POLICY.exists():
+              drift_issues.append("CRITICAL: Policy file missing: " + str(POLICY))
+
+          # 2. Validator exists
+          if not VALIDATOR.exists():
+              drift_issues.append("CRITICAL: Validator missing: " + str(VALIDATOR))
+
+          # 3. Workflow references correct validator path
+          if WORKFLOW.exists():
+              wf_content = WORKFLOW.read_text()
+              if "validate-protected-files-v6.py" not in wf_content:
+                  drift_issues.append("DRIFT: Workflow does not reference v6 validator")
+              if "Protected Files Gate" not in wf_content:
+                  drift_issues.append("DRIFT: Workflow missing Protected Files Gate job")
+
+          # 4. Policy version check
+          if POLICY.exists():
+              policy = yaml.safe_load(POLICY.read_text())
+              version = policy.get("version", "unknown")
+              if version != "6.0.0":
+                  drift_issues.append(f"DRIFT: Policy version {version} != 6.0.0")
+
+          # 5. Meta-protection: policy lists itself
+          if POLICY.exists():
+              policy = yaml.safe_load(POLICY.read_text())
+              meta = policy.get("meta_protected_files", [])
+              for required in [str(POLICY), str(VALIDATOR), str(WORKFLOW)]:
+                  if required not in meta:
+                      drift_issues.append(f"DRIFT: {required} not in meta_protected_files")
+
+          # Report
+          if drift_issues:
+              print("🔴 DRIFT DETECTED:")
+              for issue in drift_issues:
+                  print(f"  - {issue}")
+              # Write for artifact
+              Path("drift_report.json").write_text(json.dumps({
+                  "drift_detected": True,
+                  "issues": drift_issues,
+              }, indent=2))
+              sys.exit(1)
+          else:
+              print("✅ No drift detected. Policy, validator, and workflow are consistent.")
+              Path("drift_report.json").write_text(json.dumps({
+                  "drift_detected": False,
+                  "issues": [],
+              }, indent=2))
+          DRIFT_CHECK
+
+      - name: Open Issue on Drift
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "🔍 Protected Files Drift Detected [$(date +%Y-%m-%d)]" \
+            --body "$(cat drift_report.json)" \
+            --label "governance,drift" \
+            || echo "Issue creation failed (may need label creation)"
+
+      - name: Upload Drift Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-reconciliation-report
+          path: drift_report.json
+
+# ── Replace the existing merge-gate job with this ──
+
+  merge-gate:
+    name: "✅ Merge Gate"
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - lint-typecheck-test
+      - adr-compliance
+      - ci-gates
+      - secrets-scan
+      - test-suite
+      - l11-tests
+      - protected-files          # ← NEW
+    steps:
+      - name: Check All Gates
+        run: |
+          echo "Gate Results:"
+          echo "  Lint, typecheck, test-fast:  ${{ needs.lint-typecheck-test.result }}"
+          echo "  ADR Compliance:             ${{ needs.adr-compliance.result }}"
+          echo "  CI Gates:                   ${{ needs.ci-gates.result }}"
+          echo "  Secrets Scan:               ${{ needs.secrets-scan.result }}"
+          echo "  Tests + Coverage:           ${{ needs.test-suite.result }}"
+          echo "  L11 Component Tests:        ${{ needs.l11-tests.result }}"
+          echo "  Protected Files Gate:       ${{ needs.protected-files.result }}"
+
+          # protected-files only runs on PRs — treat skipped as success for push/schedule
+          PF_RESULT="${{ needs.protected-files.result }}"
+          if [[ "$PF_RESULT" == "skipped" ]]; then
+            PF_RESULT="success"
+          fi
+
+          if [[ \
+            "${{ needs.lint-typecheck-test.result }}" == "success" && \
+            "${{ needs.adr-compliance.result }}" == "success" && \
+            "${{ needs.ci-gates.result }}" == "success" && \
+            "${{ needs.secrets-scan.result }}" == "success" && \
+            "${{ needs.test-suite.result }}" == "success" && \
+            "${{ needs.l11-tests.result }}" == "success" && \
+            "$PF_RESULT" == "success" \
+          ]]; then
+            echo "✅ All gates passed. Merge allowed."
+          else
+            echo "❌ One or more gates failed. Merge blocked."
+            exit 1
+          fi

@@ -1,0 +1,2 @@
+[console_scripts]
+l9-action-governor = l9_action_governor.cli:main

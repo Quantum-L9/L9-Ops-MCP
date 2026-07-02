@@ -1,0 +1,152 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# L9 Playbook: Document Extraction Pipeline
+# Disposition: FORK_AND_MODIFY (storious/agent-playbook + vasilyu1983 document skills)
+# Zero-custom-skills capable: falls back to native_prompt for each extraction step
+
+id: "document-extraction-v1"
+spec_version: "l9.playbook/1.0"
+version: "1.0.0"
+name: "Document Extraction Pipeline"
+description: >
+  Universal document ingestion and structured extraction: detect format →
+  extract with appropriate skill (PDF/DOCX/XLSX) → validate schema →
+  normalize fields → write to target store. Supports batch (map) mode.
+owner:
+  team: "data-ops"
+  contact: "data@cryptoxdog"
+risk_tier: 1
+
+sla:
+  max_duration_seconds: 1800
+  max_cost_usd: 0.25
+  latency_budget_p95_ms: 20000
+
+inputs:
+  document_uris: { type: array, items: { type: string, format: uri }, required: true }
+  target_schema: { type: object, required: true, description: "Expected output field schema" }
+  output_store:  { type: string, required: false, default: "postgres://l9_documents" }
+
+outputs:
+  extracted_records: { type: array }
+  failed_documents:  { type: array }
+  extraction_summary: { type: object }
+
+steps:
+  - id: "format_detection"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "doc_utils.detect_format"
+    inputs_from: ["$.inputs.document_uris"]
+    outputs_to: "$.state.format_map"
+    output_schema:
+      type: object
+      description: "Map of uri → detected format (pdf|docx|xlsx|unknown)"
+    idempotency_key: "{{ run_id }}-format-detect"
+    timeout_ms: 5000
+
+  - id: "batch_extraction"
+    type: "map"
+    acap_tier: 2
+    over: "$.inputs.document_uris"
+    concurrency: 5
+    collect_to: "$.state.raw_extractions"
+    step:
+      id: "single_doc_extract"
+      type: "llm_reasoning"
+      skill_binding:
+        skill_id: "document.pdf"
+        version_pin: "^1.0"
+        fallback: "native_prompt"
+      inputs_from: ["$.item", "$.state.format_map[$.item]", "$.inputs.target_schema"]
+      outputs_to: "$.state.raw_extractions[$.index]"
+      output_schema:
+        type: object
+        required: [fields, confidence, source_uri]
+      retry: { max_attempts: 2, backoff_seconds: 3, idempotency_key: "{{ run_id }}-extract-{{ item_hash }}" }
+      timeout_ms: 15000
+
+  - id: "schema_validation"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "schema_validator.validate_batch"
+    inputs_from: ["$.state.raw_extractions", "$.inputs.target_schema"]
+    outputs_to: "$.state.validated_records"
+    output_schema:
+      type: object
+      required: [valid_records, invalid_records, validation_errors]
+    idempotency_key: "{{ run_id }}-schema-validate"
+    timeout_ms: 5000
+
+  - id: "field_normalization"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "normalizer.normalize_fields"
+    inputs_from: ["$.state.validated_records.valid_records"]
+    outputs_to: "$.state.normalized_records"
+    idempotency_key: "{{ run_id }}-normalize"
+    timeout_ms: 5000
+
+  - id: "store_results"
+    type: "tool_call"
+    acap_tier: 2
+    tool: "mcp://postgres/records.upsert_batch"
+    inputs_from: ["$.state.normalized_records", "$.inputs.output_store"]
+    outputs_to: "$.state.store_result"
+    output_schema:
+      type: object
+      required: [records_written, store_path]
+    idempotency_key: "{{ run_id }}-store"
+    compensation:
+      action: "mcp://postgres/records.delete_by_run_id"
+      trigger: "on_downstream_failure"
+    timeout_ms: 8000
+
+  - id: "audit_close"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "audit.close_run"
+    inputs_from: ["$.state.store_result", "$.state.validated_records"]
+    outputs_to: "$.outputs"
+    idempotency_key: "{{ run_id }}-audit-close"
+    timeout_ms: 3000
+
+guards:
+  pre_run:
+    - "inputs.document_uris.length > 0"
+    - "inputs.target_schema != null"
+  per_step: true
+
+acap_profile:
+  identity_scope: "document-extraction-agent"
+  permitted_actions: [format_detection, batch_extraction, schema_validation, field_normalization, store_results]
+  prohibited_actions: [financial_disbursement, contract_signing]
+  checkpoints:
+    at_steps: []
+    approver_roles: []
+  authority_expansion: "requires_re_authorization"
+
+loop_bounds:
+  max_iterations: 10
+  max_wall_time_seconds: 300
+  cost_ceiling_usd: 0.25
+  stuck_detection:
+    similarity_threshold: 0.90
+    stuck_window: 3
+    on_stuck: "escalate_human"
+
+metadata:
+  tags: ["document", "extraction", "pdf", "docx", "data-ops"]
+  domain_pack: "industrial-recycling-v1"
+  created_at: "2026-06-10T00:00:00Z"
+  changelog: "v1.0.0: Initial L9-aligned playbook"
+  harvest_sources:
+    - "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/document-pdf/SKILL.md"
+    - "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/document-docx/SKILL.md"
+    - "storious/agent-playbook#.agent/workflows/ — phase gate + step pattern"

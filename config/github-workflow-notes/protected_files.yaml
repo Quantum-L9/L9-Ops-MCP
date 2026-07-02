@@ -1,0 +1,92 @@
+# ══════════════════════════════════════════════════════════════
+# L9 Protected Files Policy — Source of Truth
+# ══════════════════════════════════════════════════════════════
+# Loaded by: core/governance/protected_files_policy.py
+# Enforced by: .github/scripts/validate-protected-files-v6.py
+# Spec: L9 Protected Files Enforcement System v6.0.0
+#
+# DORA:
+#   component_id: PFP-FOUND-001
+#   tier: foundation
+#   lifecycle: production
+#   owner: LCTO
+# ══════════════════════════════════════════════════════════════
+
+version: "6.0.0"
+enforcement_mode: fail_closed
+
+categories:
+  lcto_controlled:
+    description: "LCTO-controlled surfaces (infra + governance core)"
+    approval_required: true
+    approval_authority:
+      - LCTO
+      - IGOR
+    protected_paths:
+      # Runtime core
+      - runtime/websocket_orchestrator.py
+      - runtime/kernel_loader.py
+      - runtime/redis_client.py
+      - core/agents/executor.py
+
+      # Docker / Infra
+      - Dockerfile
+      - "Dockerfile.*"
+      - docker-compose.yml
+      - docker-compose.prod.yml
+      - .dockerignore
+
+      # Core dependency + packaging
+      - pyproject.toml
+      - requirements.txt
+      - "requirements-*.txt"
+      - Makefile
+
+      # Governance system (meta-protection)
+      - "config/policies/**"
+      - "core/governance/**"
+      - ".github/workflows/**"
+      - ".github/scripts/**"
+
+      # Repo security posture
+      - .gitleaks.toml
+      - .pre-commit-config.yaml
+      - codecov.yml
+      - ruff.toml
+      - pytest.ini
+
+  subsystem_protected:
+    description: "Subsystem ownership enforcement"
+    subsystems:
+      agents:
+        owner: L
+        protected_paths:
+          - core/agents/executor.py
+          - core/agents/registry.py
+          - core/agents/__init__.py
+      memory:
+        owner: L
+        protected_paths:
+          - memory/substrate_service.py
+          - memory/substrate_dag.py
+          - memory/__init__.py
+      tools:
+        owner: L
+        protected_paths:
+          - core/tools/registry_adapter.py
+          - core/tools/tool_graph.py
+          - core/tools/__init__.py
+
+approval_signals:
+  pr_labels:
+    - LCTO_APPROVED
+    - IGOR_APPROVED
+  commit_message_tokens:
+    - HIL_APPROVED
+    - IGOR_APPROVED
+
+meta_protected_files:
+  - config/policies/protected_files.yaml
+  - .github/scripts/validate-protected-files-v6.py
+  - .github/workflows/l11-debt-governance.yaml
+  - core/governance/protected_files_policy.py

@@ -1,0 +1,52 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+- decision_id: decision_action_governor
+  rank: 1
+  component_id: action_governor
+  component_name: Action Governor
+  canonical_name: l9_action_governor
+  decision_class: remediate_now
+  priority_score: 95
+  confidence: high
+  reason: Action Governor has runtime findings and governance criticality 95.
+  next_action: Create remediation plan for l9_action_governor before new feature work.
+  evidence:
+  - converts reports into execution decisions
+  - governance
+  - node_type=governance_component
+  - outputs exist but are not yet ranked into queues
+  - repo
+  - runtime
+  dependencies:
+  - inventory_node
+  - governance_graph_ir
+  risks: []
+  target_folder: /l9_system/06_action_governor
+  approval_required: true
+- decision_id: decision_inventory_node
+  rank: 3
+  component_id: inventory_node
+  component_name: Constellation Inventory Node Phase3 L9 Alignment Pack v3 1
+  canonical_name: l9_inventory_node
+  decision_class: rename
+  priority_score: 74
+  confidence: medium
+  reason: Constellation Inventory Node Phase3 L9 Alignment Pack v3 1 requires further
+    evidence before irreversible action.
+  next_action: Approve rename to l9_inventory_node.
+  evidence:
+  - current name is phase/revision artifact
+  - governance
+  - node_type=repo_component
+  - repo
+  dependencies:
+  - intake_layer
+  risks: []
+  target_folder: /l9_system/02_inventory_node
+  approval_required: true

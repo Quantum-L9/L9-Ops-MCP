@@ -1,0 +1,24 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+- component_id: intake_layer
+  current_path: null
+  target_folder: /l9_system/01_intake
+  reason: Target folder follows L9 authority placement and build sequence.
+- component_id: inventory_node
+  current_path: /packs/constellation_inventory_node_phase3_l9_alignment_pack_v3_1
+  target_folder: /l9_system/02_inventory_node
+  reason: Target folder follows L9 authority placement and build sequence.
+- component_id: action_governor
+  current_path: null
+  target_folder: /l9_system/06_action_governor
+  reason: Target folder follows L9 authority placement and build sequence.
+- component_id: remediation_engine
+  current_path: null
+  target_folder: /l9_system/07_remediation_engine
+  reason: Target folder follows L9 authority placement and build sequence.

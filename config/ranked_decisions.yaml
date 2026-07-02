@@ -1,0 +1,96 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+- decision_id: decision_action_governor
+  rank: 1
+  component_id: action_governor
+  component_name: Action Governor
+  canonical_name: l9_action_governor
+  decision_class: remediate_now
+  priority_score: 95
+  confidence: high
+  reason: Action Governor has runtime findings and governance criticality 95.
+  next_action: Create remediation plan for l9_action_governor before new feature work.
+  evidence:
+  - converts reports into execution decisions
+  - governance
+  - node_type=governance_component
+  - outputs exist but are not yet ranked into queues
+  - repo
+  - runtime
+  dependencies:
+  - inventory_node
+  - governance_graph_ir
+  risks: []
+  target_folder: /l9_system/06_action_governor
+  approval_required: true
+- decision_id: decision_intake_layer
+  rank: 2
+  component_id: intake_layer
+  component_name: Artifact Intake Layer
+  canonical_name: l9_intake_layer
+  decision_class: build_now
+  priority_score: 86
+  confidence: medium
+  reason: Artifact Intake Layer has strategic value 95 and readiness 85.
+  next_action: Create or harden l9_intake_layer in /l9_system/01_intake.
+  evidence:
+  - all downstream components require artifact inventory
+  - governance
+  - node_type=repo_component
+  - repo
+  dependencies: []
+  risks: []
+  target_folder: /l9_system/01_intake
+  approval_required: true
+- decision_id: decision_inventory_node
+  rank: 3
+  component_id: inventory_node
+  component_name: Constellation Inventory Node Phase3 L9 Alignment Pack v3 1
+  canonical_name: l9_inventory_node
+  decision_class: rename
+  priority_score: 74
+  confidence: medium
+  reason: Constellation Inventory Node Phase3 L9 Alignment Pack v3 1 requires further
+    evidence before irreversible action.
+  next_action: Approve rename to l9_inventory_node.
+  evidence:
+  - current name is phase/revision artifact
+  - governance
+  - node_type=repo_component
+  - repo
+  dependencies:
+  - intake_layer
+  risks: []
+  target_folder: /l9_system/02_inventory_node
+  approval_required: true
+- decision_id: decision_remediation_engine
+  rank: 4
+  component_id: remediation_engine
+  component_name: Remediation Engine
+  canonical_name: l9_remediation_engine
+  decision_class: escalate
+  priority_score: 68
+  confidence: high
+  reason: Remediation Engine is blocked by approval workflow not implemented, rollback
+    policy not implemented and requires governed escalation.
+  next_action: Resolve blocker authority and re-run Action Governor.
+  evidence:
+  - governance
+  - mutation authority not approved for MVP
+  - node_type=runtime_component
+  - repo
+  - runtime
+  dependencies:
+  - action_governor
+  risks:
+  - high_drift
+  - blocked_by_dependencies_or_authority
+  - runtime_risk
+  target_folder: /l9_system/07_remediation_engine
+  approval_required: true

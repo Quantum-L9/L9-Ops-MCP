@@ -1,0 +1,72 @@
+{
+  "title": "L9 IgorOS Integrated Pack",
+  "version": "3.4.0",
+  "created": "2026-06-18",
+  "owner": "Igor Beylin",
+  "description": "Full integrated L9 agent kernel pack with IgorOS identity, soul, preferences, memory, strategy, and module-spec skills wired and indexed.",
+  "changes_from_v3.3.0": [
+    "Added soul_kernel.v1 (R0) \u2014 from IgorOS/SOUL.md, fully realigned with canonical headers",
+    "Added preferences_kernel.v1 (R5) \u2014 consolidated from two duplicate PREFERENCES YAML files",
+    "Added docs/profiles/USER.md \u2014 operator identity, cognitive profile, collaboration contract",
+    "Added skills/memory/cursor-memory-kernel/SKILL.md \u2014 5-layer memory injection protocol",
+    "Added skills/strategy/blue-sky-analysis/SKILL.md \u2014 universal strategic expansion analysis",
+    "Added skills/coding/generate-module-spec/SKILL.md \u2014 L9 SuperPrompt v2.5 module spec workflow",
+    "Updated AGENTS.md to v3.4.0 \u2014 registers all new kernels and skills with ring and category",
+    "Added Makefile \u2014 harvest, validate, health, lint, eval, skill-audit, zip targets",
+    "Added scripts/validate_headers.py \u2014 canonical header enforcement",
+    "Added scripts/library_health.py \u2014 stale/rot/missing field detection",
+    "Added scripts/skill_endpoint_audit.py \u2014 custom skill audit (all skills are custom)",
+    "Added evals/promptfooconfig.yaml \u2014 8-test eval suite",
+    "Added evals/datasets/ \u2014 5 prompt fixtures"
+  ],
+  "out_of_scope": [
+    "L9_Constellation_CKL_v1.0.md (superseded)",
+    "Domain Enrichment Architecture briefs",
+    "3rd party skills (all skills are custom)",
+    "LangSmith",
+    "Journal, dance studio, equipment manuals, photos (personal/ops)"
+  ],
+  "kernel_count": 47,
+  "skill_count": 4,
+  "ring_distribution": {
+    "R0": 4,
+    "R1": 6,
+    "R2": 4,
+    "R3": 5,
+    "R4": 5,
+    "R5": 23,
+    "R6": 2
+  },
+  "files": {
+    "AGENTS.md": "Master kernel and skill registry TOC",
+    "Makefile": "Automation: harvest, validate, health, lint, eval, zip",
+    "docs/profiles/USER.md": "Igor Beylin operator profile (v5.0.0)",
+    "docs/kernels/R0/soul_kernel.v1.yaml": "L9 agent identity and runtime laws",
+    "docs/kernels/R5/preferences_kernel.v1.yaml": "Igor collaboration preferences (v5.0.0)",
+    "skills/memory/cursor-memory-kernel/SKILL.md": "Cursor agent memory protocol",
+    "skills/strategy/blue-sky-analysis/SKILL.md": "Universal strategic expansion analysis",
+    "skills/coding/generate-module-spec/SKILL.md": "L9 module spec generator (v2.5 workflow)",
+    "scripts/validate_headers.py": "Canonical header validator",
+    "scripts/library_health.py": "Library health check with rot detection",
+    "scripts/skill_endpoint_audit.py": "Custom skill audit (exits 1 on failure)",
+    "evals/promptfooconfig.yaml": "Promptfoo eval suite (8 tests)",
+    "evals/datasets/": "5 eval prompt fixtures"
+  },
+  "source_files_harvested": {
+    "IgorOS/SOUL.md": "soul_kernel.v1.yaml \u2014 fully realigned",
+    "IgorOS/USER.md": "docs/profiles/USER.md \u2014 canonical header added",
+    "IgorOS/PREFERENCES_v4.5.yaml": "preferences_kernel.v1.yaml \u2014 deduplicated and promoted",
+    "IgorOS/Igor_Beylin_Preferences_v4.5.yaml": "MERGED into preferences_kernel.v1.yaml (duplicate removed)",
+    "IgorOS/cursor_memory_kernel.yaml": "skills/memory/cursor-memory-kernel/SKILL.md \u2014 wrapped as skill",
+    "IgorOS/Blue-Sky-Universal.md": "skills/strategy/blue-sky-analysis/SKILL.md \u2014 wrapped as skill",
+    "IgorOS/L9-SuperPrompt-Canonical-v2.5.md": "skills/coding/generate-module-spec/SKILL.md \u2014 extracted 6-pass workflow"
+  },
+  "immediate_next_steps": [
+    "P1: Run `make validate` \u2014 confirm all existing kernels pass canonical header check",
+    "P2: Run `make health` \u2014 surface any stale or missing-field kernels in existing R0-R6 set",
+    "P3: Run `make skill-audit` \u2014 verify cursor-memory-kernel, blue-sky, generate-module-spec",
+    "P4: Optimize existing 9 kernels using optimize-kernel skill against KERNEL_DOCTRINE.md",
+    "P5: Run `make eval` after stub datasets are expanded with golden outputs",
+    "P6: Create `infra/skill_endpoint_audit.py` cron stub (referenced in USER.md Skill-First Law)"
+  ]
+}

@@ -1,0 +1,21 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+findings:
+  - component_id: remediation_engine
+    severity: high
+    finding_type: unsafe_autonomy_risk
+    description: Remediation must not mutate files before approval and rollback controls exist.
+    evidence:
+      - mutation authority not approved for MVP
+  - component_id: action_governor
+    severity: medium
+    finding_type: missing_component
+    description: Action Governor is the missing decision layer.
+    evidence:
+      - outputs exist but are not yet ranked into queues

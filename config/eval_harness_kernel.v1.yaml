@@ -1,0 +1,108 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: eval_harness_kernel.v1
+version: 1.0.0
+ring: R5
+category: developer_support
+title: Agent eval harness and task fixture runner
+purpose: 'Defines the canonical evaluation harness for measuring L9 agent behavior quality: task success rate, tool call efficiency,
+  token cost, and pass/fail threshold enforcement against versioned task fixtures.'
+activation_phase: on_demand
+status: active
+
+description: |
+  CAPABILITY: Build eval suites, golden datasets, and regression tests required before declaring a capability shipped.
+  Use when: declaring a shipped capability, writing evals, building a test suite, or setting up regression testing.
+  Do NOT use when: exploratory work with no shipped capability claim.
+  Signals: eval, test suite, golden dataset, regression test, ship capability, prove it works, eval harness, test coverage, validate output
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-02: establishes eval-driven development for agent outputs. Defines fixture schema, runner contract,
+    CI threshold progression, and ACI ergonomics measurement.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - eval
+  - agent_quality
+  - task_fixtures
+  - tool_eval
+  - ci_gate
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires:
+- developer_core_kernel.v1
+init:
+  behavior: On load, activate task fixture schema enforcement, eval runner contract, tool-call recorder, and CI gate threshold
+    rules. Enforce that eval fixtures exist before any new agent capability is declared shipped. Block eval claims without
+    runner execution evidence.
+  overload_weight: 1.2
+  session_hooks:
+  - hook: eval_fixture_guard
+    trigger: on_artifact_emit
+    description: Before emitting any agent task artifact, verify an eval fixture exists for the capability. Emit fixture scaffold
+      if missing.
+  - hook: eval_claim_blocker
+    trigger: on_every_turn
+    description: Block any claim of agent task success without eval runner output evidence (eval-report.json or equivalent).
+
+hard_bans:
+# Universal bans (no-fabrication, no-silent-fail) live in doctrines/universal_hardbans.md
+- MUST NOT declare an agent capability shipped without a corresponding eval fixture in tests/evals/fixtures/.
+- MUST NOT claim eval pass without eval-report.json produced by runner.py with real model inference — mocked model calls are
+  not valid eval evidence.
+- MUST NOT set CI Gate 8 to blocking before eval fixture library contains >= 10 fixtures.
+- MUST NOT emit eval-report.json without validating it against schemas/eval-report.schema.yaml.
+fail_closed: false
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  amplifies:
+  - kernel_id: test_strategy_kernel.v1
+    multiplier: 1.8
+  - kernel_id: code_review_ci_kernel.v1
+    multiplier: 1.4
+  max_overlap_percent: 20
+routing_hints:
+  relevance_keywords:
+  - eval
+  - evaluation
+  - agent_quality
+  - task_fixture
+  - pass_rate
+  - tool_call_count
+  - eval_harness
+  - benchmark
+  artifact_types:
+  - yaml_spec
+  - json_schema
+  - code
+  objective_classes:
+  - test
+  - audit
+  - build
+  leverage_score: 8.5
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-04: eval fixture count threshold (10) not yet validated in CI'
+sha256: de8ef7687ea651e70c2da10bb10e2ed502859df59833fbc7e224d48b30a397c2

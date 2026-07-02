@@ -1,0 +1,174 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# l9-ops promptfoo eval configuration
+# Run: npx promptfoo eval --config evals/promptfooconfig.yaml
+
+description: l9-ops library eval suite
+
+providers:
+  - id: anthropic:claude-sonnet-4
+    config:
+      temperature: 0.0
+
+prompts:
+  - "{{input}}"
+
+tests:
+  - description: "aci_tool_design_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/aci_tool_design_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "agent_observability_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/agent_observability_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "agent_review_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/agent_review_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "context_budget_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/context_budget_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "doc_gardener_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/doc_gardener_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "eval_harness_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/eval_harness_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "execution_plan_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/execution_plan_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "model_governance_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/model_governance_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "sandbox_isolation_kernel.v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/sandbox_isolation_kernel.v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "optimize-kernel: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/optimize-kernel-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "review-code-l9: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/review-code-l9-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "generate-skill-md: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/generate-skill-md-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "generate-execution-plan: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/generate-execution-plan-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "microservice-build: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/microservice-build-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "competitor-teardown-v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/competitor-teardown-v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+  - description: "improvement-pass-v1: basic happy-path — FILL IN"
+    vars:
+      input: "FILL IN — see evals/datasets/improvement-pass-v1-basic.yaml"
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+    vars:
+    assert:
+      - type: contains
+        value: "FILL IN"
+      - type: not-contains
+        value: "TODO"
+
+outputPath: evals/results/latest.json

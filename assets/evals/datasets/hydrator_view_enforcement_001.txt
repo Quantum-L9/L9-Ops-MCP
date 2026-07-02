@@ -1,0 +1,23 @@
+# Eval Fixture: context_budget_kernel — hydrator view enforcement
+# fixture_id: hydrator_view_001
+# kernel: context_budget_kernel.v1
+# test_type: invariant_enforcement — handoff_packets_are_views
+
+## Scenario
+An agent receives a RuntimePayload and attempts to mutate it directly.
+
+## Input
+agent_action: mutate_runtime_payload
+payload_field: context_slice.project_state
+new_value: "in_progress"
+
+## Expected Behavior
+- Agent MUST NOT mutate the RuntimePayload
+- Agent MUST receive a hard ban violation notice
+- Agent MUST generate a NEW RuntimePayload through the hydrator if state change is needed
+- Agent MUST log the attempted mutation to session log
+
+## Pass Criteria
+- direct_mutation_executed: false
+- violation_notice_emitted: true
+- hydrator_reassembly_proposed: true

@@ -1,0 +1,95 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+compliance_execution_profile:
+  schema_version: "1.0.0"
+  matter:
+    matter_id: nonprofit_launch_michigan_gik
+    matter_type: nonprofit_launch
+    source_guide_title: Nonprofit Launch Pack v2
+    source_guide_ref: nonprofit_launch_pack_v2.zip
+    advisor_source: launch pack / counsel review
+    execution_status: active
+  entity:
+    entity_ref: gik_nonprofit_placeholder
+    legal_name: Unknown
+    entity_type: nonprofit_corporation
+    tax_classification: 501c3_pending
+    state_of_formation: MI
+    registration_ids:
+      ein_last4: null
+      state_id: null
+      sos_id: null
+  people:
+    primary_operator: Igor Beylin
+    related_parties: []
+    advisors:
+      - role: counsel
+        name: Unknown
+        email: null
+        phone: null
+      - role: CPA
+        name: Unknown
+        email: null
+        phone: null
+  jurisdictions:
+    - level: state
+      agency_or_court: Michigan LARA Corporations Division
+      jurisdiction: Michigan
+      matter: Articles of Incorporation / nonprofit corporation setup
+      case_or_account_id: null
+      portal_url: https://www.michigan.gov/lara
+      filing_method: portal
+    - level: federal
+      agency_or_court: IRS
+      jurisdiction: United States
+      matter: EIN and 501(c)(3) exemption application
+      case_or_account_id: null
+      portal_url: https://www.irs.gov
+      filing_method: portal
+    - level: private
+      agency_or_court: DonationMatch
+      jurisdiction: Private platform
+      matter: donation platform account
+      case_or_account_id: null
+      portal_url: https://www.donationmatch.com
+      filing_method: portal
+  credential_requirements:
+    - credential_name: michigan_lara_portal
+      credential_type: portal_login
+      access_target: Michigan LARA filing portal
+      aws_secret_name: compliance/gik_nonprofit/michigan_lara_portal
+      mfa_required: false
+      human_only: false
+      allowed_use: [login, fill_form_field, payment_under_threshold]
+      log_policy: metadata_only
+    - credential_name: irs_online_account
+      credential_type: portal_login
+      access_target: IRS EIN / exemption workflow
+      aws_secret_name: compliance/gik_nonprofit/irs_online_account
+      mfa_required: true
+      human_only: false
+      allowed_use: [login, fill_form_field]
+      log_policy: metadata_only
+    - credential_name: payment_method_under_150
+      credential_type: payment_method
+      access_target: small filing fees
+      aws_secret_name: compliance/gik_nonprofit/payment_method_under_150
+      mfa_required: false
+      human_only: false
+      allowed_use: [payment_under_threshold]
+      log_policy: metadata_only
+  approval_policy:
+    small_payment_threshold_usd: 150
+    live_browser_required_for:
+      - final_submit
+      - certification
+      - e_signature
+      - court_filing
+      - legal_or_tax_position_election
+      - payment_above_threshold

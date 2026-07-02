@@ -1,0 +1,132 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: skill
+# tags: retrieval, skill
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+registry_version: 1.1.0
+updated: '2026-06-18'
+path_policy: all paths are repository-relative and physically present
+skills:
+- skill_id: agent.generate-execution-plan
+  version: 1.0.0
+  path: skills/agent/generate-execution-plan/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: agents-project-memory
+  version: 1.0.0
+  path: skills/agents-project-memory/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: code.review-code-l9
+  version: 1.0.0
+  path: skills/code/review-code-l9/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: coding.generate-module-spec
+  version: 1.0.0
+  path: skills/coding/generate-module-spec/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: coding.review-code-l9
+  version: 1.0.0
+  path: skills/coding/review-code-l9/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: coding.scaffold-node
+  version: 1.0.0
+  path: skills/coding/scaffold-node/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: docs.generate-skill-md
+  version: 1.0.0
+  path: skills/docs/generate-skill-md/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: governance-hooks
+  version: 1.0.0
+  path: skills/governance-hooks/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: harness.optimize-kernel
+  version: 1.0.0
+  path: skills/harness/optimize-kernel/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: harness.validate-harness
+  version: 1.0.0
+  path: skills/harness/validate-harness/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: kernels.optimize-kernel
+  version: 1.0.0
+  path: skills/kernels/optimize-kernel/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: memory.cursor-memory-kernel
+  version: 1.0.0
+  path: skills/memory/cursor-memory-kernel/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: meta.optimize-kernel
+  version: 1.0.0
+  path: skills/meta/optimize-kernel/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: ops-recycling-compliance
+  version: 1.0.0
+  path: skills/ops-recycling-compliance/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'
+- skill_id: strategy.blue-sky-analysis
+  version: 1.0.0
+  path: skills/strategy/blue-sky-analysis/SKILL.md
+  description: Indexed local skill for scoped agent retrieval.
+  input_contract: see skill file
+  output_contract: see skill file
+  compatible_playbooks:
+  - '*'

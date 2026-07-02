@@ -1,0 +1,167 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# L9 Playbook: Multi-Agent Routing
+# Disposition: FORK_AND_MODIFY (dujonwalker/project-nova agent.yaml + SOUL.md pattern
+#               + madebyaris/agent-orchestration AGENTS.md + resource-lock pattern)
+
+id: "multi-agent-routing-v1"
+spec_version: "l9.playbook/1.0"
+version: "1.0.0"
+name: "Multi-Agent Routing — L9 Orchestrator"
+description: >
+  L9 master orchestrator: receives user intent → reads l9_agents.yaml registry →
+  acquires resource lock → selects domain-expert agent → delegates task →
+  collects result → releases lock → writes to shared memory → audit close.
+owner:
+  team: "platform-ops"
+  contact: "platform@cryptoxdog"
+risk_tier: 2
+
+sla:
+  max_duration_seconds: 1800
+  max_cost_usd: 0.30
+  latency_budget_p95_ms: 15000
+
+inputs:
+  user_intent:    { type: string, required: true }
+  session_id:     { type: string, required: true }
+  context_window: { type: object, required: false, description: "Prior session state" }
+
+outputs:
+  result:         { type: object }
+  assigned_agent: { type: string }
+  delegation_chain: { type: array }
+  audit_record_id: { type: string }
+
+steps:
+  - id: "intent_classification"
+    type: "llm_reasoning"
+    acap_tier: 2
+    skill_binding:
+      skill_id: "agents.swarm-orchestration"
+      version_pin: "^1.0"
+      fallback: "native_router_prompt"
+    inputs_from: ["$.inputs.user_intent", "$.inputs.context_window"]
+    outputs_to: "$.state.classified_intent"
+    output_schema:
+      type: object
+      required: [domain, task_type, risk_tier, required_capabilities]
+    retry: { max_attempts: 2, backoff_seconds: 2, idempotency_key: "{{ run_id }}-classify" }
+    timeout_ms: 8000
+
+  - id: "agent_registry_lookup"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "registry.lookup_agent"
+    inputs_from: ["$.state.classified_intent", "l9_agents.yaml"]
+    outputs_to: "$.state.selected_agent"
+    output_schema:
+      type: object
+      required: [agent_id, endpoint, capabilities, acap_tier, mcp_bindings]
+    idempotency_key: "{{ run_id }}-registry-lookup"
+    timeout_ms: 2000
+
+  - id: "resource_lock_acquire"
+    type: "tool_call"
+    acap_tier: 2
+    tool: "mcp://l9-coordination/lock.acquire"
+    inputs_from: ["$.state.selected_agent.agent_id", "$.inputs.session_id"]
+    outputs_to: "$.state.lock_token"
+    output_schema:
+      type: object
+      required: [lock_id, acquired_at, ttl_seconds]
+    idempotency_key: "{{ run_id }}-lock-acquire"
+    compensation:
+      action: "mcp://l9-coordination/lock.release"
+      trigger: "on_any_failure"
+    timeout_ms: 3000
+
+  - id: "task_delegation"
+    type: "sub_agent"
+    acap_tier: 2
+    agent: "$.state.selected_agent.agent_id"
+    skill_binding:
+      skill_id: "agents.swarm-orchestration"
+      version_pin: "^1.0"
+      fallback: "native_delegation"
+    inputs_from: ["$.inputs.user_intent", "$.inputs.context_window", "$.state.classified_intent"]
+    outputs_to: "$.state.delegation_result"
+    output_schema:
+      type: object
+      required: [result, agent_id, execution_trace]
+    idempotency_key: "{{ run_id }}-delegation"
+    timeout_ms: 300000
+
+  - id: "resource_lock_release"
+    type: "tool_call"
+    acap_tier: 2
+    tool: "mcp://l9-coordination/lock.release"
+    inputs_from: ["$.state.lock_token.lock_id"]
+    outputs_to: "$.state.lock_release"
+    idempotency_key: "{{ run_id }}-lock-release"
+    timeout_ms: 3000
+
+  - id: "memory_persist"
+    type: "tool_call"
+    acap_tier: 2
+    skill_binding:
+      skill_id: "agents.project-memory"
+      version_pin: "^1.0"
+      fallback: "native_memory_stub"
+    tool: "mcp://l9-memory/session.update"
+    inputs_from: ["$.inputs.session_id", "$.state.delegation_result", "$.state.classified_intent"]
+    outputs_to: "$.state.memory_record"
+    idempotency_key: "{{ run_id }}-memory"
+    timeout_ms: 3000
+
+  - id: "audit_close"
+    type: "deterministic_code"
+    acap_tier: 2
+    impl: "audit.close_run"
+    inputs_from: ["$.state.delegation_result", "$.state.selected_agent", "$.state.memory_record"]
+    outputs_to: "$.outputs"
+    idempotency_key: "{{ run_id }}-audit-close"
+    timeout_ms: 3000
+
+guards:
+  pre_run:
+    - "inputs.user_intent.length > 3"
+    - "inputs.session_id.length > 0"
+  per_step: true
+
+acap_profile:
+  identity_scope: "l9-orchestrator-agent"
+  permitted_actions:
+    [intent_classification, agent_registry_lookup, resource_lock_acquire,
+     task_delegation, resource_lock_release, memory_persist, audit_close]
+  prohibited_actions: [financial_disbursement, contract_signing, sub_agent_tier_escalation]
+  checkpoints:
+    at_steps: []
+    approver_roles: []
+  authority_expansion: "requires_re_authorization"
+
+loop_bounds:
+  max_iterations: 5
+  max_wall_time_seconds: 300
+  cost_ceiling_usd: 0.30
+  stuck_detection:
+    similarity_threshold: 0.90
+    stuck_window: 3
+    on_stuck: "escalate_human"
+
+metadata:
+  tags: ["orchestration", "routing", "multi-agent", "l9-core"]
+  domain_pack: "industrial-recycling-v1"
+  created_at: "2026-06-10T00:00:00Z"
+  changelog: "v1.0.0: Initial L9-aligned playbook"
+  harvest_sources:
+    - "dujonwalker/project-nova#agent.yaml — declarative agent registry pattern"
+    - "dujonwalker/project-nova#SOUL.md — governance contract"
+    - "madebyaris/agent-orchestration#AGENTS.md — resource lock + shared memory pattern"
+    - "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/agents-swarm-orchestration/SKILL.md"

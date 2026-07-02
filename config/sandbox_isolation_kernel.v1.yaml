@@ -1,0 +1,102 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: sandbox_isolation_kernel.v1
+version: 1.0.0
+ring: R5
+category: developer_support
+title: Per-worktree sandbox isolation contract
+purpose: 'Defines the per-worktree sandbox isolation contract for parallel agent execution: Docker-isolated execution environments
+  per git worktree, ephemeral artifact stores, network policy, and cleanup contracts to prevent cross-worktree state contamination.'
+activation_phase: on_demand
+status: active
+
+description: |
+  CAPABILITY: Enforce blast-radius isolation for parallel agent runs via worktrees and sandboxes.
+  Use when: running multiple agents in parallel, executing untrusted code, isolating filesystem/network side effects, or controlling blast radius.
+  Do NOT use when: single-agent read-only tasks with no write or exec side effects.
+  Signals: parallel agents, worktree, sandbox, blast radius, isolation, untrusted execution, fork session, concurrent runs, isolate side effects
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-04: establishes per-worktree isolation standards so parallel agents cannot contaminate each other''s
+    state, filesystem, or network surface.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - sandbox
+  - isolation
+  - docker
+  - worktree
+  - parallel_agents
+  - ephemeral
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires:
+- developer_core_kernel.v1
+init:
+  behavior: On load, enforce sandbox isolation checks on all code-execution tasks. Every agent task that runs code or modifies
+    the filesystem MUST declare a worktree_id and isolation_level. Tasks with isolation_level=strict require Docker container
+    with no host mounts except the declared worktree path. Task cleanup must remove the container and ephemeral store on completion
+    or failure.
+  overload_weight: 0.8
+  session_hooks:
+  - hook: isolation_level_assert
+    trigger: on_every_turn
+    description: Assert that any code execution or filesystem write task declares worktree_id and isolation_level before execution
+      proceeds.
+
+hard_bans:
+- MUST NOT execute agent code tasks outside a declared isolation boundary — bare host execution is forbidden.
+- MUST NOT share a Docker container between two different worktree_id tasks.
+- MUST NOT leave ephemeral containers running after task completion or failure — cleanup is mandatory.
+- MUST NOT mount host paths outside the declared worktree_path into a sandbox container.
+- MUST NOT perform network egress from a sandbox container to any L9 internal service — only allowlisted external endpoints.
+fail_closed: true
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  amplifies:
+  - kernel_id: security_review_kernel.v1
+    multiplier: 1.6
+  max_overlap_percent: 20
+routing_hints:
+  relevance_keywords:
+  - sandbox
+  - isolation
+  - docker
+  - worktree
+  - parallel
+  - ephemeral
+  - container
+  - code_execution
+  artifact_types:
+  - yaml_spec
+  - code
+  objective_classes:
+  - build
+  - audit
+  leverage_score: 7.5
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-05: ephemeral store backend (tmpfs vs overlayfs) not decided'
+sha256: c88aeaf8c4daa4c5f0d57df21eba4f608cf0af1dc54bb791435709272d9de1d7

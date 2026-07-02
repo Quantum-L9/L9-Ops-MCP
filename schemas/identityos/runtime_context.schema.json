@@ -1,0 +1,51 @@
+{
+  "$id": "https://identityos.dev/schemas/runtime_context.schema.json",
+  "_l9_meta": {
+    "origin": "identityos-harvest",
+    "source_date": "2026-05-16",
+    "layer": "schema",
+    "status": "active",
+    "retrieval_keys": [
+      "runtime_context",
+      "trust_level",
+      "allowed_scopes",
+      "agent_id",
+      "L0_L5"
+    ]
+  },
+  "type": "object",
+  "required": [
+    "agent_id",
+    "profile_id",
+    "substrate",
+    "trust_level",
+    "allowed_scopes"
+  ],
+  "properties": {
+    "agent_id": {
+      "type": "string"
+    },
+    "profile_id": {
+      "type": "string"
+    },
+    "substrate": {
+      "type": "string"
+    },
+    "trust_level": {
+      "enum": [
+        "L0",
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ]
+    },
+    "allowed_scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

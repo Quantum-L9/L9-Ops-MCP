@@ -1,0 +1,27 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+- decision_id: decision_intake_layer
+  rank: 2
+  component_id: intake_layer
+  component_name: Artifact Intake Layer
+  canonical_name: l9_intake_layer
+  decision_class: build_now
+  priority_score: 86
+  confidence: medium
+  reason: Artifact Intake Layer has strategic value 95 and readiness 85.
+  next_action: Create or harden l9_intake_layer in /l9_system/01_intake.
+  evidence:
+  - all downstream components require artifact inventory
+  - governance
+  - node_type=repo_component
+  - repo
+  dependencies: []
+  risks: []
+  target_folder: /l9_system/01_intake
+  approval_required: true

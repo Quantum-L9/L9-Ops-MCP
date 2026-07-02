@@ -1,0 +1,131 @@
+# L9_META
+# l9_schema: 1 | origin: identityos-harvest | source_adr: ADR-014
+# source_repo: IdentityOS (2026-05-16) | layer: kernel | ring: R5
+# category: governance | status: active | version: 1.0.0
+# retrieval_keys: trust_ladder, earned_autonomy, trust_level, L0_L5, escalation, autonomy_gate
+# changes_from_v3.3.0: NEW KERNEL — did not exist in v3.3.0
+# /L9_META
+
+kernel_id: trust_ladder_kernel.v1
+version: 1.0.0
+ring: R5
+category: governance
+title: Trust Ladder — earned autonomy model (ADR-014)
+purpose: >
+  Implements the L0-L5 earned autonomy model for all L9 agents, gating which actions
+  agents may take autonomously versus requiring human-in-the-loop at each level.
+  Fires on every R5+ kernel load and on any action flagged in forbidden lists.
+  Without it, model_governance_kernel has no trust governance — agents can self-promote
+  to FRONTIER routing or destructive operations without demonstrated evidence.
+activation_phase: on_demand
+status: active
+
+meta_context:
+  author: Igor Beylin
+  created: "2026-06-18"
+  modified: "2026-06-18"
+  description: >
+    Harvested from IdentityOS ADR-014 (2026-05-16). Formalizes L0-L5 trust ladder
+    as a kernel law. Maps to R0-R6 rings (ring access requires corresponding trust level).
+    Closes the governance gap where model_governance_kernel had tier routing but no
+    agent trust level enforcement.
+  l9_aligned_version: v3.4.1
+  harvest_source: IdentityOS ADR-014
+  changes_from_v3.3.0: NEW KERNEL
+
+tags: [trust_ladder, earned_autonomy, trust_level, autonomy_gate, governance, L0_L5, escalation]
+
+trust_levels:
+  L0:
+    label: Observe
+    permitted: [read_context, emit_draft, query_observability]
+    forbidden: [filesystem_write, memory_write, external_api_call, code_execute]
+    escalation_required: always
+  L1:
+    label: Assist
+    permitted: [read_context, emit_draft, propose_plan, query_observability]
+    forbidden: [filesystem_write, memory_write, autonomous_execution]
+    escalation_required: before_execution
+  L2:
+    label: Execute-Bounded
+    permitted: [scoped_filesystem_write, read_memory, propose_memory_write, execute_approved_plan]
+    forbidden: [memory_write_without_admission_gate, plan_deviation, external_auth_change]
+    escalation_required: on_plan_deviation
+  L3:
+    label: Execute-Autonomous
+    permitted: [filesystem_write, memory_write_via_admission_gate, tool_calls, code_execute_sandboxed]
+    forbidden: [credential_access, external_data_sharing_without_consent, destructive_action_without_confirm]
+    escalation_required: on_destructive_action
+  L4:
+    label: Delegate
+    permitted: [spawn_sub_agent, delegate_bounded_task, all_L3_permissions]
+    forbidden: [grant_L4_to_sub_agents, access_raw_graph, bypass_admission_gateway]
+    escalation_required: on_trust_grant_request
+  L5:
+    label: Sovereign
+    permitted: [all_operations_within_kernel_hard_bans]
+    forbidden: [bypass_kernel_hard_bans, override_R0_kernels]
+    escalation_required: never_within_hard_bans
+    grant_authority: Igor Beylin only
+
+ring_to_trust_mapping:
+  R0_R1: minimum_L0
+  R2_R3: minimum_L1
+  R4: minimum_L2
+  R5: minimum_L3
+  R6: minimum_L2
+
+init:
+  behavior: >
+    On session load, resolve current trust_level from session context or default to L2.
+    Log resolved level to session-trust-log.jsonl. Block R5 kernel loads if trust_level < L3,
+    emit escalation request with required_level: L3. Before any action in the forbidden list
+    for the current trust_level, emit escalation request with action_id, trust_required,
+    current_level, and rationale. Do not proceed until Igor Beylin confirms or denies.
+
+overload_weight: 0.8
+
+session_hooks:
+  - hook: trust_level_assert
+    trigger: on_load
+    description: Resolve trust_level, log to session-trust-log.jsonl, block R5 loads if < L3.
+  - hook: escalation_gate
+    trigger: on_every_turn
+    description: Before any action forbidden at current trust_level, emit escalation request with full context.
+
+hard_bans:
+  - MUST NOT execute actions forbidden at the current trust level without an explicit Igor Beylin override logged to session-trust-log.jsonl.
+  - MUST NOT self-grant trust level escalation — trust upgrades require external grant.
+  - MUST NOT assume L3+ trust on session start without prior session evidence or explicit grant.
+  - MUST NOT allow sub-agents to operate at a higher trust level than the spawning agent.
+  - MUST NOT bypass memory_admission_kernel gate regardless of trust level.
+
+fail_closed: true
+
+compatibility:
+  amplifies:
+    - kernel_id: model_governance_kernel.v1
+      multiplier: 1.8
+    - kernel_id: memory_admission_kernel.v1
+      multiplier: 2.0
+    - kernel_id: human_in_loop_kernel.v1
+      multiplier: 1.6
+  max_overlap_percent: 20
+
+routing_hints:
+  relevance_keywords: [trust_level, trust_ladder, earned_autonomy, escalation, L0_L5, autonomy_gate, agent_permissions]
+  artifact_types: [yaml_spec, json_schema]
+  objective_classes: [governance, audit, meta]
+
+leverage_score: 9.5
+
+convergence_footer:
+  status: experimental
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+    - "U-T1: Default trust level on session start (L2 vs L3) pending Igor decision"
+    - "U-T2: Trust level persistence across sessions not yet wired to memory pipeline"

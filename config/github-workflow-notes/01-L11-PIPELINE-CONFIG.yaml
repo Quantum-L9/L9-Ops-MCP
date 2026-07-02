@@ -1,0 +1,321 @@
+# L11 Debt Governance Pipeline Configuration v3.1
+# Philosophy: Deterministic-Core + AI-Augmentation
+# Alignment: Unified with L9 existing CI toolchain
+# ADR Compliance: ADR-0030 (Kernel YAML Schema), ADR-0053 (Config Externalization)
+
+pipeline:
+  name: l11-debt-governance
+  version: 3.1.0
+  philosophy: deterministic-core-ai-augmentation
+
+# ─────────────────────────────────────────────
+# EXECUTION TRIGGERS
+# ─────────────────────────────────────────────
+execution:
+  triggers:
+    pr:
+      incremental: true
+      deterministic_only: true
+      ai_enrichment_async: true
+    schedule:
+      nightly_full_scan: true
+      cron: "0 2 * * *"
+      ai_enrichment: true
+    background_worker:
+      enabled: true
+      queue: priority
+
+# ─────────────────────────────────────────────
+# DETECTION: DUAL-LAYER ENGINE
+# ─────────────────────────────────────────────
+detection:
+  deterministic_layer:
+    required: true
+    blocks_merge: true
+    engines:
+      - name: ruff
+        enabled: true
+        config: pyproject.toml
+        fail_on_error: true
+      - name: mypy
+        enabled: true
+        config: mypy.ini
+        fail_on_error: true
+      - name: bandit
+        enabled: true
+        severity_threshold: medium
+        confidence_threshold: medium
+      - name: semgrep
+        enabled: true
+        rules_dir: .semgrep/l9-rules.yaml          # FIXED: was semgrep_rules/
+      - name: adr_compliance
+        enabled: true
+        enforcer: tools/adr/adr_enforcer.py
+        adrs:
+          - "0002"   # TYPE_CHECKING imports
+          - "0006"   # TransportPacket audit
+          - "0012"   # DAG pipeline validation
+          - "0014"   # DORA metadata blocks
+          - "0019"   # structlog-only logging
+          - "0055"   # Fail-loudly policy
+          - "0083"   # UTC datetime standard
+      - name: dependency_graph_validator
+        enabled: true
+        check_circular_imports: true
+      - name: schema_validator
+        enabled: true
+        schemas_dir: schemas/
+      - name: complexity_threshold
+        enabled: true
+        max_cyclomatic: 15
+        max_cognitive: 25
+      - name: test_coverage_threshold
+        enabled: true
+        min_coverage_percent: 80.0
+
+    # ── L9 Existing CI Scripts (NEW — bridges L11 to L9) ──
+    l9_ci_scripts:
+      enabled: true
+      scripts:
+        - ci/check_adr_compliance.py
+        - ci/lint_forbidden_imports.py
+        - ci/check_protected_files.py
+        - ci/check_dependency_patterns.py
+        - ci/check_tool_wiring.py
+        - ci/check_substrate_api.py
+        - ci/check_global_state.py
+        - ci/check_imports.py
+        - ci/check_memory_bypass.py
+        - ci/check_no_deprecated_services.py
+        - ci/validate_dora_blocks.py
+        - ci/check_packet_type_naming.py
+        - ci/check_report_naming.py
+        - ci/check_tool_naming.py
+        - ci/check_schema_deprecation.py
+        - ci/validate_codegen.py
+        - ci/validate_spec_v25.py
+        - ci/check_definition_of_done.py
+
+    # ── Test Suite (NEW — pytest + coverage) ──
+    test_suite:
+      enabled: true
+      runner: pytest
+      args: ["tests/", "--tb=short", "-q", "-x", "--cov=.", "--cov-report=xml"]
+      ignore:
+        - tests/performance
+      coverage:
+        min_percent: 80.0
+        upload_to: codecov
+        codecov_token_env: CODECOV_TOKEN
+
+    # ── Secrets Scanning (NEW — gitleaks) ──
+    secrets_scan:
+      enabled: true
+      tool: gitleaks
+      config: .gitleaks.toml
+      license_env: GITLEAKS_LICENSE
+
+  ai_layer:
+    role: enrichment_and_classification
+    blocks_merge: false
+    model: sonar-pro
+    api_base: https://api.perplexity.ai/chat/completions
+    api_key_env: PERPLEXITY_API_KEY
+    chunking:
+      semantic_split: true
+      max_tokens: 2500
+      overlap_tokens: 100
+    retry_policy:
+      max_attempts: 3
+      exponential_backoff: true
+      initial_delay_ms: 1000
+      max_delay_ms: 30000
+    circuit_breaker:
+      failure_threshold: 5
+      cooldown_seconds: 300
+    cost_control:
+      monthly_budget_usd: 100
+      rate_limit_rpm: 60
+
+  ai_review:
+    coderabbit:
+      enabled: true
+      config: coderabbit.yaml
+      required_status_check: true   # Block merge if CodeRabbit disapproves
+    gemini_auto_editor:
+      enabled: true
+      api_key_env: GEMINI_API_KEY
+    perplexity_reviewer:
+      enabled: true
+      api_key_env: PERPLEXITY_API_KEY
+    ai_guardrails:
+      enabled: true
+      script: ci/ai_guardrails_runner.py
+
+# ─────────────────────────────────────────────
+# STATE MANAGEMENT: PERSISTENT DEBT GRAPH
+# ─────────────────────────────────────────────
+state_management:
+  debt_graph:
+    backend: neo4j
+    uri_env: NEO4J_URI
+    user_env: NEO4J_USER
+    password_env: NEO4J_PASSWORD
+    persistent_store: true
+    tracks:
+      - finding_hash
+      - first_seen
+      - last_seen
+      - owner
+      - risk_score
+      - status
+    indexes:
+      - property: hash
+        unique: true
+      - property: status
+      - property: severity
+    regression_detection:
+      detect_reintroduced_debt: true
+      detect_duplicate_findings: true
+      hash_algorithm: sha256
+  json_fallback:
+    enabled: true
+    path: .l11/debt_findings.json
+    rotate_after_mb: 50
+
+# ─────────────────────────────────────────────
+# RISK MODEL
+# ─────────────────────────────────────────────
+risk_model:
+  scoring:
+    formula: >
+      severity_weight * 0.40 +
+      blast_radius_weight * 0.25 +
+      service_criticality * 0.20 +
+      change_frequency * 0.10 +
+      ownership_gap_factor * 0.05
+  weights:
+    severity:
+      P0: 100
+      P1: 80
+      P2: 50
+      P3: 20
+    blast_radius:
+      core_kernel: 100
+      api_layer: 80
+      agent_logic: 60
+      worker: 50
+      utility: 40
+    service_criticality:
+      tier1_production: 100
+      tier2_staging: 60
+      tier3_dev: 20
+  thresholds:
+    block_pr: 85
+    create_issue: 65
+    backlog: 40
+  aging_policy:
+    p3_to_p2_days: 60
+    p2_to_p1_days: 30
+    p1_to_p0_days: 60
+
+# ─────────────────────────────────────────────
+# OWNERSHIP
+# ─────────────────────────────────────────────
+ownership:
+  source_of_truth:
+    - codeowners       # .github/CODEOWNERS
+    - service_registry # services.yaml
+  auto_assign: true
+  require_owner_for_p0: true
+
+# ─────────────────────────────────────────────
+# REMEDIATION
+# ─────────────────────────────────────────────
+remediation:
+  auto_fix:
+    enabled: true
+    supported_categories:
+      - linting_errors
+      - import_sorting
+      - docstring_missing
+      - type_hint_missing
+      - structlog_migration
+    safety:
+      require_passing_tests: true
+      shadow_diff_validation: true
+      rollback_on_failure: true
+      require_approval: true
+    codemod_framework:
+      enabled: true
+      supported_languages:
+        - python
+        - typescript
+
+# ─────────────────────────────────────────────
+# SCALING
+# ─────────────────────────────────────────────
+scaling:
+  job_queue:
+    max_parallel_deterministic: 20
+    max_parallel_ai: 5
+    adaptive_throttling: true
+  caching:
+    content_hash_based: true
+    ttl_hours: 24
+
+# ─────────────────────────────────────────────
+# RESILIENCE
+# ─────────────────────────────────────────────
+resilience:
+  ai_dependency:
+    non_blocking: true
+    fallback_to_deterministic_only: true
+    circuit_breaker_enabled: true
+  neo4j_fallback:
+    enabled: true
+    fallback_to_json: true
+
+# ─────────────────────────────────────────────
+# METRICS
+# ─────────────────────────────────────────────
+metrics:
+  track:
+    - debt_ratio
+    - mean_time_to_remediation
+    - debt_half_life
+    - risk_distribution
+    - regression_rate
+    - false_positive_rate
+    - ai_enrichment_latency_ms
+    - deterministic_scan_latency_ms
+    - test_coverage_percent        # NEW
+    - ci_scripts_pass_rate         # NEW
+  export:
+    prometheus:
+      enabled: true
+      endpoint: /metrics/debt
+    grafana:
+      dashboard_uid: l11-debt
+      folder: L9-Governance
+
+# ─────────────────────────────────────────────
+# NOTIFICATIONS
+# ─────────────────────────────────────────────
+notifications:
+  slack:
+    enabled: true
+    webhook_env: SLACK_WEBHOOK_URL
+    channels:
+      p0_findings: "#l9-critical-alerts"
+      p1_findings: "#l9-engineering"
+      nightly_summary: "#l9-debt-metrics"
+  github:
+    enabled: true
+    auto_create_issues: true
+    labels:
+      - "debt:p0"
+      - "debt:p1"
+      - "debt:p2"
+      - "debt:p3"
+      - "auto-fix"

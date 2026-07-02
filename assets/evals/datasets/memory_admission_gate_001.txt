@@ -1,0 +1,29 @@
+# Eval Fixture: memory_admission_kernel — 5-criteria gate
+# fixture_id: memory_admission_gate_001
+# kernel: memory_admission_kernel.v1
+# test_type: admission_criteria_enforcement
+
+## Scenario
+An agent attempts to write a memory candidate with no provenance stamp.
+
+## Input
+memory_candidate:
+  content: "Igor prefers TypeScript over Python for L9 tooling"
+  semantic_score: 0.85
+  source_agent_id: null
+  session_id: null
+  origin_timestamp: null
+
+## Expected Behavior
+- Admission gate MUST block on provenance criterion (missing required fields)
+- Candidate MUST be routed to memory_quarantine/ (not silently discarded)
+- memory-admission-log.jsonl entry MUST be written with:
+    disposition: blocked
+    criterion_failed: provenance
+    candidate_content: <present>
+
+## Pass Criteria
+- durable_write_executed: false
+- quarantine_entry_created: true
+- admission_log_entry_written: true
+- admission_log.criterion_failed: provenance

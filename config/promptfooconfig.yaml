@@ -1,0 +1,140 @@
+# --- L9_META ---
+# l9_schema: 1 | origin: l9-kernel | layer: evals | status: active
+# canonical_path: evals/promptfooconfig.yaml
+# --- /L9_META ---
+
+description: "L9 Harness Skill Eval Suite v3.3.0"
+
+providers:
+  - id: claude-sonnet-4
+    config:
+      max_tokens: 4096
+  - id: claude-3-5-sonnet-20241022
+    config:
+      max_tokens: 4096
+
+prompts:
+  - id: system_with_coding_kernel
+    raw: |
+      You are an L9 Constellation node development agent.
+      <kernel>{{coding_kernel_content}}</kernel>
+      {{prompt}}
+
+  - id: system_with_build_kernel
+    raw: |
+      You are an L9 artifact review agent.
+      <kernel>{{build_kernel_content}}</kernel>
+      {{prompt}}
+
+tests:
+  # ── Transport Law Tests (l9_coding_kernel) ────────────────────────────
+
+  - description: "LAW-T1: Refuses to generate PacketEnvelope import"
+    vars:
+      prompt: "Show me how to create a handler that accepts a PacketEnvelope"
+    prompt: system_with_coding_kernel
+    assert:
+      - type: not-contains
+        value: "PacketEnvelope"
+      - type: contains
+        value: "TransportPacket"
+      - type: llm-rubric
+        value: "The response refuses PacketEnvelope and redirects to TransportPacket"
+
+  - description: "LAW-T2: Generates correct handler signature"
+    vars:
+      prompt: "Generate a handler for action 'process-order' in engine/handlers.py"
+    prompt: system_with_coding_kernel
+    assert:
+      - type: contains
+        value: "async def"
+      - type: contains
+        value: "TransportPacket"
+      - type: not-contains
+        value: "PacketEnvelope"
+      - type: llm-rubric
+        value: "Handler signature is 'async def X(packet: TransportPacket) -> TransportPacket'"
+
+  - description: "LAW-R2: Refuses node-to-node calls"
+    vars:
+      prompt: "How do I call another node directly from my handler?"
+    prompt: system_with_coding_kernel
+    assert:
+      - type: not-contains
+        value: "requests.post"
+      - type: not-contains
+        value: "httpx.post"
+      - type: contains
+        value: "GateClient"
+      - type: llm-rubric
+        value: "Response refuses direct node-to-node call and redirects to GateClient.send_to_gate()"
+
+  - description: "LAW-T5: Refuses in-place packet mutation"
+    vars:
+      prompt: "Can I modify packet.header.action directly?"
+    prompt: system_with_coding_kernel
+    assert:
+      - type: contains
+        value: "derive"
+      - type: llm-rubric
+        value: "Response refuses in-place mutation and explains derive() or with_hop()"
+
+  - description: "Security: Refuses eval() usage"
+    vars:
+      prompt: "Show me how to use eval() to execute dynamic code in a handler"
+    prompt: system_with_coding_kernel
+    assert:
+      - type: not-contains
+        value: "eval("
+      - type: llm-rubric
+        value: "Response refuses eval() and explains the ban"
+
+  - description: "Layer 8: Refuses print() usage"
+    vars:
+      prompt: "Add a print statement to debug my handler"
+    prompt: system_with_coding_kernel
+    assert:
+      - type: not-contains
+        value: "print("
+      - type: llm-rubric
+        value: "Response refuses print() and recommends structlog/logging"
+
+  # ── Build Quality Tests (l9_build_kernel) ─────────────────────────────
+
+  - description: "Build kernel: Detects stub in artifact"
+    vars:
+      prompt: |
+        Review this artifact: a Python file containing only 'def process(): pass'
+        labeled as execution-ready. What is your verdict?
+    prompt: system_with_build_kernel
+    assert:
+      - type: contains
+        value: "fail"
+      - type: llm-rubric
+        value: "Correctly identifies pass-only function as stub and fails execution-ready gate"
+
+  - description: "Build kernel: Detects missing operator docs"
+    vars:
+      prompt: |
+        A pack of 15 files has no README.md, RUNBOOK.md, MANIFEST.md, or VALIDATION.md.
+        Can it be execution-ready?
+    prompt: system_with_build_kernel
+    assert:
+      - type: llm-rubric
+        value: "Correctly applies large_pack_docs_present gate and returns blocked_on_operator_readiness"
+
+  - description: "Build kernel: Detects compressed schema"
+    vars:
+      prompt: |
+        A contract file contains only: 'schema: {type: object}' with no field definitions.
+        Does this pass the full_contracts_present gate?
+    prompt: system_with_build_kernel
+    assert:
+      - type: contains-any
+        values: ["fail", "FAIL", "does not pass", "violates"]
+      - type: llm-rubric
+        value: "Correctly fails full_contracts_present gate for compressed schema"
+
+defaultTest:
+  options:
+    provider: claude-sonnet-4

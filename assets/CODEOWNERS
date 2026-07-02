@@ -1,0 +1,61 @@
+# L9 Code Ownership — used by GitHub branch protection + L11 debt assignment
+# Ref: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# DORA:
+#   component_id: codeowners
+#   tier: 1
+#   lifecycle: production
+#   owner: platform-engineering
+
+# ─────────────────────────────────────────────
+# Default owner (catch-all)
+# ─────────────────────────────────────────────
+*                               @cryptoxdog
+
+# ─────────────────────────────────────────────
+# Core kernel (highest blast radius)
+# ─────────────────────────────────────────────
+/core/                          @cryptoxdog
+/core/kernel/                   @cryptoxdog
+
+# ─────────────────────────────────────────────
+# API layer
+# ─────────────────────────────────────────────
+/api/                           @cryptoxdog
+
+# ─────────────────────────────────────────────
+# Memory substrates
+# ─────────────────────────────────────────────
+/memory/                        @cryptoxdog
+
+# ─────────────────────────────────────────────
+# Agent logic
+# ─────────────────────────────────────────────
+/agents/                        @cryptoxdog
+
+# ─────────────────────────────────────────────
+# Orchestrators
+# ─────────────────────────────────────────────
+/orchestrators/                 @cryptoxdog
+
+# ─────────────────────────────────────────────
+# CI, governance, L11 pipeline
+# ─────────────────────────────────────────────
+/ci/                            @cryptoxdog
+/.github/                       @cryptoxdog
+/scripts/l11/                   @cryptoxdog
+
+# ─────────────────────────────────────────────
+# Protected config files
+# ─────────────────────────────────────────────
+pyproject.toml                  @cryptoxdog
+ruff.toml                       @cryptoxdog
+.semgrep/                       @cryptoxdog
+coderabbit.yaml                 @cryptoxdog
+codecov.yml                     @cryptoxdog
+.gitleaks.toml                  @cryptoxdog
+
+# ─────────────────────────────────────────────
+# ADRs (require explicit review for changes)
+# ─────────────────────────────────────────────
+/readme/adr/                    @cryptoxdog

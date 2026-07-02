@@ -1,0 +1,126 @@
+# L9_META
+# l9_schema: 1 | origin: l9-kernel | source_file: model_governance_kernel.v1.yaml (v3.3.0)
+# layer: kernel | ring: R5 | category: developer_support | status: active | version: 1.1.0
+# retrieval_keys: model_governance, model_tier, tier_routing, cost_guard, trust_ladder, trust_level
+# changes_from_v3.3.0: Added trust_ladder_integration block — trust_level gates FRONTIER access
+# /L9_META
+
+kernel_id: model_governance_kernel.v1
+version: 1.1.0
+ring: R5
+category: developer_support
+title: Model-tier capability gate and governance
+purpose: >
+  Governs model-tier routing in the L9 system: gates tasks between ECONOMY, STANDARD,
+  and FRONTIER tiers based on confidence, complexity, and trust_level (v1.1.0 addition).
+  Fires on every turn where a model call is about to be made.
+  Without it, agents default to FRONTIER on every call and burn the session cost budget.
+activation_phase: on_demand
+status: active
+
+meta_context:
+  author: Igor Beylin
+  created: "2026-05-06"
+  modified: "2026-06-18"
+  description: >
+    Closes GAP-10: establishes formal model-tier governance, capability assessment gates,
+    eval-pass requirement for tier promotion, cost guard, and tier routing audit log.
+    v1.1.0: integrates trust_ladder_kernel.v1 per ADR-014 harvest. FRONTIER access now
+    requires trust_level >= L3 for autonomous routing; L2 and below requires Igor override.
+  l9_aligned_version: v3.4.1
+  changes_from_v3.3.0: >
+    Added trust_ladder_integration block. Added trust_level_tier_gate session hook.
+    FRONTIER routing now blocked for trust_level < L3. Version bumped 1.0.0 -> 1.1.0.
+
+tags: [model_governance, model_tier, capability_gate, tier_routing, cost_guard, audit, trust_ladder, L0_L5]
+
+requires:
+  - developer_core_kernel.v1
+  - trust_ladder_kernel.v1
+
+trust_ladder_integration:
+  L0_L1:
+    frontier_access: forbidden — escalate to human
+    standard_access: propose only, human approves
+    economy_access: observe/read only
+  L2:
+    frontier_access: requires explicit Igor Beylin session override
+    standard_access: permitted within approved plan
+    economy_access: permitted
+  L3:
+    frontier_access: permitted with confidence gate and cost guard
+    standard_access: permitted
+    economy_access: permitted
+  L4_L5:
+    frontier_access: permitted with cost guard
+    standard_access: permitted
+    economy_access: permitted
+
+init:
+  behavior: >
+    On load, activate model-tier routing governance. Resolve trust_level from
+    trust_ladder_kernel before any tier routing decision. Three tiers:
+    ECONOMY (haiku-class, confidence >= 0.85, cost < $0.002/call),
+    STANDARD (sonnet-class, default, confidence 0.6-0.85 or complexity >= MEDIUM),
+    FRONTIER (opus-class, confidence < 0.6 or complexity HIGH or destructive action).
+    FRONTIER requires trust_level >= L3 for autonomous routing; L2 and below requires
+    Igor Beylin session override logged. Tier promotions require eval_harness_kernel
+    evidence: >= 5 task fixtures passing at target tier. Cost guard blocks FRONTIER
+    use > $2.00/session without Igor explicit override. All routing decisions append
+    to tier-routing-audit.jsonl.
+
+overload_weight: 1.0
+
+session_hooks:
+  - hook: tier_routing_log
+    trigger: on_every_turn
+    description: After each model call, append routing decision (task_id, tier_selected, trust_level, confidence, cost, rationale) to tier-routing-audit.jsonl.
+  - hook: cost_guard
+    trigger: on_every_turn
+    description: After each FRONTIER call, accumulate session cost. Warn at $1.00. Block at $2.00 without override.
+  - hook: trust_level_tier_gate
+    trigger: on_every_turn
+    description: Before routing to FRONTIER, verify trust_level >= L3. Emit escalation request if L2 or below.
+
+locked_fields:
+  - field: frontier_session_cost_limit
+    locked_value: 2.0
+    unlock_authority: Igor Beylin
+
+hard_bans:
+  - MUST NOT route a task to FRONTIER tier without documented confidence score or complexity classification.
+  - MUST NOT route a task to FRONTIER tier autonomously if agent trust_level < L3 — escalation required.
+  - MUST NOT promote a capability to higher model tier without eval_harness_kernel evidence of >= 5 passing fixtures.
+  - MUST NOT allow cumulative FRONTIER spend to exceed $2.00/session without explicit Igor Beylin override.
+  - MUST NOT skip tier routing audit logging — every model call must produce a tier-routing-audit.jsonl entry.
+  - MUST NOT use ECONOMY tier for tasks classified as destructive_action, auth_change, or data_deletion.
+
+fail_closed: true
+
+compatibility:
+  requires:
+    - trust_ladder_kernel.v1
+  amplifies:
+    - kernel_id: eval_harness_kernel.v1
+      multiplier: 1.6
+    - kernel_id: trust_ladder_kernel.v1
+      multiplier: 1.8
+  max_overlap_percent: 20
+
+routing_hints:
+  relevance_keywords: [model_tier, tier_routing, capability_gate, cost_guard, frontier, economy, model_governance, trust_level]
+  artifact_types: [yaml_spec, json_schema]
+  objective_classes: [audit, meta, build]
+
+leverage_score: 9.2
+
+convergence_footer:
+  status: active
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+    - "U-11: confidence scoring method for moderouter not yet formalized"
+    - "U-T1: Default trust level on session start (L2 vs L3) pending Igor decision"

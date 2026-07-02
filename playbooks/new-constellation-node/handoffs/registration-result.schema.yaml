@@ -1,0 +1,36 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: RegistrationResult
+description: Typed handoff object — Step 06 to Step 07 of new-constellation-node playbook
+version: "1.0.0"
+type: object
+required:
+  - node_id
+  - registered_actions
+  - gate_url
+  - timestamp
+  - status
+properties:
+  node_id:
+    type: string
+  registered_actions:
+    type: array
+    items: { type: string }
+  gate_url:
+    type: string
+    format: uri
+  timestamp:
+    type: string
+    format: date-time
+  status:
+    type: string
+    enum: [registered, already_existed, failed]
+  http_status:
+    type: integer

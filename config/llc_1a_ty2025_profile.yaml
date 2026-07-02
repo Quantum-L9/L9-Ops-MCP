@@ -1,0 +1,124 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+compliance_execution_profile:
+  schema_version: "1.0.0"
+  matter:
+    matter_id: llc_1a_ty2025_compliance
+    matter_type: tax
+    source_guide_title: LLC 1A Full Compliance Execution Guide
+    source_guide_ref: LLC-1A-Full-Compliance-Execution-Guide.md
+    advisor_source: CPA/counsel execution guide
+    execution_status: active
+  entity:
+    entity_ref: llc_1a
+    legal_name: LLC 1A
+    entity_type: LLC
+    tax_classification: partnership_to_disregarded_entity
+    state_of_formulation: NC
+    registration_ids:
+      ein_last4: "4090"
+      sos_id: "1406501"
+  people:
+    primary_operator: Igor Beylin
+    related_parties:
+      - Aleksandra Beylin
+    advisors:
+      - role: CPA
+        name: Unknown
+        email: null
+        phone: null
+      - role: counsel
+        name: Unknown
+        email: null
+        phone: null
+  jurisdictions:
+    - level: federal
+      agency_or_court: IRS
+      jurisdiction: United States
+      matter: Form 1065 and penalty abatement
+      case_or_account_id: null
+      portal_url: https://www.irs.gov
+      filing_method: advisor
+    - level: federal
+      agency_or_court: FinCEN
+      jurisdiction: United States
+      matter: BOI update
+      case_or_account_id: null
+      portal_url: https://www.fincen.gov/boi
+      filing_method: portal
+    - level: state
+      agency_or_court: NC Department of Revenue
+      jurisdiction: North Carolina
+      matter: Form D-403
+      case_or_account_id: null
+      portal_url: https://www.ncdor.gov
+      filing_method: advisor
+    - level: state
+      agency_or_court: NC Secretary of State
+      jurisdiction: North Carolina
+      matter: Annual report
+      case_or_account_id: "1406501"
+      portal_url: https://www.sosnc.gov
+      filing_method: portal
+    - level: county
+      agency_or_court: Mecklenburg County Assessor
+      jurisdiction: Mecklenburg County, NC
+      matter: AV-14 business personal property
+      case_or_account_id: null
+      portal_url: https://www.mecknc.gov
+      filing_method: portal
+    - level: court
+      agency_or_court: Mecklenburg County
+      jurisdiction: Mecklenburg County, NC
+      matter: Divorce-related source event
+      case_or_account_id: 25CV039380-590
+      portal_url: null
+      filing_method: unknown
+  credential_requirements:
+    - credential_name: irs_online_account
+      credential_type: portal_login
+      access_target: IRS transcripts/account records
+      aws_secret_name: compliance/llc_1a/irs_online_account
+      mfa_required: true
+      human_only: false
+      allowed_use: [login, retrieve_document]
+      log_policy: metadata_only
+    - credential_name: fincen_boi
+      credential_type: portal_login
+      access_target: FinCEN BOI portal
+      aws_secret_name: compliance/llc_1a/fincen_boi
+      mfa_required: true
+      human_only: false
+      allowed_use: [login, fill_form_field, upload_to_portal]
+      log_policy: metadata_only
+    - credential_name: nc_sos
+      credential_type: portal_login
+      access_target: NC annual report portal
+      aws_secret_name: compliance/llc_1a/nc_sos
+      mfa_required: false
+      human_only: false
+      allowed_use: [login, fill_form_field, payment_under_threshold]
+      log_policy: metadata_only
+    - credential_name: selene_finance
+      credential_type: portal_login
+      access_target: mortgage 1098s and escrow history
+      aws_secret_name: compliance/llc_1a/selene_finance
+      mfa_required: true
+      human_only: false
+      allowed_use: [login, retrieve_document]
+      log_policy: metadata_only
+  approval_policy:
+    small_payment_threshold_usd: 150
+    live_browser_required_for:
+      - final_submit
+      - certification
+      - e_signature
+      - court_filing
+      - legal_or_tax_position_election
+      - payment_above_threshold

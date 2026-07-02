@@ -1,0 +1,42 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+actions:
+  - component_id: intake_layer
+    action_type: build
+    description: Build deterministic repo/folder/zip intake first.
+    priority: critical
+    target_folder: /l9_system/01_intake
+    canonical_name: l9_intake_layer
+    evidence:
+      - all downstream components require artifact inventory
+  - component_id: inventory_node
+    action_type: rename
+    description: Rename pack to durable component identity.
+    priority: high
+    target_folder: /l9_system/02_inventory_node
+    canonical_name: l9_inventory_node
+    evidence:
+      - current name is phase/revision artifact
+  - component_id: action_governor
+    action_type: build
+    description: Build ranked decision layer after graph and score outputs exist.
+    priority: critical
+    target_folder: /l9_system/06_action_governor
+    canonical_name: l9_action_governor
+    evidence:
+      - converts reports into execution decisions
+  - component_id: remediation_engine
+    action_type: build
+    description: Build only after Action Governor is stable and approval gates exist.
+    priority: medium
+    target_folder: /l9_system/07_remediation_engine
+    canonical_name: l9_remediation_engine
+    blockers:
+      - approval workflow not implemented
+      - rollback policy not implemented

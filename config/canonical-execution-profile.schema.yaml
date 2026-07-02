@@ -1,0 +1,117 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+compliance_execution_profile:
+  schema_version: "1.0.0"
+
+  matter:
+    matter_id: string
+    matter_type: tax | boi | court_deadline | license_renewal | permit | annual_report | nonprofit_launch | document_collection | regulatory_filing | other
+    source_guide_title: string
+    source_guide_ref: string
+    advisor_source: string
+    execution_status: not_started | active | waiting_on_human | waiting_on_advisor | blocked | submitted | confirmed | closed
+
+  entity:
+    entity_ref: string
+    legal_name: string
+    entity_type: string
+    tax_classification: string | null
+    state_of_formation: string | null
+    registration_ids:
+      ein_last4: string | null
+      state_id: string | null
+      sos_id: string | null
+      license_id: string | null
+      other: object | null
+
+  people:
+    primary_operator: string
+    related_parties: [string]
+    advisors:
+      - role: CPA | counsel | registered_agent | consultant | other
+        name: string | Unknown
+        email: string | null
+        phone: string | null
+
+  jurisdictions:
+    - level: federal | state | county | municipal | court | private | other
+      agency_or_court: string
+      jurisdiction: string
+      matter: string
+      case_or_account_id: string | null
+      portal_url: string | null
+      filing_method: portal | mail | email | in_person | advisor | unknown
+
+  credential_requirements:
+    - credential_name: string
+      credential_type: portal_login | secret_value | secure_file | api_key | payment_method | mfa | other
+      access_target: string
+      aws_secret_name: string
+      mfa_required: boolean
+      human_only: boolean
+      allowed_use:
+        - fill_form_field
+        - upload_to_portal
+        - login
+        - payment_under_threshold
+        - retrieve_document
+      log_policy: metadata_only | redacted_only | no_log
+
+  execution_boundaries:
+    agent_can:
+      - parse_advisor_guide
+      - build_task_graph
+      - track_missing_documents
+      - draft_messages
+      - draft_call_scripts
+      - fill_forms
+      - upload_configured_sensitive_files
+      - enter_configured_sensitive_values
+      - pay_under_150_usd
+      - maintain_confirmation_log
+      - prepare_handoff_packet
+      - remind_escalate
+    agent_cannot:
+      - decide_final_legal_or_tax_position
+      - submit_final_filing_without_human_action
+      - certify_truthfulness
+      - e_sign
+      - make_payment_over_150_usd
+      - store_full_sensitive_values
+
+  approval_policy:
+    small_payment_threshold_usd: 150
+    live_browser_required_for:
+      - final_submit
+      - certification
+      - e_signature
+      - court_filing
+      - legal_or_tax_position_election
+      - payment_above_threshold
+
+  evidence_policy:
+    storage_root: string
+    redaction_required: true
+    required_evidence_types:
+      - confirmation_number
+      - receipt
+      - filed_copy
+      - screenshot
+      - certified_mail_tracking
+      - advisor_approval
+
+  notification_rules:
+    summary_channel: telegram | email | dashboard | none
+    send_summary_if:
+      - blocker_created
+      - approval_needed
+      - deadline_risk
+      - task_completed
+      - evidence_missing
+      - new_unknown_created

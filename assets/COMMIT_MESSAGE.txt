@@ -1,0 +1,44 @@
+feat(kernel-pack): v3.4.1 — IdentityOS 6-concept harvest
+
+BREAKING CHANGE: context_budget_kernel and model_governance_kernel now REQUIRE
+trust_ladder_kernel.v1 and memory_admission_kernel.v1. Sessions without these
+kernels loaded will fail their pre-condition checks.
+
+## New Kernels (2)
+- docs/kernels/R5/trust_ladder_kernel.v1.yaml    [NEW — ADR-014 harvest]
+- docs/kernels/R5/memory_admission_kernel.v1.yaml [NEW — ADR-009 harvest]
+
+## Upgraded Kernels (2)
+- docs/kernels/R5/model_governance_kernel.v1.yaml  [1.0.0 -> 1.1.0 — trust_ladder integration]
+- docs/kernels/R5/context_budget_kernel.v1.yaml    [1.0.0 -> 1.1.0 — hydrator_contract added]
+
+## Upgraded Skills (2)
+- skills/memory/cursor-memory-kernel/SKILL.md      [1.0.0 -> 1.1.0 — admission gate pre-condition]
+- skills/kernels/optimize-kernel/SKILL.md          [1.0.0 -> 1.1.0 — v3.4.1 compliance checks]
+
+## New Docs (4)
+- AGENTS.md                                        [Build Law + 14 architecture invariants]
+- KERNEL_DOCTRINE.md                               [v3.4.1 — §9-12 added]
+- SKILLS_DOCTRINE.md                               [v3.4.1 — §8-10 added]
+- PLAYBOOKS_DOCTRINE.md                            [v3.4.1 — NEW, §4-6 are harvest items]
+- docs/architecture/identityos_adr_index.md        [Harvest registry]
+
+## New Schemas (4)
+- schemas/identityos/runtime_context.schema.json
+- schemas/identityos/runtime_payload.schema.json
+- schemas/identityos/agent.schema.json
+- schemas/identityos/profile.schema.json
+
+## Architecture Invariants Added (14 — all machine-readable in AGENTS.md)
+hydration_precedes_generation, handoff_packets_are_views, trust_is_explicit_not_implicit,
+durable_memory_single_path, no_placeholders, and 9 more.
+
+## Closed Gaps
+- GAP-TRUST: No trust governance in model_governance_kernel -> trust_ladder_kernel.v1
+- GAP-MEM:   No admission gate for durable memory writes -> memory_admission_kernel.v1
+- GAP-HYD:   Raw context injection ungoverned -> hydrator_contract in context_budget_kernel
+- GAP-VIEW:  Handoff packets mutable -> handoff_packets_are_views enforced
+- GAP-BUILD: No placeholder enforcement -> Build Law in AGENTS.md + KERNEL_DOCTRINE §12
+- GAP-INV:   Informal invariants -> 14 machine-readable invariants in AGENTS.md
+
+Co-authored-by: IdentityOS <https://github.com/cryptoxdog/IdentityOS>

@@ -1,0 +1,119 @@
+# L9_META
+# l9_schema: 1 | origin: identityos-harvest | source_adr: ADR-009
+# source_repo: IdentityOS (2026-05-16) | layer: kernel | ring: R5
+# category: governance | status: active | version: 1.0.0
+# retrieval_keys: memory_admission, admission_gateway, memory_write, durable_memory, memory_gate, quarantine, provenance
+# changes_from_v3.3.0: NEW KERNEL — did not exist in v3.3.0
+# /L9_META
+
+kernel_id: memory_admission_kernel.v1
+version: 1.0.0
+ring: R5
+category: governance
+title: Memory Admission Gateway (ADR-009)
+purpose: >
+  Gates every write to durable memory through a five-criteria admission check before
+  any write is persisted. Fires whenever any agent, skill, or kernel attempts a durable
+  memory write. Without it, the durable_memory_single_path invariant is declared but
+  unenforced — agents write unvetted, unprovenanced data directly to persistent storage.
+activation_phase: on_demand
+status: active
+
+meta_context:
+  author: Igor Beylin
+  created: "2026-06-18"
+  modified: "2026-06-18"
+  description: >
+    Harvested from IdentityOS ADR-009 (2026-05-16). Provides the missing gate between
+    cursor-memory-kernel skill and durable persistent storage. Enforces
+    durable_memory_single_path and provenance_is_preserved invariants.
+  l9_aligned_version: v3.4.1
+  harvest_source: IdentityOS ADR-009
+  changes_from_v3.3.0: NEW KERNEL
+
+tags: [memory_admission, admission_gateway, durable_memory, memory_write, quarantine, provenance, consent]
+
+requires:
+  - trust_ladder_kernel.v1
+
+admission_criteria:
+  relevance:
+    threshold: "semantic_score >= 0.65"
+    on_fail: quarantine
+  trust:
+    minimum_level: L2
+    on_fail: block_with_escalation
+  consent:
+    description: No external sharing path without explicit Igor Beylin consent declaration
+    on_fail: block
+  deduplication:
+    description: Graph check required before write; duplicates are merged, not re-written
+    on_fail: merge_existing_node
+  provenance:
+    required_fields: [source_agent_id, session_id, origin_timestamp]
+    on_fail: block
+
+quarantine_policy:
+  destination: memory_quarantine/
+  review_cadence: manual — Igor Beylin reviews on demand
+  auto_purge_after_days: 30
+  auto_promote_criteria: Igor Beylin explicit approve
+
+init:
+  behavior: >
+    On load, activate admission gate intercept on all memory write paths.
+    Evaluate every MemoryCandidate against all 5 criteria in order: relevance,
+    trust, consent, deduplication, provenance. Pass: route to durable pipeline
+    with provenance stamp. Fail: quarantine to memory_quarantine/ or block per
+    criterion policy. Log every decision to memory-admission-log.jsonl with
+    criteria scores and disposition. Substrate-native notepads are scratch only —
+    they do not count as durable memory and do not require admission gate.
+
+overload_weight: 1.0
+
+session_hooks:
+  - hook: admission_gate_intercept
+    trigger: on_every_turn
+    description: Intercept any durable memory write, evaluate all 5 criteria, route to durable or quarantine, log decision.
+  - hook: provenance_stamp
+    trigger: on_artifact_emit
+    description: Before any write passes admission, stamp with source_agent_id, session_id, and origin_timestamp.
+
+hard_bans:
+  - MUST NOT write to durable memory without passing all 5 admission criteria.
+  - MUST NOT bypass the admission gate from any adapter, skill, or kernel — single path rule.
+  - MUST NOT discard a memory candidate silently — quarantine or block with logged rationale.
+  - MUST NOT allow substrate-native notepads (Cursor notepad, Claude project memory) to serve as durable memory.
+  - MUST NOT write memory candidates without provenance stamp.
+  - MUST NOT share memory content externally without explicit consent declaration in session context.
+
+fail_closed: true
+
+compatibility:
+  requires:
+    - trust_ladder_kernel.v1
+  amplifies:
+    - kernel_id: trust_ladder_kernel.v1
+      multiplier: 2.0
+    - kernel_id: context_budget_kernel.v1
+      multiplier: 1.4
+  max_overlap_percent: 15
+
+routing_hints:
+  relevance_keywords: [memory_admission, admission_gateway, durable_memory, memory_write, quarantine, provenance, consent, memory_gate]
+  artifact_types: [yaml_spec, python]
+  objective_classes: [governance, audit, memory]
+
+leverage_score: 9.5
+
+convergence_footer:
+  status: experimental
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+    - "U-M1: semantic_score threshold (0.65) not yet calibrated against real session data"
+    - "U-M2: graph backend for L9 not yet selected (Graphiti/Neo4j vs alternative)"
+    - "U-M3: quarantine auto-purge enforcement mechanism not implemented"

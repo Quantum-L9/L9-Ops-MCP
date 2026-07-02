@@ -1,0 +1,95 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: execution_plan_kernel.v1
+version: 1.0.0
+ring: R6
+category: meta
+title: Versioned execution plan artifact system
+purpose: 'Defines versioned execution plans as first-class checked-in artifacts: plan schema (phases, milestones, decisions,
+  blockers, progress log), authoring contract, update cadence, and the rule that no multi-phase work begins without a checked-in
+  plan in plans/.'
+activation_phase: lazy
+status: active
+
+description: |
+  CAPABILITY: Produce versioned, recoverable execution plans for multi-phase work.
+  Use when: work spans 3+ files or multiple sessions, requires staged delivery, or needs a recoverable plan artifact.
+  Do NOT use when: simple single-turn tasks that complete in one response.
+  Signals: execution plan, multi-phase, project plan, phased delivery, plan this work, staged execution, multi-session task, break into phases
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-07: establishes execution plans as versioned YAML artifacts in plans/, enforces plan-before-work
+    discipline for multi-phase tasks, and defines the progress-log schema that makes plan state inspectable by agents.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - execution_plan
+  - planning
+  - milestones
+  - decisions
+  - meta
+  - versioned_artifacts
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires: []
+init:
+  behavior: 'On activation, enforce plan-before-work rule: any task spanning > 3 files or > 1 session MUST have a plan YAML
+    in plans/ before the first code commit. Plans are named plans/{objective_slug}_{YYYY-MM-DD}.yaml. Every plan update appends
+    to the progress_log array (append-only). Decisions are recorded with rationale. Blockers are first-class fields, not comments.'
+  overload_weight: 0.5
+  session_hooks:
+  - hook: plan_existence_check
+    trigger: on_load
+    description: 'On session load for multi-phase objectives: check plans/ for an active plan. If missing, emit plan scaffold
+      before proceeding to any code task.'
+
+hard_bans:
+- MUST NOT begin multi-phase work (> 3 files or > 1 session) without a checked-in plan YAML in plans/.
+- MUST NOT mutate a plan's phases or milestones without appending a progress_log entry explaining the change.
+- MUST NOT mark a milestone as complete without referencing the PR or commit that closes it.
+- 'MUST NOT delete a plan — deprecate it by setting status: superseded and referencing the replacement plan_id.'
+fail_closed: false
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  max_overlap_percent: 10
+routing_hints:
+  relevance_keywords:
+  - execution_plan
+  - planning
+  - milestone
+  - multi_phase
+  - plan_schema
+  - decision_log
+  - progress_log
+  artifact_types:
+  - yaml_spec
+  objective_classes:
+  - meta
+  - build
+  leverage_score: 7.0
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-08: plan storage in plans/ vs .github/plans/ not decided'
+sha256: 196135492c63cf441b0c3055a7147c42a3e6b8a23e9ae1ea44080bd011053ca1

@@ -1,0 +1,110 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: agent_review_kernel.v1
+version: 1.0.0
+ring: R5
+category: developer_support
+title: Agent-to-agent PR review loop
+purpose: 'Governs the agent-to-agent PR review loop: loading only required kernels per task (progressive disclosure), structuring
+  review output across all 8 code_review_ci dimensions, posting GitHub review comments, and escalating to human only on CRITICAL
+  findings or explicit escalation_rules triggers.'
+activation_phase: on_demand
+status: active
+
+description: |
+  CAPABILITY: Enforce agent-to-agent review, approval workflows, and quality gates before output is accepted.
+  Use when: an agent's output needs review before acceptance, running an approval workflow, or enforcing a quality gate.
+  Do NOT use when: low-stakes single-agent output with no review requirement.
+  Signals: agent review, approval workflow, quality gate, review before merge, second-agent check, reviewer agent, gate output, sign off
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-03: defines agent-to-agent review loop contract, progressive disclosure loading for review agent,
+    approval conditions, and escalation triggers. Extends code_review_ci_kernel.v1.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - agent_review
+  - code_review_context
+  - progressive_disclosure
+  - escalation
+  - github_actions
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires:
+- code_review_ci_kernel.v1
+init:
+  behavior: 'On load, activate the progressive disclosure loading protocol: agent reviewer loads AGENTS.md TOC first, then
+    resolves only the kernel IDs relevant to the PR''s changed surface (coding -> developer_core_kernel, CI -> ci_gate_kernel,
+    contracts -> governance stack, etc). Load the minimum kernel set, not the full pack. Run all 8 CODE_REVIEW_CI dimensions.
+    Emit structured review-result.json. Approve when all required checks pass. Escalate when escalation_rules fire.'
+  overload_weight: 1.0
+  session_hooks:
+  - hook: progressive_kernel_load
+    trigger: on_load
+    description: 'On session start for PR review: parse diff surface, load only kernels whose routing_hints.relevance_keywords
+      intersect with changed files. MUST NOT load full kernel pack.'
+  - hook: review_result_emit
+    trigger: on_artifact_emit
+    description: All review outputs must be emitted as review-result.json with per-dimension scores, confidence, verdict,
+      and escalation_reason if applicable.
+  locked_fields:
+  - field: review_dimensions_required
+    locked_value: 8
+    unlock_authority: Igor Beylin
+
+hard_bans:
+- MUST NOT load the full kernel pack for a PR review session — progressive disclosure only, minimum kernel set per diff surface.
+- MUST NOT emit a review without all 8 CODE_REVIEW_CI dimensions scored.
+- MUST NOT approve a PR with any CRITICAL finding in review-result.json.
+- MUST NOT post unstructured review commentary — all review output must conform to review-result.json schema.
+- MUST NOT escalate to human for findings classified MEDIUM or lower without a documented escalation_rules trigger.
+fail_closed: false
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  amplifies:
+  - kernel_id: code_review_ci_kernel.v1
+    multiplier: 2.0
+  - kernel_id: ci_gate_kernel.v1
+    multiplier: 1.5
+  max_overlap_percent: 30
+routing_hints:
+  relevance_keywords:
+  - code_review_context
+  - agent_review
+  - code_review
+  - pull_request
+  - automated_review
+  - review_loop
+  artifact_types:
+  - code
+  - yaml_spec
+  objective_classes:
+  - review
+  - audit
+  leverage_score: 9.0
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-03: GitHub token strategy (App vs PAT) not determined'
+sha256: bf8853442108e14924af70bcd9176e2ea7bc01bcca626f268655012b23c58d82

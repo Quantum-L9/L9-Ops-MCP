@@ -1,0 +1,108 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# L9 Agent Registry
+# Source: dujonwalker/project-nova#agent.yaml pattern
+# This is the single grep-able source of truth for agent routing.
+# Every agent must be registered here before receiving task delegations.
+
+registry_version: "1.0.0"
+updated: "2026-06-10"
+governance_contract: ".l9/governance/L9_GOVERNANCE.md"
+operating_contract: ".l9/system/l9-operating-contract.md"
+
+agents:
+  - agent_id: "vendor-onboarding-agent"
+    domain: "procurement"
+    playbook: ".l9/playbooks/vendor-onboarding/playbook.yaml"
+    acap_tier: 2
+    capabilities:
+      - "vendor qualification"
+      - "document extraction"
+      - "odoo vendor registration"
+      - "compliance check"
+    mcp_bindings:
+      - "mcp://odoo19/vendor.*"
+      - "mcp://postgres/records.*"
+    skill_bindings:
+      - "document.pdf@^1.0"
+      - "ops.recycling-compliance@^1.0"
+    governance_hooks:
+      PreToolUse: ".l9/governance/hooks/PreToolUse.md"
+      PostToolUse: ".l9/governance/hooks/PostToolUse.md"
+      Stop: ".l9/governance/hooks/Stop.md"
+    status: "active"
+    last_acap_review: "2026-06-10"
+
+  - agent_id: "invoice-ar-agent"
+    domain: "finance"
+    playbook: ".l9/playbooks/invoice-ar-processing/playbook.yaml"
+    acap_tier: 3
+    capabilities:
+      - "invoice extraction"
+      - "PO validation"
+      - "accounts receivable posting"
+      - "payment follow-up"
+    mcp_bindings:
+      - "mcp://odoo19/account_move.*"
+      - "mcp://odoo19/purchase_order.*"
+      - "mcp://odoo19/payment_followup.*"
+    skill_bindings:
+      - "document.pdf@^1.0"
+      - "finance.payments@^1.0"
+    governance_hooks:
+      PreToolUse: ".l9/governance/hooks/PreToolUse.md"
+      PostToolUse: ".l9/governance/hooks/PostToolUse.md"
+      Stop: ".l9/governance/hooks/Stop.md"
+    status: "active"
+    last_acap_review: "2026-06-10"
+
+  - agent_id: "document-extraction-agent"
+    domain: "data-ops"
+    playbook: ".l9/playbooks/document-extraction/playbook.yaml"
+    acap_tier: 1
+    capabilities:
+      - "PDF extraction"
+      - "DOCX extraction"
+      - "schema validation"
+      - "field normalization"
+      - "batch document processing"
+    mcp_bindings:
+      - "mcp://postgres/records.*"
+    skill_bindings:
+      - "document.pdf@^1.0"
+      - "document.docx@^1.0"
+    governance_hooks:
+      PreToolUse: ".l9/governance/hooks/PreToolUse.md"
+      PostToolUse: ".l9/governance/hooks/PostToolUse.md"
+      Stop: ".l9/governance/hooks/Stop.md"
+    status: "active"
+    last_acap_review: "2026-06-10"
+
+  - agent_id: "l9-orchestrator"
+    domain: "platform"
+    playbook: ".l9/playbooks/multi-agent-routing/playbook.yaml"
+    acap_tier: 2
+    capabilities:
+      - "intent classification"
+      - "agent routing"
+      - "task delegation"
+      - "resource lock management"
+      - "session memory"
+    mcp_bindings:
+      - "mcp://l9-coordination/lock.*"
+      - "mcp://l9-memory/session.*"
+    skill_bindings:
+      - "agents.swarm-orchestration@^1.0"
+      - "agents.project-memory@^1.0"
+    governance_hooks:
+      PreToolUse: ".l9/governance/hooks/PreToolUse.md"
+      PostToolUse: ".l9/governance/hooks/PostToolUse.md"
+      Stop: ".l9/governance/hooks/Stop.md"
+    status: "active"
+    last_acap_review: "2026-06-10"

@@ -1,0 +1,49 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+scores:
+  - component_id: intake_layer
+    structural_coherence: 80
+    execution_readiness: 85
+    documentation_quality: 70
+    dependency_integrity: 90
+    governance_criticality: 75
+    strategic_value: 95
+    reuse_potential: 95
+    entropy_risk: 25
+    drift_risk: 20
+  - component_id: inventory_node
+    structural_coherence: 70
+    execution_readiness: 65
+    documentation_quality: 65
+    dependency_integrity: 75
+    governance_criticality: 85
+    strategic_value: 95
+    reuse_potential: 90
+    entropy_risk: 45
+    drift_risk: 40
+  - component_id: action_governor
+    structural_coherence: 60
+    execution_readiness: 60
+    documentation_quality: 60
+    dependency_integrity: 70
+    governance_criticality: 95
+    strategic_value: 100
+    reuse_potential: 95
+    entropy_risk: 35
+    drift_risk: 25
+  - component_id: remediation_engine
+    structural_coherence: 50
+    execution_readiness: 30
+    documentation_quality: 50
+    dependency_integrity: 55
+    governance_criticality: 95
+    strategic_value: 85
+    reuse_potential: 80
+    entropy_risk: 60
+    drift_risk: 70

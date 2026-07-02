@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "L9 observed kernel document schema",
+  "type": "object",
+  "description": "Permissive schema derived from consolidated kernel YAML files. Requires a mapping document and allows kernel-specific keys.",
+  "minProperties": 1,
+  "additionalProperties": true
+}

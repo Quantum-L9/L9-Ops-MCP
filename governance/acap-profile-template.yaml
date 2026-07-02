@@ -1,0 +1,94 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# L9 ACAP Profile Template
+# Source: WEF 'AI Agents in Action' (May 2026) — 7-section structure
+# Usage: Copy and complete for each L9 playbook deployment
+
+acap_version: "1.0"
+playbook_id: "<playbook-id>"
+deployment_id: "<env>-<playbook-id>-<semver>"
+effective_from: "<ISO8601>"
+owner: "<team>@cryptoxdog"
+
+# Section 1: Identity and Scope
+identity:
+  agent_name: "<agent name>"
+  mission: "<one-sentence mission>"
+  boundaries: "<what this agent does NOT do>"
+  deployment_owner: "<name, role>"
+  prohibited_actions:
+    - "financial_disbursement"
+    - "contract_signing"
+    - "hazardous_waste_approval"
+
+# Section 2: Operating Context
+context:
+  workflow: "<end-to-end workflow description>"
+  users: ["<user roles>"]
+  systems: ["odoo19", "neo4j", "postgres", "redis"]
+  data_classes: ["<pii|financial|operational>"]
+  jurisdictions: ["GY"]
+  deployment_tier: "<dev|staging|prod>"
+
+# Section 3: Authority and Consequential Events
+authority:
+  permitted_actions: []
+  conditional_actions:
+    - action: "<action>"
+      condition: "<condition>"
+      approver: "<role>"
+  prohibited_actions: []
+  consequential_events_register:
+    - event: "<event name>"
+      reversible: true
+      compensation: "<undo action>"
+  checkpoints:
+    at_steps: []
+    approver_roles: []
+  authority_expansion: "requires_re_authorization"
+
+# Section 4: Controls and Enforcement
+controls:
+  hooks:
+    - PreToolUse: ".l9/governance/hooks/PreToolUse.md"
+    - PostToolUse: ".l9/governance/hooks/PostToolUse.md"
+    - Stop: ".l9/governance/hooks/Stop.md"
+  iam: "least-privilege per step type"
+  logging: "append-only hash-chained audit log"
+  escalation: "slack + email to deployment_owner"
+  fail_safe: "DENY on policy engine unavailability"
+
+# Section 5: Evaluation Evidence
+evaluation:
+  test_suites: ["golden_tests/happy_path.jsonl", "golden_tests/edge_cases.jsonl"]
+  success_criteria:
+    pass_rate: 0.95
+    latency_p95_ms: 30000
+    cost_per_run_usd: 0.50
+  adversarial_tests: "owasp-agentic-top10"
+  promotion_threshold: "all criteria met in staging for ≥48h"
+
+# Section 6: Monitoring and Change Log
+monitoring:
+  otel_endpoint: "http://otel-collector:4317"
+  slo_dashboard: "grafana://l9-playbooks"
+  drift_signals: ["output_schema_fail_rate", "escalation_rate", "cost_per_run"]
+  re_authorization_triggers:
+    - "permitted_actions changed"
+    - "jurisdiction added"
+    - "acap_tier escalated"
+  change_log: "CHANGELOG.md"
+
+# Section 7: Sign-offs and Re-Authorization Cadence
+signoffs:
+  deployment_approver: "<name>"
+  compliance_reviewer: "<name>"
+  review_cadence: "90 days or on trigger"
+  last_review: "<ISO8601>"
+  next_review: "<ISO8601>"

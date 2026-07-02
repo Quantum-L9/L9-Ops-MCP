@@ -1,0 +1,62 @@
+{
+  "$id": "https://identityos.dev/schemas/agent.schema.json",
+  "_l9_meta": {
+    "origin": "identityos-harvest",
+    "source_date": "2026-05-16",
+    "layer": "schema",
+    "status": "active",
+    "retrieval_keys": [
+      "agent_identity",
+      "agent_schema",
+      "AgentIdentity",
+      "kernel_ring",
+      "trust_level"
+    ]
+  },
+  "type": "object",
+  "required": [
+    "@context",
+    "@id",
+    "@type",
+    "name"
+  ],
+  "properties": {
+    "@context": {
+      "type": "string"
+    },
+    "@id": {
+      "type": "string"
+    },
+    "@type": {
+      "const": "AgentIdentity"
+    },
+    "name": {
+      "type": "string"
+    },
+    "kernel_ring": {
+      "type": "string",
+      "enum": [
+        "R0",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6"
+      ],
+      "description": "L9 extension: primary kernel ring this agent operates within"
+    },
+    "trust_level": {
+      "type": "string",
+      "enum": [
+        "L0",
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "description": "L9 extension: current trust ladder level"
+    }
+  }
+}

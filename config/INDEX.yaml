@@ -1,0 +1,87 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# L9 Skill Registry
+# Format: skill_id → { version, path, input_contract, output_contract, compatible_playbooks[] }
+# Source: vasilyu1983/AI-Agents-public pattern (frameworks/shared-skills/skills/INDEX.md)
+
+registry_version: "1.0.0"
+updated: "2026-06-10"
+
+skills:
+  - skill_id: "governance.hooks"
+    version: "1.0.0"
+    path: ".l9/skills/governance-hooks/SKILL.md"
+    description: "PreToolUse / PostToolUse / Stop / SessionStart hook templates"
+    input_contract: { tool_call: object, state: object }
+    output_contract: { decision: "ALLOW|DENY|ESCALATE", reason: string }
+    compatible_playbooks: ["*"]
+    source_harvest: "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/agents-hooks/SKILL.md"
+
+  - skill_id: "document.pdf"
+    version: "1.0.0"
+    path: ".l9/skills/document-pdf/SKILL.md"
+    description: "PDF extraction, parsing, structured field extraction"
+    input_contract: { document_uri: string }
+    output_contract: { extracted_fields: object, confidence: number }
+    compatible_playbooks: ["vendor-onboarding", "invoice-ar-processing", "document-extraction"]
+    source_harvest: "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/document-pdf/SKILL.md"
+
+  - skill_id: "document.docx"
+    version: "1.0.0"
+    path: ".l9/skills/document-docx/SKILL.md"
+    description: "DOCX parsing and structured extraction"
+    input_contract: { document_uri: string }
+    output_contract: { extracted_fields: object, confidence: number }
+    compatible_playbooks: ["vendor-onboarding", "document-extraction"]
+    source_harvest: "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/document-docx/SKILL.md"
+
+  - skill_id: "finance.payments"
+    version: "1.0.0"
+    path: ".l9/skills/finance-payments/SKILL.md"
+    description: "Invoice payment processing, AR status checks, payment reconciliation"
+    input_contract: { invoice_id: string, amount: number, currency: string }
+    output_contract: { payment_status: string, transaction_id: string }
+    compatible_playbooks: ["invoice-ar-processing"]
+    source_harvest: "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/software-payments/SKILL.md"
+
+  - skill_id: "agents.swarm-orchestration"
+    version: "1.0.0"
+    path: ".l9/skills/agents-swarm-orchestration/SKILL.md"
+    description: "Multi-agent routing, task delegation, sub-agent lifecycle management"
+    input_contract: { task: string, agent_registry: object }
+    output_contract: { assigned_agent: string, delegation_chain: array }
+    compatible_playbooks: ["*"]
+    source_harvest: "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/agents-swarm-orchestration/SKILL.md"
+
+  - skill_id: "agents.project-memory"
+    version: "1.0.0"
+    path: ".l9/skills/agents-project-memory/SKILL.md"
+    description: "Kernel continuity: durable memory read/write, context preservation across sessions"
+    input_contract: { key: string, value: object }
+    output_contract: { stored: boolean, retrieved_value: object }
+    compatible_playbooks: ["*"]
+    source_harvest: "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/agents-project-memory/SKILL.md"
+
+  - skill_id: "ops.recycling-compliance"
+    version: "1.0.0"
+    path: ".l9/skills/ops-recycling-compliance/SKILL.md"
+    description: "Guyanese EPA permit validation, waste classification, recycling ops compliance"
+    input_contract: { vendor_id: string, waste_classes: array, permit_number: string }
+    output_contract: { compliant: boolean, risk_score: number, violations: array }
+    compatible_playbooks: ["vendor-onboarding", "recycling-manifest"]
+    source_harvest: "CUSTOM — build from scratch (zero GitHub equivalent found)"
+
+  - skill_id: "dev.workflow-planning"
+    version: "1.0.0"
+    path: ".l9/skills/dev-workflow-planning/SKILL.md"
+    description: "Playbook authoring, step decomposition, dependency graph planning"
+    input_contract: { task_description: string, constraints: object }
+    output_contract: { playbook_draft: object, step_graph: array }
+    compatible_playbooks: ["*"]
+    source_harvest: "vasilyu1983/AI-Agents-public#frameworks/shared-skills/skills/dev-workflow-planning/SKILL.md"

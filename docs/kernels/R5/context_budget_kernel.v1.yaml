@@ -1,0 +1,122 @@
+# L9_META
+# l9_schema: 1 | origin: l9-kernel | source_file: context_budget_kernel.v1.yaml (v3.3.0)
+# layer: kernel | ring: R5 | category: developer_support | status: active | version: 1.1.0
+# retrieval_keys: context_budget, token_limit, compression, runtime_payload, hydrator, hydration, handoff_packets
+# changes_from_v3.3.0: Added hydrator_contract block (ADR-011/019 harvest); RuntimePayload as views enforcement
+# /L9_META
+
+kernel_id: context_budget_kernel.v1
+version: 1.1.0
+ring: R5
+category: developer_support
+title: In-path context token budget enforcement + Hydrator contract
+purpose: >
+  Enforces explicit context-window budget allocation before every session and assembles
+  a scoped RuntimePayload via the hydrator before every generation turn.
+  Fires on session load (overload_guard) and on every turn (budget_monitor + hydration gate).
+  Without it, agents receive raw context dumps that saturate the window or bypass the
+  policy/trust filtering that the hydrator enforces.
+activation_phase: on_demand
+status: active
+
+meta_context:
+  author: Igor Beylin
+  created: "2026-05-06"
+  modified: "2026-06-18"
+  description: >
+    Closes GAP-08: context budget accounting, compression triggers, overload detection.
+    v1.1.0: adds hydrator_contract from IdentityOS ADR-011/ADR-019. The hydrator is the
+    missing architectural layer between budget enforcement and actual context injection.
+    handoff_packets_are_views invariant is now enforced at this layer.
+  l9_aligned_version: v3.4.1
+  changes_from_v3.3.0: >
+    Added hydrator_contract block. Added hydration_precedes_generation hook.
+    Added runtime_payload_structure. Added handoff_packet_view hard ban.
+    requires now includes trust_ladder_kernel.v1 and memory_admission_kernel.v1.
+
+tags: [context_budget, token_limit, compression, context_window, session_management, hydrator, runtime_payload, hydration]
+
+requires:
+  - trust_ladder_kernel.v1
+  - memory_admission_kernel.v1
+
+hydrator_contract:
+  description: >
+    The hydrator assembles a scoped RuntimePayload before each generation turn.
+    It is the ONLY authorized path from graph/memory to agent context.
+    Raw graph access, raw memory dumps, and unfiltered document injection are forbidden.
+  runtime_payload_structure:
+    agent_id: "string — identity of requesting agent"
+    profile_id: "string — user profile identifier"
+    substrate: "string — execution environment"
+    trust_level: "enum [L0, L1, L2, L3, L4, L5] — from trust_ladder_kernel"
+    allowed_scopes: "array[string] — memory/graph segments this agent may read"
+    context_slice: "object — budget-constrained, policy-filtered content"
+    budget_remaining_tokens: "integer — tokens remaining after payload assembly"
+    readonly: "boolean — always true (handoff_packets_are_views)"
+  assembly_order:
+    1: resolve trust_level from trust_ladder_kernel
+    2: fetch allowed_scopes for this agent/profile
+    3: pull graph slice (memory_admission_kernel-filtered writes only)
+    4: apply budget tiers (TIER-1 through TIER-5)
+    5: compress if > 80% budget consumed
+    6: seal as RuntimePayload (read-only view)
+    7: emit to agent context
+
+init:
+  behavior: >
+    On load, register context budget for the session. Budget tiers:
+    TIER-1 load-bearing-docs 60%, TIER-2 register-examples 15%, TIER-3 stakes-declaration 5%,
+    TIER-4 request 10%, TIER-5 reserved-model-output 10%.
+    When TIER-1+TIER-2 > 80% of window, compress TIER-1 docs > 10,000 tokens to abstracts.
+    Block session start if TIER-1 alone exceeds window capacity.
+    ADDITIONALLY: enforce hydrator_contract — no raw context injection permitted.
+    Assert hydration_precedes_generation before first turn.
+
+overload_weight: 1.0
+
+session_hooks:
+  - hook: budget_monitor
+    trigger: on_every_turn
+    description: Recompute context consumption. Emit budget-status.yaml if > 70%. Trigger compression at > 80%.
+  - hook: overload_guard
+    trigger: on_load
+    description: Compute total token cost of staged docs. Reject session start if TIER-1 exceeds window minus output reservation.
+  - hook: hydration_precedes_generation
+    trigger: on_load
+    description: Assert RuntimePayload is assembled via hydrator before first generation turn. Block if hydrator contract not satisfied.
+
+hard_bans:
+  - MUST NOT start a session with staged documents exceeding available context window minus model output reservation.
+  - MUST NOT inject a TIER-1 document after turn 3 without re-running budget accounting.
+  - MUST NOT allow overload_weight total across loaded kernels to exceed 18.0.
+  - MUST NOT silently discard document content — compression or pagination must be explicit and logged.
+  - MUST NOT inject raw graph data, raw memory dumps, or unfiltered document collections into agent context.
+  - MUST NOT allow agents to treat RuntimePayload as mutable — handoff_packets_are_views is an architecture invariant.
+
+fail_closed: false
+
+compatibility:
+  requires:
+    - trust_ladder_kernel.v1
+    - memory_admission_kernel.v1
+  max_overlap_percent: 15
+
+routing_hints:
+  relevance_keywords: [context_budget, token_limit, context_window, compression, overload, hydrator, runtime_payload, hydration]
+  artifact_types: [yaml_spec]
+  objective_classes: [meta, build, audit]
+
+leverage_score: 9.0
+
+convergence_footer:
+  status: active
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+    - "U-09: model-tier context window sizes not yet mapped in moderouter config"
+    - "U-H1: hydrator implementation language (Python vs TypeScript) not yet selected"
+    - "U-H2: graph backend for allowed_scopes resolution not yet determined"

@@ -1,0 +1,100 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: context_budget_kernel.v1
+version: 1.0.0
+ring: R5
+category: developer_support
+title: In-path context token budget enforcement
+purpose: 'Enforces explicit context-window budget allocation before every high-stakes session: registers tier budgets per
+  document type (load-bearing, register, stakes, request), blocks context overload before it degrades generation quality,
+  and compresses or paginate when within 20% of limit.'
+activation_phase: on_demand
+status: active
+
+description: |
+  CAPABILITY: Enforce explicit context-window budget allocation and trigger compression before overload degrades quality.
+  Use when: context approaching window limits, loading large documents, planning multi-session work, or budgeting token allocation.
+  Do NOT use when: short single-turn tasks well within the context window.
+  Signals: context budget, token limit, context window, compression, overload, large document, multi-session, running out of context, context full
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-08: introduces explicit context budget accounting, document tier allocation, compression triggers,
+    and overload detection — preventing context window saturation that silently degrades output quality.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - context_budget
+  - token_limit
+  - compression
+  - context_window
+  - session_management
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires: []
+init:
+  behavior: 'On load, register the context budget for the session. Budget tiers: TIER-1 load-bearing-docs: 60% of window,
+    TIER-2 register-examples: 15%, TIER-3 stakes-declaration: 5%, TIER-4 request: 10%, TIER-5 reserved-model-output: 10%.
+    When TIER-1+TIER-2 fills > 80% of available window, trigger compression: summarize TIER-1 documents exceeding 10,000 tokens
+    to structured abstracts. Block session start if TIER-1 alone exceeds window capacity.'
+  overload_weight: 1.0
+  session_hooks:
+  - hook: budget_monitor
+    trigger: on_every_turn
+    description: After each turn, recompute context consumption. Emit budget-status.yaml if > 70% consumed. Trigger compression
+      or pagination at > 80%.
+  - hook: overload_guard
+    trigger: on_load
+    description: On session start, compute total token cost of staged documents. Reject session start if TIER-1 alone exceeds
+      model context window minus reserved output budget.
+
+hard_bans:
+- MUST NOT start a session with staged documents exceeding the available context window minus the model output reservation.
+- MUST NOT inject a TIER-1 document after turn 3 without re-running budget accounting and potentially compressing earlier
+  context.
+- MUST NOT allow overload_weight total across loaded kernels to exceed 18.0 — reject kernel loads that would breach this limit.
+- MUST NOT silently discard document content due to context overflow — compression or pagination must be explicit and logged.
+fail_closed: false
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  max_overlap_percent: 15
+routing_hints:
+  relevance_keywords:
+  - context_budget
+  - token_limit
+  - context_window
+  - compression
+  - overload
+  - session_budget
+  artifact_types:
+  - yaml_spec
+  objective_classes:
+  - meta
+  - build
+  - audit
+  leverage_score: 8.5
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-09: model-tier context window sizes not yet mapped in moderouter config'
+sha256: 138dbee6637ff2c405efbf95661f7b7cf5195663d30a45fd9c7e6aff9ff0a333

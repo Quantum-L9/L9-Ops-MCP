@@ -1,0 +1,48 @@
+---
+l9_schema: 1
+artifact_type: documentation
+tags: ['docs']
+retrieval: on_demand
+status: active
+---
+# competitor-teardown-v1
+
+```yaml
+---
+id: competitor-teardown-v1
+version: 1.0.0
+author: Igor Beylin
+use-case: Produce a structured competitive analysis teardown of a product or company
+model-target: claude-sonnet-4
+eval-status: untested
+last-tested: 2026-06-17
+tags: [competitive-intelligence, analysis, strategy]
+kernel-alignment: []
+
+inputs:
+  - name: TARGET
+    type: string
+    required: true
+    description: Company or product name to analyze
+    example: "Braintrust (LLMOps platform)"
+  - name: CONTEXT
+    type: string
+    required: false
+    description: Specific angle or comparison context
+    example: "Compare vs Promptfoo for prompt CI use cases"
+
+expected-output: |
+  Format: markdown
+  Content: positioning, strengths, weaknesses, differentiation gaps, threat level
+  Length: 400-800 words
+---
+Produce a competitor teardown analysis of {TARGET}.
+Context: {CONTEXT}
+
+Structure:
+1. What They Do (1 paragraph)
+2. Strengths (bullet list)
+3. Weaknesses / Gaps (bullet list)
+4. Differentiation from l9-ops approach
+5. Threat Level: LOW / MEDIUM / HIGH — with 1-sentence rationale
+```

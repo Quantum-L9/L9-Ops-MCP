@@ -1,0 +1,101 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: kernel
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+kernelid: doc_gardener_kernel.v1
+version: 1.0.0
+ring: R6
+category: meta
+title: Autonomous doc freshness and quality grading
+purpose: 'Runs autonomous documentation freshness sweeps: detects stale, contradicted, or orphaned docs relative to current
+  code state, assigns per-domain quality grades (A-D), and opens fix-up PRs for drift findings — reducing the documentation
+  lag that makes AI agent context unreliable.'
+activation_phase: lazy
+status: active
+
+description: |
+  CAPABILITY: Audit documentation quality, detect stale docs, and enforce README/doc health.
+  Use when: auditing doc quality, finding stale or orphaned docs, checking README health, or running a documentation gardening pass.
+  Do NOT use when: non-documentation tasks or when docs are out of scope.
+  Signals: doc audit, stale docs, README health, documentation quality, doc gardening, orphaned docs, doc rot, outdated documentation
+
+meta_context:
+  author: Igor Beylin
+  created: '2026-05-06'
+  modified: '2026-05-06'
+  description: 'Closes GAP-06: establishes doc gardening cadence, quality grading schema, stale-doc detection heuristics,
+    and fix-up PR contract. Complements repo_auditor_kernel.v1''s governance surface.'
+  l9_aligned_version: v3.3.0
+  tags:
+  - doc_freshness
+  - quality_grading
+  - stale_docs
+  - documentation
+  - meta
+  - gardening
+
+# --- TIER 2: task body (load onTaskConfirm) ---
+tier2_load: onTaskConfirm
+
+requires:
+- repo_auditor_kernel.v1
+init:
+  behavior: 'On activation, scan docs/ and AGENTS.md for staleness signals: last_modified age > 30 days AND related code commits
+    exist since last_modified. Assign quality grades (A: current+accurate, B: minor gaps, C: partially outdated, D: contradicts
+    code). Emit quality-grades.yaml to docs/ root. Open fix-up PR for every doc graded C or D. AGENTS.md MUST remain a TOC
+    (< 120 lines pointing to docs/) — fail if AGENTS.md exceeds 150 lines.'
+  overload_weight: 0.5
+  session_hooks:
+  - hook: agents_md_size_guard
+    trigger: on_artifact_emit
+    description: Before emitting any update to AGENTS.md, assert line count <= 150. Reject if exceeded — split content to
+      docs/ instead.
+
+hard_bans:
+- MUST NOT grade a document as A (current) without checking it against the most recent commit touching related code paths.
+- MUST NOT open a fix-up PR for a doc without a specific finding_id referencing the stale section.
+- MUST NOT allow AGENTS.md to exceed 150 lines — any overflow MUST be split to docs/ and linked from AGENTS.md as a TOC entry.
+- MUST NOT delete documentation without archiving to docs/archive/ with a deprecation notice.
+fail_closed: false
+
+# --- TIER 3: analytics/governance (load onAuditOrGovernance) ---
+tier3_load: onAuditOrGovernance
+
+compatibility:
+  amplifies:
+  - kernel_id: repo_auditor_kernel.v1
+    multiplier: 1.6
+  max_overlap_percent: 25
+routing_hints:
+  relevance_keywords:
+  - documentation
+  - docs
+  - stale_docs
+  - quality_grade
+  - agents_md
+  - doc_gardening
+  - freshness
+  artifact_types:
+  - yaml_spec
+  - markdown
+  objective_classes:
+  - audit
+  - meta
+  leverage_score: 7.0
+
+convergence_footer:
+  status: unknown
+  threshold: 0.05
+  pass_count: 0
+  final_ratio: 0.0
+  lastRunDate: null
+  modelVersion: null
+  artifact_type: yaml_kernel
+  naming_compliance: snake_case_verified
+  unknowns:
+  - 'U-07: staleness threshold (30 days) not validated against team cadence'
+sha256: bf7d681778f0bcd75b58f33f49c7042df20ada8a21085e7c2b8bc7205d62849a

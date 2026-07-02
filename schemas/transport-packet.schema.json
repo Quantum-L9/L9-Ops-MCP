@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://l9.local/schemas/transport-packet.schema.json",
+  "title": "TransportPacket",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "packet_id",
+    "packet_type",
+    "schema_version",
+    "created_at",
+    "producer",
+    "consumer",
+    "objective",
+    "context_scope",
+    "payload",
+    "provenance",
+    "budget",
+    "routing",
+    "validation"
+  ],
+  "properties": {
+    "packet_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "packet_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consumer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "pr_number",
+        "base_ref",
+        "head_ref",
+        "head_sha"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "pr_number": {
+          "type": [
+            "integer",
+            "string"
+          ]
+        },
+        "base_ref": {
+          "type": "string"
+        },
+        "head_ref": {
+          "type": "string"
+        },
+        "head_sha": {
+          "type": "string"
+        }
+      }
+    },
+    "payload": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "sha256",
+          "role"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "required": [
+        "token_strategy",
+        "max_context_files",
+        "bloat_guard"
+      ],
+      "properties": {
+        "token_strategy": {
+          "type": "string"
+        },
+        "max_context_files": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bloat_guard": {
+          "type": "string"
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "required": [
+        "skills",
+        "kernels",
+        "sequence"
+      ],
+      "properties": {
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "kernels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sequence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "status",
+        "checks"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "unknown"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

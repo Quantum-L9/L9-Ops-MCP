@@ -1,0 +1,127 @@
+# --- L9_META ---
+# l9_schema: 1
+# artifact_type: context
+# tags: general
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
+
+# =============================================================================
+# evals/promptfooconfig.yaml — L9 IgorOS Pack Eval Suite
+# Run: npx promptfoo eval --config evals/promptfooconfig.yaml
+# =============================================================================
+
+description: "L9 IgorOS Pack — Skill and Kernel Eval Suite v3.4.0"
+
+defaultTest:
+  assert:
+    - type: not-contains
+      value: "TODO"
+    - type: not-contains
+      value: "<placeholder>"
+    - type: not-contains
+      value: "I don't know"
+
+providers:
+  - id: anthropic:claude-sonnet-4-6
+    label: "claude-sonnet-4-6"
+  - id: mistral:mistral-medium-3.1
+    label: "mistral-medium-3.1"
+
+prompts:
+  - file://evals/datasets/soul_kernel_identity.txt
+  - file://evals/datasets/soul_kernel_planner_trigger.txt
+  - file://evals/datasets/memory_kernel_session_start.txt
+  - file://evals/datasets/blue_sky_analysis.txt
+  - file://evals/datasets/module_spec_gen.txt
+
+tests:
+  # soul_kernel — identity and core laws
+  - description: "Soul kernel — agent identity assertion"
+    vars:
+      input: "Who are you and what is your role?"
+    assert:
+      - type: contains
+        value: "generative strategist"
+      - type: not-contains
+        value: "chatbot"
+      - type: not-contains
+        value: "AI assistant"
+
+  # soul_kernel — planner law trigger
+  - description: "Soul kernel — planner invocation on 'roadmap' keyword"
+    vars:
+      input: "Give me a roadmap for launching the billing node"
+    assert:
+      - type: contains
+        value: "plan"
+      - type: llm-rubric
+        value: "Response must attempt to invoke or reference the planner before providing a roadmap. It should not just output prose."
+
+  # soul_kernel — skill-first law
+  - description: "Soul kernel — skill-first enforcement"
+    vars:
+      input: "Search memory for recent cursor sessions"
+    assert:
+      - type: llm-rubric
+        value: "Response must reference invoking the cursor-memory-kernel skill, not raw shell execution."
+
+  # soul_kernel — model routing
+  - description: "Soul kernel — model routing for simple lookup"
+    vars:
+      input: "What is the current status of the billing node?"
+    assert:
+      - type: llm-rubric
+        value: "Response should indicate this is a simple lookup, routing to mistral-small or equivalent."
+
+  # preferences_kernel — canonical headers
+  - description: "Preferences kernel — canonical header requirement"
+    vars:
+      input: "Create a new kernel file for tracking session state"
+    assert:
+      - type: contains
+        value: "title:"
+      - type: contains
+        value: "purpose:"
+      - type: contains
+        value: "retrieval_keys"
+      - type: contains
+        value: "production_ready"
+
+  # cursor-memory-kernel — session start protocol
+  - description: "Memory skill — session start protocol"
+    vars:
+      input: "Starting a new Cursor session to work on l9-codegraph"
+    assert:
+      - type: contains
+        value: "health"
+      - type: llm-rubric
+        value: "Response must reference running health check first, then injection of preferences and lessons."
+
+  # blue-sky-analysis — constraint enforcement
+  - description: "Blue sky skill — no implementation plans"
+    vars:
+      input: "Run a blue sky analysis on the PlasticOS marketplace"
+    assert:
+      - type: not-contains
+        value: "implementation plan"
+      - type: not-contains
+        value: "task list"
+      - type: llm-rubric
+        value: "Response must stay at strategic level — trajectory, leverage, positioning. No code, no task breakdowns."
+
+  # generate-module-spec — tier classification
+  - description: "Module spec skill — tier 2 classification"
+    vars:
+      input: "Generate a spec for a Slack adapter module that receives webhooks, threads conversations with UUIDv5, and calls the AIOS chat endpoint"
+    assert:
+      - type: contains
+        value: "tier: 2"
+      - type: contains
+        value: "UUIDv5"
+      - type: contains
+        value: "structlog"
+      - type: not-contains
+        value: "uuid4"
+      - type: not-contains
+        value: "logging"
