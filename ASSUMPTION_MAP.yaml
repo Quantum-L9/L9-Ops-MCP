@@ -1,0 +1,13 @@
+assumptions:
+  - id: A1
+    statement: "The V2 metadata injector emits JSON indexes containing artifact objects."
+    confidence: medium
+    validation: "Exporter supports list, artifacts, items, records, documents, and resources layouts."
+  - id: A2
+    statement: "L9-Ops-MCP is the canonical context/control-plane repo."
+    confidence: high
+    validation: "User clarified repository role."
+  - id: A3
+    statement: "Graphiti ingestion can be represented behind a sink interface."
+    confidence: high
+    validation: "GraphSeedSink protocol isolates live sink from seed contract."
