@@ -1,0 +1,23 @@
+---
+l9_schema: 1
+artifact_type: governance_policy
+tags: [org-invariant, repo-routing, quantum-l9]
+retrieval: on_demand
+status: active
+---
+org_invariants:
+  owner: Quantum-L9
+  new_repo_url_prefix: https://github.com/Quantum-L9/
+  repo_birth:
+    allowed_owner: Quantum-L9
+    fail_closed: true
+    forbidden_owners:
+      - cryptoxdog
+      - personal_accounts
+  enforcement_points:
+    - upload_to_repo_routing
+    - repo_birth_decision
+    - github_create_repo
+    - dry_run_plan
+    - write_plan
+  violation_action: BLOCKED

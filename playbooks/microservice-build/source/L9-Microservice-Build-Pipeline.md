@@ -7,7 +7,7 @@ status: active
 ---
 # OPTIMIZED WORKFLOW PROMPT CHAIN
 ## L9 Labs Microservice Build Pipeline
-### `chain-of-search` · github.com/cryptoxdog/chain-of-search
+### `chain-of-search` · github.com/Quantum-L9/chain-of-search
 
 ---
 

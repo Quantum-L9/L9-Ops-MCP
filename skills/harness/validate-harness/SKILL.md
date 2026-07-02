@@ -1,3 +1,7 @@
+---
+name: validate-harness
+description: "Validate that the L9 coding harness kernels behave correctly with the current model. Use when verifying harness behavior after changes."
+---
 <!-- L9_META
 id: validate-harness
 version: 1.0.0

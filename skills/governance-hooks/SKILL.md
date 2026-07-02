@@ -1,4 +1,6 @@
 ---
+name: governance-hooks
+description: "Enforce hook-based governance on every tool call via PreToolUse/PostToolUse gates. Use when applying governance hooks to agent tool calls."
 l9_schema: 1
 artifact_type: documentation
 tags: ['docs', 'retrieval', 'skill']

@@ -1,4 +1,6 @@
 ---
+name: agents-project-memory
+description: "Inject, retrieve, and persist L9 kernel project memory across agent sessions. Use when maintaining project-memory continuity."
 l9_schema: 1
 artifact_type: documentation
 tags: ['docs', 'retrieval', 'skill']

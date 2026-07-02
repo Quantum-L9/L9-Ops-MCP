@@ -1,0 +1,7 @@
+type: object
+required: [request_id, uploads, extracted_files, checksums]
+properties:
+  request_id: {type: string}
+  uploads: {type: array}
+  extracted_files: {type: array}
+  checksums: {type: object}

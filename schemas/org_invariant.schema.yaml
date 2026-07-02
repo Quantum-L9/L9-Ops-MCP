@@ -1,0 +1,14 @@
+type: object
+required: [org_invariants]
+properties:
+  org_invariants:
+    type: object
+    required: [owner, new_repo_url_prefix, repo_birth]
+    properties:
+      owner:
+        const: Quantum-L9
+      new_repo_url_prefix:
+        const: https://github.com/Quantum-L9/
+      repo_birth:
+        type: object
+        required: [allowed_owner, fail_closed]
