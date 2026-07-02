@@ -1,0 +1,9 @@
+# Append these to L9-Ops-MCP/pyproject.toml [project] dependencies
+# Resolves U-M2 / U-H2: Graphiti selected as the L9 graph backend.
+dependencies = [
+    "graphiti-core>=0.3.0",
+    "neo4j>=5.20.0",
+    "mcp>=1.2.0",
+    "pydantic>=2.6.0",
+    "tiktoken>=0.6.0",
+]

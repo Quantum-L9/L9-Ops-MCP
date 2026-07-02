@@ -1,0 +1,17 @@
+# PATCH for playbooks/multi-agent-routing/playbook.yaml
+# Replaces the memory_persist step tool binding: the endpoint now exists.
+  - id: "memory_persist"
+    type: "tool_call"
+    acap_tier: 2
+    skill_binding:
+      skill_id: "agents.project-memory"
+      version_pin: "^1.0"
+      fallback: "native_memory_stub"
+    tool: "mcp://l9-ops-mcp/memory_ingest_episode"   # was mcp://l9-memory/session.update (unimplemented)
+    inputs_from:
+      - "$.inputs.session_id"
+      - "$.state.delegation_result"
+      - "$.state.classified_intent"
+    outputs_to: "$.state.memory_record"
+    idempotency_key: "{{ run_id }}-memory"
+    timeout_ms: 3000
