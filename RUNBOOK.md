@@ -1,138 +1,79 @@
-<!-- L9_META
-l9_schema: 1
-origin: l9-kernel
-layer: [docs, runbook]
-tags: [L9_KERNEL, runbook, operator-readiness]
-owner: platform
-status: active
-canonical_path: RUNBOOK.md
-version: 3.3.0
-/L9_META -->
+# RUNBOOK — Graph Export Adapter Overlay
 
-# RUNBOOK — L9 Library Operations
+## Prerequisites
 
----
+- Python 3.11+
+- Existing `Quantum-L9/L9-Ops-MCP` checkout
+- A generated V2 metadata or retrieval index
 
-## Instant Setup
+## Install in repo
 
-```bash
-# Clone and navigate to repo root
-cd your-repo
+Copy this overlay into the root of `L9-Ops-MCP`.
 
-# Confirm library structure is intact
-bash scripts/library_health.sh
+Expected resulting paths:
 
-# Confirm harness evals pass
-npm install -g promptfoo   # if not installed
-npx promptfoo eval --config evals/promptfooconfig.yaml
+```text
+docs/integrations/
+schemas/
+scripts/
+src/l9_ops_mcp/adapters/
+tests/
 ```
 
-Expected: `library_health.sh` exits 0. Promptfoo reports all 9 tests PASS.
+## Validate
 
----
-
-## Common Operations
-
-### Optimize an existing kernel
 ```bash
-# Load optimize-kernel skill in your agent session
-# Feed the kernel file path
-# Review audit report
-# Commit the optimized file
-git add docs/kernels/R5/{kernel}.md
-git commit -m "feat(kernel): optimize {kernel} — KERNEL_DOCTRINE.md compliance"
+python -m pytest
+python -m compileall src scripts tests
 ```
 
-### Add a new skill
+Optional if `ruff` is installed:
+
 ```bash
-mkdir -p skills/{domain}/{skill-id}
-# Author skills/{domain}/{skill-id}/SKILL.md per SKILLS_DOCTRINE.md §4
-# Update AGENTS.md skill registry
-# Create eval fixture in evals/datasets/
-# Run promptfoo eval to confirm behavior
+ruff check .
 ```
 
-### Add a new playbook
+## Export graph seed
+
 ```bash
-mkdir -p playbooks/{playbook-id}/steps
-mkdir -p playbooks/{playbook-id}/handoffs/examples
-# Author PLAYBOOK.md per PLAYBOOKS_DOCTRINE.md §3
-# Author each step file per PLAYBOOKS_DOCTRINE.md §5
-# Define typed handoff schemas per PLAYBOOKS_DOCTRINE.md §6
-# Update AGENTS.md playbook registry
+python scripts/export_graph_seed.py \
+  --index path/to/retrieval-index.json \
+  --repo-root . \
+  --out runtime/graph/graph-seed.jsonl \
+  --namespace core
 ```
 
-### Update the harness
+## Verify graph seed
+
 ```bash
-# 1. Edit the canonical file
-vi docs/kernels/R5/l9_coding_kernel.v1.md   # or l9_build_kernel.v1.md
-
-# 2. Bump version in L9_META block, update last_tested date
-
-# 3. Confirm no copies created
-bash scripts/library_health.sh
-
-# 4. Run evals
-npx promptfoo eval --config evals/promptfooconfig.yaml
-
-# 5. Commit with tag
-git add docs/kernels/R5/l9_coding_kernel.v1.md
-git commit -m "feat(harness): l9_coding_kernel v{N} — {change summary}"
-git tag harness/l9_coding_kernel/v{N}
+python scripts/verify_graph.py --seed runtime/graph/graph-seed.jsonl
 ```
 
-### Monthly health check
+## Ingest to local report sink
+
 ```bash
-bash scripts/library_health.sh
-bash scripts/audit_hardban_duplication.sh
-npx promptfoo eval --config evals/promptfooconfig.yaml
+python scripts/ingest_graph_seed.py \
+  --seed runtime/graph/graph-seed.jsonl \
+  --report runtime/graph/graph-ingest-report.json
 ```
 
-### After model upgrade
+## Full sync
+
 ```bash
-# 1. Run validate-harness skill — checks both kernels against new model
-# 2. Review per-law results
-# 3. If any FAIL: update the offending rule in the canonical kernel file
-# 4. Bump version, update last_tested, run evals again
-# 5. Set eval_status: pass when all tests pass
+python scripts/sync_graph.py \
+  --index path/to/retrieval-index.json \
+  --repo-root . \
+  --seed runtime/graph/graph-seed.jsonl \
+  --report runtime/graph/graph-ingest-report.json
 ```
 
----
+## Troubleshooting
 
-## Required Environment
+- `index file not found`: verify the V2 index path.
+- `invalid JSON index`: regenerate the V2 index or repair malformed JSON.
+- `callable artifacts require an mcp_primitive`: fix metadata so callable artifacts declare the tool/resource primitive.
+- `unsupported record_type`: ensure JSONL lines match `artifact_node` or `artifact_edge`.
 
-- Node.js (for `npx promptfoo eval`)
-- bash >= 4.0
-- An AI agent with access to `docs/kernels/R5/` files
-- Git
+## Rollback
 
----
-
-## Expected Outputs
-
-| Command | Expected output |
-|---|---|
-| `bash scripts/library_health.sh` | `STATUS: ✅ PASS — library is healthy` |
-| `bash scripts/audit_hardban_duplication.sh` | `PASS: no universal hard ban duplication found` |
-| `npx promptfoo eval` | 9/9 tests pass |
-
----
-
-## Known Failure Modes
-
-| Failure | Cause | Fix |
-|---|---|---|
-| `library_health.sh` FAIL: copies found | Harness file copied into product repo | Delete copy; reference by canonical path |
-| `library_health.sh` WARN: stale dates | Kernels not re-tested after model upgrade | Run validate-harness skill; update last_tested |
-| Promptfoo FAIL: LAW-T1 test | Model not loading coding kernel or ignoring it | Confirm AGENTS.md harness trigger wired |
-| `eval_status: fail` in kernel | Recent model changed behavior | Run optimize-kernel + validate-harness cycle |
-
----
-
-## Agent / Operator Handoff
-
-To onboard a new agent or team member:
-1. Point them at `AGENTS.md` — this is the entry point for all sessions
-2. Confirm `moderouter_kernel.v1` is configured (auto-loads harness on coding objectives)
-3. Run `bash scripts/library_health.sh` to confirm the library is in a clean state
-4. For their first coding task: confirm `make harness` passes in their environment
+Remove the overlay files listed in `MANIFEST.md`, or revert the PR.

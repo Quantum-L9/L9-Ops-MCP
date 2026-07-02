@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "artifact": {
+          "$ref": "artifact-node.schema.json"
+        },
+        "record_type": {
+          "const": "artifact_node"
+        }
+      },
+      "required": [
+        "record_type",
+        "artifact"
+      ]
+    },
+    {
+      "properties": {
+        "edge": {
+          "$ref": "artifact-edge.schema.json"
+        },
+        "record_type": {
+          "const": "artifact_edge"
+        }
+      },
+      "required": [
+        "record_type",
+        "edge"
+      ]
+    }
+  ],
+  "title": "L9 Graph Seed JSONL Record",
+  "type": "object"
+}

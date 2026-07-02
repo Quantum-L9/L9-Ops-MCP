@@ -1,50 +1,20 @@
-# --- L9_META ---
-# l9_schema: 1
-# artifact_type: project_config
-# component: l9_ops_mcp_package
-# tags: [mcp, control-plane, packaging]
-# retrieval: on_demand
-# status: active
-# --- /L9_META ---
-
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "l9-ops-mcp"
-version = "0.3.0"
-description = "L9 MCP operations control plane for TransportPacket routing, skill/kernel retrieval, and downstream agent consumers."
+name = "l9-graph-export-adapter-overlay"
+version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = [
-  "pydantic>=2.8",
-  "pyyaml>=6.0",
-  "structlog>=24.0",
-]
-
-[project.optional-dependencies]
-dev = [
-  "pytest>=8.0",
-  "pytest-asyncio>=0.23",
-  "ruff>=0.4",
-  "mypy>=1.10",
-]
-
-[project.scripts]
-l9-action-governor = "l9_action_governor.cli:main"
+dependencies = []
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-
-[tool.mypy]
-python_version = "3.11"
-strict = true
-mypy_path = "src"
-
-[tool.pytest.ini_options]
-pythonpath = ["src", "."]
-testpaths = ["tests", "scripts"]

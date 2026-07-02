@@ -1,0 +1,24 @@
+traceability:
+  objective:
+    source: "User request to build PR-ready overlay for graph export adapter and integration docs."
+    implemented_by:
+      - "src/l9_ops_mcp/adapters/graph_export/exporter.py"
+      - "src/l9_ops_mcp/adapters/graph_import/ingester.py"
+      - "src/l9_ops_mcp/adapters/graph_sync/syncer.py"
+  docs_requested:
+    implemented_by:
+      - "docs/integrations/GRAPH_EXPORT_ADAPTER.md"
+      - "docs/integrations/GRAPH_EXPORT_ADAPTER_CONSUMER.md"
+      - "docs/integrations/GRAPHITI_DEPLOYMENT.md"
+      - "docs/integrations/HYDRATOR_INTEGRATION.md"
+  schemas_requested:
+    implemented_by:
+      - "schemas/graph-seed.schema.json"
+      - "schemas/artifact-node.schema.json"
+      - "schemas/artifact-edge.schema.json"
+  validation:
+    implemented_by:
+      - "tests/test_export.py"
+      - "tests/test_ingest.py"
+      - "tests/test_sync.py"
+      - "VALIDATION.md"
