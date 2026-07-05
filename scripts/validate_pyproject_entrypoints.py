@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import importlib
 import sys
-from pathlib import Path
 from validate_helpers import ROOT, status_line
 
 try:

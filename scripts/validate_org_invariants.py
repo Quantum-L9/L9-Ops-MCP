@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import re
 import sys
-from pathlib import Path
 from validate_helpers import ROOT, read, status_line
 
 ALLOWED = "Quantum-L9"

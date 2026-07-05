@@ -63,7 +63,7 @@ def run_validator(path: str) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--all", action="store_true")
-    args = parser.parse_args()
+    parser.parse_args()
     failures = 0
     failures += check_agents_links()
     failures += check_workflow_scripts()

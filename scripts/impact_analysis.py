@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
-from pathlib import Path
 from validate_helpers import ROOT, status_line
 
 CATEGORIES = {
@@ -43,7 +42,7 @@ def classify(files: list[str]) -> dict[str, list[str]]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--all", action="store_true")
-    args = parser.parse_args()
+    parser.parse_args()
     files = changed_files()
     if not files:
         files = [str(p.relative_to(ROOT)) for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts]
