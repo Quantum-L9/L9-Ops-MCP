@@ -1,10 +1,16 @@
 ---
 l9_schema: 1
 artifact_type: governance_policy
-tags: [org-invariant, repo-routing, quantum-l9]
+tags: [org-invariant, repo-routing, quantum-l9, mirror]
 retrieval: on_demand
 status: active
+canonical: false
+canonical_source: https://github.com/Quantum-L9/Cursor-Governance/blob/main/ORG_INVARIANTS.yaml
 ---
+# MIRROR of the canonical org invariant policy in Quantum-L9/Cursor-Governance.
+# Do not edit here — edit the canonical file and re-sync this org_invariants block
+# byte-identical. See that repo's docs/governance/ORG_INVARIANTS.md.
+# The block below is validated locally by scripts/validate_org_invariants.py.
 org_invariants:
   owner: Quantum-L9
   new_repo_url_prefix: https://github.com/Quantum-L9/
