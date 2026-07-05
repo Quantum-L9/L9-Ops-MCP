@@ -5,7 +5,6 @@ import argparse
 import re
 import subprocess
 import sys
-from pathlib import Path
 from validate_helpers import ROOT, read, rel, status_line, find_markdown_links, python_syntax_ok
 
 
