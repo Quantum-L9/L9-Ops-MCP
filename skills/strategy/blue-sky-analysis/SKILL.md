@@ -1,4 +1,5 @@
 ---
+name: blue-sky-analysis
 title: "blue-sky-analysis — Universal Strategic Expansion Skill"
 purpose: "Recursive domain-agnostic strategic analysis of any artifact to determine what it actually is, what it can evolve into, where hidden leverage exists, and which future directions create greatest compounding value."
 summary: "9-pass recursive strategic analysis. Hard-constrained to strategic level only — no implementation, code, or task lists. Outputs 10 structured sections covering essence through final recommendation."

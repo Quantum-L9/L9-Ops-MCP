@@ -1,3 +1,7 @@
+---
+name: scaffold-node
+description: "Scaffold a new L9 Constellation node compliant with l9_coding_kernel.v1 from a node spec. Use when creating a new worker or orchestrator node."
+---
 <!-- L9_META
 id: scaffold-node
 version: 1.0.0

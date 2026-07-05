@@ -1,3 +1,7 @@
+---
+name: optimize-kernel
+description: "Bring an existing L9 kernel into compliance with KERNEL_DOCTRINE.md. Use when optimizing or refactoring a harness kernel."
+---
 <!-- L9_META
 id: optimize-kernel
 version: 1.0.0

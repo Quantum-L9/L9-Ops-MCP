@@ -1,4 +1,5 @@
 ---
+name: generate-module-spec
 title: "generate-module-spec — L9 Module Spec Generator Skill"
 purpose: "Generate a complete, production-ready Module-Spec-v2.5.yaml for any L9 module using the 6-pass workflow. Output is ready for Perplexity code generation pipeline."
 summary: "Encapsulates the full L9 SuperPrompt v2.5 6-pass module spec workflow: tier classification, existing code mapping, interface extraction, orchestration flow definition, idempotency and error policy configuration, and quality gate validation. Produces one Module-Spec-v2.5.yaml per module."
