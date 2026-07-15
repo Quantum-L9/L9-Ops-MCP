@@ -26,6 +26,7 @@ DORA:
     lifecycle: production
     owner: LCTO
 """
+
 from __future__ import annotations
 
 # ============================================================================
@@ -60,9 +61,11 @@ from pathlib import Path
 
 try:
     import structlog
+
     logger = structlog.get_logger(__name__)
 except ImportError:
     import logging
+
     logger = logging.getLogger(__name__)
 
 
@@ -207,23 +210,27 @@ def validate(dry_run: bool = False) -> int:
         # Check protected paths
         for pattern in protected_patterns:
             if file_matches_pattern(filepath, pattern):
-                violations.append({
-                    "file": filepath,
-                    "matched_pattern": pattern,
-                    "category": "protected",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                })
+                violations.append(
+                    {
+                        "file": filepath,
+                        "matched_pattern": pattern,
+                        "category": "protected",
+                        "timestamp": datetime.now(UTC).isoformat(),
+                    }
+                )
                 break
 
         # Check meta-protected (self-protecting files)
         for pattern in meta_patterns:
             if file_matches_pattern(filepath, pattern):
-                meta_violations.append({
-                    "file": filepath,
-                    "matched_pattern": pattern,
-                    "category": "meta_protected",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                })
+                meta_violations.append(
+                    {
+                        "file": filepath,
+                        "matched_pattern": pattern,
+                        "category": "meta_protected",
+                        "timestamp": datetime.now(UTC).isoformat(),
+                    }
+                )
                 break
 
     all_violations = violations + meta_violations

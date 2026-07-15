@@ -13,10 +13,12 @@ validate_headers.py — Enforce canonical headers on all kernels and skills.
 Usage: python3 scripts/validate_headers.py --dir docs/kernels --ext .yaml --required title,purpose,summary,...
 Exits 1 if any file is missing required fields.
 """
+
 import sys
 import os
 import argparse
 import yaml
+
 
 def check_yaml_frontmatter(filepath, required_fields):
     with open(filepath) as f:
@@ -43,6 +45,7 @@ def check_yaml_frontmatter(filepath, required_fields):
     except Exception as e:
         return [f"{filepath}: parse error: {e}"]
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dir", required=True)
@@ -65,6 +68,7 @@ def main():
         sys.exit(1)
     else:
         print(f"  OK: All files in {args.dir} have required headers.")
+
 
 if __name__ == "__main__":
     main()

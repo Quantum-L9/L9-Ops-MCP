@@ -19,6 +19,7 @@ Usage:
 
 Exit: 0 = fully wired, 1 = gaps found
 """
+
 import argparse
 import json
 import re
@@ -51,7 +52,7 @@ class R:
         self.fails.append(e)
 
     def print(self, aid):
-        print(f"\n{'─'*55}\n  Wiring: {aid}")
+        print(f"\n{'─' * 55}\n  Wiring: {aid}")
         for line in self.passes:
             print(line)
         for line in self.fails:
@@ -66,8 +67,11 @@ def check_kernel(kid, m, agents, pf):
     reg = m.get("kernels", {}).get("registry", [])
     entry = next((k for k in reg if k.get("id") == kid), None)
     if not entry:
-        r.fail("manifest", f"'{kid}' not in MANIFEST kernels.registry",
-               f"python3 scripts/add_artifact.py kernel --id {kid} ...")
+        r.fail(
+            "manifest",
+            f"'{kid}' not in MANIFEST kernels.registry",
+            f"python3 scripts/add_artifact.py kernel --id {kid} ...",
+        )
         return r.print(kid)
     r.ok("manifest", "In MANIFEST kernels.registry")
 
@@ -80,43 +84,54 @@ def check_kernel(kid, m, agents, pf):
         if "Use when:" in c and "Signals:" in c:
             r.ok("trigger-triad", "Trigger Triad present")
         else:
-            r.fail("trigger-triad", "Missing Use when:/Signals: in description",
-                   "Fill per KERNEL_DOCTRINE.md §2.3")
+            r.fail(
+                "trigger-triad",
+                "Missing Use when:/Signals: in description",
+                "Fill per KERNEL_DOCTRINE.md §2.3",
+            )
         if "tier2_load:" in c and "tier3_load:" in c:
             r.ok("tiers", "Tier 2 and 3 markers present")
         else:
-            r.fail("tiers", "Missing tier2_load or tier3_load",
-                   "Add tier markers per KERNEL_DOCTRINE.md §3")
+            r.fail(
+                "tiers",
+                "Missing tier2_load or tier3_load",
+                "Add tier markers per KERNEL_DOCTRINE.md §3",
+            )
         if "lastRunDate:" in c:
             r.ok("convergence", "convergence_footer.lastRunDate present")
         else:
-            r.fail("convergence", "Missing lastRunDate in convergence_footer",
-                   "Add lastRunDate: null")
-        stubs = re.findall(r'<[A-Z][^>]{3,}>', c)
+            r.fail(
+                "convergence", "Missing lastRunDate in convergence_footer", "Add lastRunDate: null"
+            )
+        stubs = re.findall(r"<[A-Z][^>]{3,}>", c)
         if not stubs:
             r.ok("authored", "No unfilled placeholders")
         else:
-            r.fail("authored", f"Unfilled placeholders (warn, not blocking merge): {stubs[:2]}",
-                   "Fill before marking eval-status: passing")
+            r.fail(
+                "authored",
+                f"Unfilled placeholders (warn, not blocking merge): {stubs[:2]}",
+                "Fill before marking eval-status: passing",
+            )
 
     if kid in agents:
         r.ok("agents-md", "In AGENTS.md")
     else:
-        r.fail("agents-md", f"'{kid}' missing from AGENTS.md",
-               "Add a row to the Kernels table")
+        r.fail("agents-md", f"'{kid}' missing from AGENTS.md", "Add a row to the Kernels table")
 
     fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{kid}*.yaml"))
     if fixtures:
         r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
     else:
-        r.fail("eval-fixture", f"No evals/datasets/{kid}*.yaml",
-               f"Create evals/datasets/{kid}-basic.yaml")
+        r.fail(
+            "eval-fixture",
+            f"No evals/datasets/{kid}*.yaml",
+            f"Create evals/datasets/{kid}-basic.yaml",
+        )
 
     if kid in pf:
         r.ok("promptfoo", "In evals/promptfooconfig.yaml")
     else:
-        r.fail("promptfoo", f"'{kid}' not in promptfooconfig.yaml",
-               "Add a test block")
+        r.fail("promptfoo", f"'{kid}' not in promptfooconfig.yaml", "Add a test block")
 
     return r.print(kid)
 
@@ -126,8 +141,11 @@ def check_skill(sid, m, agents, pf):
     reg = m.get("skills", {}).get("registry", [])
     entry = next((s for s in reg if s.get("id") == sid), None)
     if not entry:
-        r.fail("manifest", f"'{sid}' not in MANIFEST skills.registry",
-               f"python3 scripts/add_artifact.py skill --id {sid} ...")
+        r.fail(
+            "manifest",
+            f"'{sid}' not in MANIFEST skills.registry",
+            f"python3 scripts/add_artifact.py skill --id {sid} ...",
+        )
         return r.print(sid)
     r.ok("manifest", "In MANIFEST skills.registry")
 
@@ -147,13 +165,16 @@ def check_skill(sid, m, agents, pf):
             r.fail("eval-status", "Missing eval-status in frontmatter")
 
         # Dep graph consistency
-        mentioned = list(set(re.findall(r'([a-z][a-z0-9_]+kernel\.v\d+)', c)))
+        mentioned = list(set(re.findall(r"([a-z][a-z0-9_]+kernel\.v\d+)", c)))
         dep_kernels = m.get("dependencyGraph", {}).get("skillsRequiringKernels", {}).get(sid, [])
         known_ids = {k["id"] for k in m.get("kernels", {}).get("registry", [])}
         for mk in mentioned:
             if mk in known_ids and mk not in dep_kernels:
-                r.fail("dep-graph", f"Skill uses '{mk}' but not in dep graph",
-                       f"Add '{mk}' to MANIFEST dependencyGraph.skillsRequiringKernels.{sid}")
+                r.fail(
+                    "dep-graph",
+                    f"Skill uses '{mk}' but not in dep graph",
+                    f"Add '{mk}' to MANIFEST dependencyGraph.skillsRequiringKernels.{sid}",
+                )
             elif mk in known_ids:
                 r.ok("dep-graph", f"Kernel dep '{mk}' wired")
         for dk in dep_kernels:
@@ -186,8 +207,11 @@ def check_playbook(pid, m, agents, pf):
     reg = m.get("playbooks", {}).get("registry", [])
     entry = next((p for p in reg if p.get("id") == pid), None)
     if not entry:
-        r.fail("manifest", f"'{pid}' not in MANIFEST playbooks.registry",
-               f"python3 scripts/add_artifact.py playbook --id {pid} ...")
+        r.fail(
+            "manifest",
+            f"'{pid}' not in MANIFEST playbooks.registry",
+            f"python3 scripts/add_artifact.py playbook --id {pid} ...",
+        )
         return r.print(pid)
     r.ok("manifest", "In MANIFEST playbooks.registry")
 
@@ -286,10 +310,10 @@ def main():
 
     if a.id:
         all_ids = (
-            {k["id"]: check_kernel for k in m.get("kernels", {}).get("registry", [])} |
-            {s["id"]: check_skill  for s in m.get("skills",  {}).get("registry", [])} |
-            {pb["id"]: check_playbook for pb in m.get("playbooks", {}).get("registry", [])} |
-            {pr["id"]: check_prompt for pr in m.get("prompts", {}).get("registry", [])}
+            {k["id"]: check_kernel for k in m.get("kernels", {}).get("registry", [])}
+            | {s["id"]: check_skill for s in m.get("skills", {}).get("registry", [])}
+            | {pb["id"]: check_playbook for pb in m.get("playbooks", {}).get("registry", [])}
+            | {pr["id"]: check_prompt for pr in m.get("prompts", {}).get("registry", [])}
         )
         if a.id in all_ids:
             run(all_ids[a.id], a.id)
@@ -297,26 +321,29 @@ def main():
             print(f"ERROR: '{a.id}' not found in any registry.", file=sys.stderr)
             sys.exit(1)
     else:
-        if a.type in ("kernel",  None) or a.all:
-            for k in m.get("kernels",  {}).get("registry", []):
-                run(check_kernel,   k["id"])
-        if a.type in ("skill",   None) or a.all:
-            for s in m.get("skills",   {}).get("registry", []):
-                run(check_skill,    s["id"])
+        if a.type in ("kernel", None) or a.all:
+            for k in m.get("kernels", {}).get("registry", []):
+                run(check_kernel, k["id"])
+        if a.type in ("skill", None) or a.all:
+            for s in m.get("skills", {}).get("registry", []):
+                run(check_skill, s["id"])
         if a.type in ("playbook", None) or a.all:
             for pb in m.get("playbooks", {}).get("registry", []):
                 run(check_playbook, pb["id"])
-        if a.type in ("prompt",  None) or a.all:
-            for pr in m.get("prompts",  {}).get("registry", []):
-                run(check_prompt,   pr["id"])
+        if a.type in ("prompt", None) or a.all:
+            for pr in m.get("prompts", {}).get("registry", []):
+                run(check_prompt, pr["id"])
 
     print("\n" + "=" * 55)
     print(f"  Artifacts checked: {total}")
     print(f"  Wiring gaps:       {total_gaps}")
-    result = "ALL FULLY WIRED ✓" if total_gaps == 0 else f"{total_gaps} WIRING GAPS — fix before merging"
+    result = (
+        "ALL FULLY WIRED ✓" if total_gaps == 0 else f"{total_gaps} WIRING GAPS — fix before merging"
+    )
     print(f"  Result: {result}")
     print("=" * 55)
     sys.exit(0 if total_gaps == 0 else 1)
+
 
 if __name__ == "__main__":
     main()

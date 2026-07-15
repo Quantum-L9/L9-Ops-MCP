@@ -14,16 +14,19 @@ Scans all SKILL.md files for endpoint definitions and verifies they respond.
 All skills are custom — no third-party endpoints.
 Exits 1 on failure.
 """
+
 import os
 import sys
 import yaml
 import argparse
+
 
 def find_skill_files(skills_dir):
     for root, dirs, files in os.walk(skills_dir):
         for fname in files:
             if fname == "SKILL.md":
                 yield os.path.join(root, fname)
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -54,7 +57,14 @@ def main():
         skill_id = meta.get("title", skill_path)
 
         # Check required fields
-        required = ["title", "purpose", "summary", "version", "retrieval_keys", "trigger_description"]
+        required = [
+            "title",
+            "purpose",
+            "summary",
+            "version",
+            "retrieval_keys",
+            "trigger_description",
+        ]
         missing = [f for f in required if not meta.get(f)]
         if missing:
             failures.append(f"{skill_id}: missing fields: {missing}")
@@ -69,6 +79,7 @@ def main():
             sys.exit(1)
     else:
         print("\nAll skills passed audit.")
+
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,7 @@ l9-ops: Impact Analysis (v1.2.2)
 Answers: "If I change kernel X, what breaks?"
 Uses MANIFEST.json file-path lookup — never fragile string munging.
 """
+
 import argparse
 import json
 import sys
@@ -42,14 +43,21 @@ def analyze(kid, manifest, reverse):
     total = len(deps["skills"]) + len(deps["playbooks"])
     risk = "HIGH" if total >= 3 else ("MEDIUM" if total >= 1 else "LOW")
     entry = next((k for k in manifest.get("kernels", {}).get("registry", []) if k["id"] == kid), {})
-    return {"kernel_id": kid, "risk": risk, "total": total,
-            "skills": deps["skills"], "playbooks": deps["playbooks"],
-            "eval_status": entry.get("evalStatus", "unknown")}
+    return {
+        "kernel_id": kid,
+        "risk": risk,
+        "total": total,
+        "skills": deps["skills"],
+        "playbooks": deps["playbooks"],
+        "eval_status": entry.get("evalStatus", "unknown"),
+    }
 
 
 def print_analysis(r):
     bar = "=" * 55
-    print(f"\n{bar}\n  Impact Analysis: {r['kernel_id']}\n  Risk: {r['risk']} | Impacted: {r['total']}\n{bar}")
+    print(
+        f"\n{bar}\n  Impact Analysis: {r['kernel_id']}\n  Risk: {r['risk']} | Impacted: {r['total']}\n{bar}"
+    )
     if r["skills"]:
         print("  Skills:")
         for s in r["skills"]:
@@ -70,7 +78,9 @@ def resolve_file_to_id(changed_path, manifest):
     """Use MANIFEST registry file-path lookup — never string munging."""
     changed = changed_path.replace("\\", "/")
     for k in manifest.get("kernels", {}).get("registry", []):
-        if k.get("file") and (changed.endswith(k["file"]) or k["file"].endswith(Path(changed).name)):
+        if k.get("file") and (
+            changed.endswith(k["file"]) or k["file"].endswith(Path(changed).name)
+        ):
             return k["id"]
     return None
 
@@ -97,13 +107,19 @@ def main():
     elif a.changed:
         kid = resolve_file_to_id(a.changed, manifest)
         if not kid:
-            print(f"ERROR: Cannot resolve '{a.changed}' to a kernel ID via MANIFEST.", file=sys.stderr)
-            print("  Ensure file is registered in MANIFEST.json kernels.registry with a 'file' field.", file=sys.stderr)
+            print(
+                f"ERROR: Cannot resolve '{a.changed}' to a kernel ID via MANIFEST.", file=sys.stderr
+            )
+            print(
+                "  Ensure file is registered in MANIFEST.json kernels.registry with a 'file' field.",
+                file=sys.stderr,
+            )
             sys.exit(1)
         print_analysis(analyze(kid, manifest, reverse))
     else:
         p.print_help()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

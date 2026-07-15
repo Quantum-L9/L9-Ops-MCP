@@ -13,10 +13,12 @@ harvest_audit.py — IgorOS source-to-pack alignment audit.
 Checks that a transformed pack file covers the required fields from its source.
 Usage: python3 scripts/harvest_audit.py --source <file> --check-fields field1,field2,...
 """
+
 import sys
 import os
 import argparse
 import yaml
+
 
 def load_frontmatter(filepath):
     with open(filepath) as f:
@@ -32,6 +34,7 @@ def load_frontmatter(filepath):
         return yaml.safe_load(open(filepath)) or {}
     except Exception:
         return {}
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -52,6 +55,7 @@ def main():
         sys.exit(1)
     else:
         print(f"  OK: {args.source} covers all required fields.")
+
 
 if __name__ == "__main__":
     main()

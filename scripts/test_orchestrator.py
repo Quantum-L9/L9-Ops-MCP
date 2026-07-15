@@ -15,6 +15,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock
@@ -28,6 +29,7 @@ from scripts.l11.orchestrator import L11Orchestrator, Finding
 def mock_engines(sample_config, tmp_path):
     """Create orchestrator with mocked engines."""
     import yaml
+
     config_path = tmp_path / "config.yaml"
     config_path.write_text(yaml.dump(sample_config))
 

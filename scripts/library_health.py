@@ -13,11 +13,13 @@ library_health.py — L9 Pack library health check.
 Detects: stale last_tested dates, missing retrieval_keys, missing tier markers,
 eval coverage gaps, oversized kernels, and deprecated status.
 """
+
 import os
 import sys
 import yaml
 import argparse
 from datetime import datetime, timedelta
+
 
 def check_file(filepath, stale_days):
     issues = []
@@ -66,6 +68,7 @@ def check_file(filepath, stale_days):
 
     return issues
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stale-days", type=int, default=90)
@@ -101,6 +104,7 @@ def main():
         sys.exit(1)
     else:
         print("  Library health: OK")
+
 
 if __name__ == "__main__":
     main()
