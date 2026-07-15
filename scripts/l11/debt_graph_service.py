@@ -18,6 +18,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -53,13 +54,9 @@ class DebtGraphService:
 
                 uri = os.getenv(graph_cfg.get("uri_env", "NEO4J_URI"), "")
                 user = os.getenv(graph_cfg.get("user_env", "NEO4J_USER"), "")
-                pw = os.getenv(
-                    graph_cfg.get("password_env", "NEO4J_PASSWORD"), ""
-                )
+                pw = os.getenv(graph_cfg.get("password_env", "NEO4J_PASSWORD"), "")
                 if uri and user:
-                    self._driver = AsyncGraphDatabase.driver(
-                        uri, auth=(user, pw)
-                    )
+                    self._driver = AsyncGraphDatabase.driver(uri, auth=(user, pw))
                     logger.info("neo4j_connected", uri=uri)
                 else:
                     logger.warning("neo4j_env_missing")
@@ -68,18 +65,14 @@ class DebtGraphService:
 
         # JSON fallback config
         fb_cfg = config["state_management"].get("json_fallback", {})
-        self._json_path = Path(
-            fb_cfg.get("path", ".l11/debt_findings.json")
-        )
+        self._json_path = Path(fb_cfg.get("path", ".l11/debt_findings.json"))
 
         aging_cfg = config["risk_model"].get("aging_policy", {})
         self._p2_to_p1_days: int = aging_cfg.get("p2_to_p1_days", 30)
         self._p1_to_p0_days: int = aging_cfg.get("p1_to_p0_days", 60)
 
     # ── Public API ──────────────────────────
-    async def upsert_findings(
-        self, findings: list[dict[str, Any]]
-    ) -> int:
+    async def upsert_findings(self, findings: list[dict[str, Any]]) -> int:
         """Upsert findings with deduplication by content hash.
 
         Returns count of upserted findings.
@@ -235,9 +228,7 @@ class DebtGraphService:
         return hashlib.sha256(payload.encode()).hexdigest()
 
     # ── JSON Fallback ───────────────────────
-    def _upsert_json(
-        self, findings: list[dict[str, Any]], now: str
-    ) -> int:
+    def _upsert_json(self, findings: list[dict[str, Any]], now: str) -> int:
         self._json_path.parent.mkdir(parents=True, exist_ok=True)
 
         existing: dict[str, dict[str, Any]] = {}

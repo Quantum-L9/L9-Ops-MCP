@@ -17,8 +17,19 @@ import json
 import uuid
 
 REQUIRED_KEYS = {
-    "packet_id", "packet_type", "schema_version", "created_at", "producer", "consumer",
-    "objective", "context_scope", "payload", "provenance", "budget", "routing", "validation",
+    "packet_id",
+    "packet_type",
+    "schema_version",
+    "created_at",
+    "producer",
+    "consumer",
+    "objective",
+    "context_scope",
+    "payload",
+    "provenance",
+    "budget",
+    "routing",
+    "validation",
 }
 
 
@@ -30,11 +41,20 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def build_transport_packet(*, packet_type: str, producer: str, consumer: str, objective: str,
-                           context_scope: dict[str, Any], payload: dict[str, Any],
-                           provenance: list[dict[str, Any]], skills: list[str],
-                           kernels: list[str], sequence: list[str],
-                           max_context_files: int = 24) -> dict[str, Any]:
+def build_transport_packet(
+    *,
+    packet_type: str,
+    producer: str,
+    consumer: str,
+    objective: str,
+    context_scope: dict[str, Any],
+    payload: dict[str, Any],
+    provenance: list[dict[str, Any]],
+    skills: list[str],
+    kernels: list[str],
+    sequence: list[str],
+    max_context_files: int = 24,
+) -> dict[str, Any]:
     return {
         "packet_id": f"tp_{uuid.uuid4().hex}",
         "packet_type": packet_type,
@@ -52,7 +72,10 @@ def build_transport_packet(*, packet_type: str, producer: str, consumer: str, ob
             "bloat_guard": "exclude_unreferenced_doctrine_and_non_matching_skills",
         },
         "routing": {"skills": skills, "kernels": kernels, "sequence": sequence},
-        "validation": {"status": "pass", "checks": ["required_keys", "provenance_hashes", "routing_sequence"]},
+        "validation": {
+            "status": "pass",
+            "checks": ["required_keys", "provenance_hashes", "routing_sequence"],
+        },
     }
 
 

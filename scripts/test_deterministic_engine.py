@@ -15,6 +15,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import pytest
@@ -62,19 +63,12 @@ class TestADRCompliance:
         bad_file = tmp_path / "prints.py"
         bad_file.write_text('print("debug output")\n')
         findings = engine._check_adr_compliance([str(bad_file)])
-        assert any(
-            f["rule"] == "ADR-0019" and "print()" in f["message"]
-            for f in findings
-        )
+        assert any(f["rule"] == "ADR-0019" and "print()" in f["message"] for f in findings)
 
     def test_detects_naive_datetime(self, sample_config, tmp_path):
         engine = DeterministicEngine(sample_config)
         bad_file = tmp_path / "naive.py"
-        bad_file.write_text(
-            "from datetime import datetime\n"
-            "def f():\n"
-            "    return datetime.now()\n"
-        )
+        bad_file.write_text("from datetime import datetime\ndef f():\n    return datetime.now()\n")
         findings = engine._check_adr_compliance([str(bad_file)])
         assert any(f["rule"] == "ADR-0083" for f in findings)
 
