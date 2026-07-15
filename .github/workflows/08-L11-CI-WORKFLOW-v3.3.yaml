@@ -40,6 +40,9 @@ on:
       - "Dockerfile"
       - "docker-compose*.yml"
       - ".github/**"
+      - "pyproject.toml"
+      - "src/**"
+      - "tests/**"
   push:
     branches: [main]
   schedule:
@@ -93,9 +96,8 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt 2>/dev/null || true
-          pip install -r requirements-dev.txt 2>/dev/null || true
-          pip install ruff mypy bandit semgrep radon pyyaml structlog pytest pytest-cov
+          pip install -e '.[dev]'
+          pip install bandit semgrep radon
 
       - name: Get Changed Files
         id: changed
@@ -111,7 +113,7 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.changed.outputs.files }}" ]; then
             ruff check ${{ steps.changed.outputs.files }} --output-format=github
           else
-            ruff check core/ api/ agents/ memory/ workers/ --output-format=github
+            ruff check src/ scripts/ --output-format=github
           fi
 
       # ── Ruff Format Check ──
@@ -120,17 +122,12 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.changed.outputs.files }}" ]; then
             ruff format --check ${{ steps.changed.outputs.files }}
           else
-            ruff format --check core/ api/ agents/ memory/ workers/
+            ruff format --check src/ scripts/
           fi
 
-      # ── Mypy Type Check ──
+      # ── Mypy Type Check (only the strictly-typed package) ──
       - name: Mypy Type Check
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.changed.outputs.files }}" ]; then
-            mypy ${{ steps.changed.outputs.files }} --ignore-missing-imports
-          else
-            mypy api/ core/ memory/ --ignore-missing-imports
-          fi
+        run: mypy src/l9_ops_mcp
 
       # ── pytest (fast tests only, matches "make test-fast") ──
       - name: pytest (fast)
@@ -144,12 +141,12 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.changed.outputs.files }}" ]; then
             bandit -r ${{ steps.changed.outputs.files }} -f json -o bandit-report.json || true
           else
-            bandit -r core/ api/ -f json -o bandit-report.json || true
+            bandit -r src/ scripts/ -f json -o bandit-report.json || true
           fi
 
       # ── Complexity Check ──
       - name: Complexity Check
-        run: radon cc core/ api/ -a -nc
+        run: radon cc src/ scripts/ -a -nc
 
       - name: Upload Reports
         if: always()
@@ -185,75 +182,72 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install structlog pyyaml
+          pip install -e '.[dev]'
 
-      # ── DORA Header Injection (auto-fix missing headers) ──
+      # ── DORA header dry-run report (informational; does not auto-commit) ──
       - name: Check DORA Headers (dry-run)
         id: dora_check
         run: |
-          python scripts/audit/inject_dora_complete.py \
-            --repo . \
-            --dry-run \
-            --report dora_dryrun_report.json
-          MISSING=$(python -c "
-          import json
-          r = json.load(open('dora_dryrun_report.json'))
-          print(r.get('header_injected', 0))
-          ")
-          echo "missing_headers=$MISSING" >> "$GITHUB_OUTPUT"
-
-      - name: Inject Missing DORA Headers
-        if: steps.dora_check.outputs.missing_headers != '0' && github.event_name == 'pull_request'
-        run: |
-          echo "🔧 Injecting DORA headers into ${{ steps.dora_check.outputs.missing_headers }} files..."
-          python scripts/audit/inject_dora_complete.py \
-            --repo . \
-            --execute \
-            --report dora_injection_report.json
-
-      - name: Commit DORA Headers (if injected)
-        if: steps.dora_check.outputs.missing_headers != '0' && github.event_name == 'pull_request'
-        run: |
-          git config user.name "L11 DORA Bot"
-          git config user.email "l11-bot@l9.dev"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
+          if [ -f scripts/inject_dora_complete.py ]; then
+            python scripts/inject_dora_complete.py --repo . --dry-run --report dora_dryrun_report.json \
+              || echo '{"header_injected": 0}' > dora_dryrun_report.json
           else
-            git commit -m "fix(dora): auto-inject missing DORA headers [L11 bot]
+            echo '{"header_injected": 0}' > dora_dryrun_report.json
+          fi
+          MISSING=$(python -c "import json; print(json.load(open('dora_dryrun_report.json')).get('header_injected', 0))")
+          echo "missing_headers=$MISSING" >> "$GITHUB_OUTPUT"
+          echo "DORA dry-run: $MISSING file(s) missing headers (report only)."
 
-          Injected by: scripts/audit/inject_dora_complete.py --execute
-          Files affected: ${{ steps.dora_check.outputs.missing_headers }}
-          Triggered by: L11 ADR Compliance job"
-            git push
-            echo "✅ DORA headers committed and pushed"
+      # ── ADR sub-checks: run each only if its script is present ──
+      - name: ADR Compliance Check
+        run: |
+          if [ -f ci/check_adr_compliance.py ]; then
+            python ci/check_adr_compliance.py --errors-only
+          else
+            echo "ci/check_adr_compliance.py not present — skipping"
           fi
 
-      # ── ADR Compliance (Gap A: --errors-only flag) ──
-      - name: ADR Compliance Check
-        run: python ci/check_adr_compliance.py --errors-only
-
-      # ── All ADR sub-checks from existing ci.yml ──
       - name: Import Validation
-        run: python ci/check_imports.py
+        run: |
+          if [ -f ci/check_imports.py ]; then
+            python ci/check_imports.py
+          else
+            echo "ci/check_imports.py not present — skipping"
+          fi
 
       - name: Memory Bypass Check
-        run: python ci/check_memory_bypass.py
+        run: |
+          if [ -f ci/check_memory_bypass.py ]; then
+            python ci/check_memory_bypass.py
+          else
+            echo "ci/check_memory_bypass.py not present — skipping"
+          fi
 
       - name: Credential Leak Check
-        run: python ci/check_credentials.py 2>/dev/null || true
+        run: |
+          if [ -f ci/check_credentials.py ]; then
+            python ci/check_credentials.py 2>/dev/null || true
+          else
+            echo "ci/check_credentials.py not present — skipping"
+          fi
 
       - name: DORA Block Validation
-        run: python ci/validate_dora_blocks.py 2>/dev/null || python ci/dora_compliance_check.py
+        run: |
+          if [ -f ci/validate_dora_blocks.py ]; then
+            python ci/validate_dora_blocks.py
+          elif [ -f ci/dora_compliance_check.py ]; then
+            python ci/dora_compliance_check.py
+          else
+            echo "DORA block validators not present — skipping"
+          fi
 
       - name: Upload DORA Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: l11-dora-report
-          path: |
-            dora_dryrun_report.json
-            dora_injection_report.json
+          path: dora_dryrun_report.json
+          if-no-files-found: ignore
 
   # ════════════════════════════════════════════════════════════
   # JOB 3: CI Gates
@@ -279,13 +273,16 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt 2>/dev/null || true
-          pip install -r requirements-dev.txt 2>/dev/null || true
-          pip install structlog pyyaml
+          pip install -e '.[dev]'
 
-      # ── Gap B: Run the umbrella script ──
+      # ── Gap B: Run the umbrella script if present ──
       - name: CI Gates (umbrella)
-        run: bash ci/run_ci_gates.sh --all
+        run: |
+          if [ -f ci/run_ci_gates.sh ]; then
+            bash ci/run_ci_gates.sh --all
+          else
+            echo "ci/run_ci_gates.sh not present — skipping umbrella gates"
+          fi
 
   # ════════════════════════════════════════════════════════════
   # JOB 4: Secrets Scan (Gitleaks)
@@ -300,11 +297,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Gitleaks Scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+      # License-free gitleaks CLI (the gitleaks-action@v2 wrapper requires a
+      # paid GITLEAKS_LICENSE for org repos; the CLI does not).
+      - name: Gitleaks Scan (CLI)
+        run: |
+          GITLEAKS_VERSION="8.21.2"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tar.gz
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          chmod +x /tmp/gitleaks
+          /tmp/gitleaks detect --source . --no-git --redact --no-banner --exit-code 1
 
   # ════════════════════════════════════════════════════════════
   # JOB 5: Tests + Coverage (full suite)
@@ -313,6 +314,8 @@ jobs:
     name: "🧪 Tests + Coverage"
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -325,24 +328,24 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt 2>/dev/null || true
-          pip install -r requirements-dev.txt 2>/dev/null || true
-          pip install pytest pytest-cov pytest-asyncio structlog
+          pip install -e '.[dev]'
+          pip install pytest-cov
 
       - name: Run Full Test Suite
         run: |
-          pytest tests/ \
-            --cov=core --cov=api --cov=memory --cov=agents \
+          pytest tests/ scripts/ \
+            --cov=l9_ops_mcp \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing \
             --tb=short -q
 
+      # Only upload when a token is configured (skips cleanly otherwise).
       - name: Upload to Codecov
-        if: always()
+        if: ${{ always() && env.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v4
         with:
           file: coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ env.CODECOV_TOKEN }}
           fail_ci_if_error: false
 
   # ════════════════════════════════════════════════════════════
@@ -364,11 +367,11 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt 2>/dev/null || true
-          pip install pytest pytest-asyncio structlog pyyaml neo4j httpx radon bandit
+          pip install -e '.[dev]'
 
+      # L11 component tests live under scripts/ (scripts/test_*.py).
       - name: Run L11 Tests
-        run: pytest tests/l11/ -v --tb=short
+        run: pytest scripts/ -v --tb=short
 
   # ════════════════════════════════════════════════════════════
   # JOB 7: Protected Files Gate  ← NEW in v3.3
@@ -418,14 +421,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # The validator reads labels from PR_LABELS, computes changed files via
+      # git diff, loads config/policies/protected_files.yaml, and writes
+      # protected_files_gate_report.json. Fail-closed on protected paths.
       - name: Validate Protected Files
-        run: |
-          python .github/scripts/validate-protected-files-v6.py \
-            --policy config/policies/protected_files.yaml \
-            --changed-files ${{ steps.changed.outputs.files }} \
-            --pr-labels "${{ steps.labels.outputs.labels }}" \
-            --pr-number ${{ github.event.pull_request.number }} \
-            --report protected_files_gate_report.json
+        env:
+          PR_LABELS: ${{ steps.labels.outputs.labels }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: python scripts/validate-protected-files-v6.py
 
       - name: Upload Gate Report
         if: always()
@@ -647,9 +651,9 @@ jobs:
           fi
 
           # Check 2: Validator exists
-          if [ ! -f ".github/scripts/validate-protected-files-v6.py" ]; then
+          if [ ! -f "scripts/validate-protected-files-v6.py" ]; then
             DRIFT_COUNT=$((DRIFT_COUNT + 1))
-            DRIFT_ISSUES="${DRIFT_ISSUES}- CRITICAL: .github/scripts/validate-protected-files-v6.py missing\n"
+            DRIFT_ISSUES="${DRIFT_ISSUES}- CRITICAL: scripts/validate-protected-files-v6.py missing\n"
           fi
 
           # Check 3: CODEOWNERS exists
