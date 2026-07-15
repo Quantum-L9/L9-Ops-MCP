@@ -15,6 +15,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import os
@@ -91,13 +92,15 @@ class TestPromptBuilding:
     def test_build_prompt_contains_finding_data(self, ai_config):
         with patch.dict(os.environ, {"PERPLEXITY_API_KEY": "test-key"}):
             engine = AIEnrichmentEngine(ai_config)
-            prompt = engine._build_prompt({
-                "tool": "bandit",
-                "rule": "B101",
-                "message": "assert used",
-                "severity": "P1",
-                "file": "core/x.py",
-            })
+            prompt = engine._build_prompt(
+                {
+                    "tool": "bandit",
+                    "rule": "B101",
+                    "message": "assert used",
+                    "severity": "P1",
+                    "file": "core/x.py",
+                }
+            )
             assert "bandit" in prompt
             assert "B101" in prompt
             assert "core/x.py" in prompt

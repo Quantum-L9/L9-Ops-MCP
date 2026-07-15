@@ -20,6 +20,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import json
@@ -59,13 +60,9 @@ class DeterministicEngine:
         # Test suite config (NEW)
         test_cfg = self.config.get("test_suite", {})
         self._tests_enabled: bool = test_cfg.get("enabled", False)
-        self._test_args: list[str] = test_cfg.get(
-            "args", ["tests/", "--tb=short", "-q", "-x"]
-        )
+        self._test_args: list[str] = test_cfg.get("args", ["tests/", "--tb=short", "-q", "-x"])
         self._test_ignore: list[str] = test_cfg.get("ignore", [])
-        self._min_coverage: float = test_cfg.get("coverage", {}).get(
-            "min_percent", 80.0
-        )
+        self._min_coverage: float = test_cfg.get("coverage", {}).get("min_percent", 80.0)
 
     def _is_enabled(self, engine_name: str) -> bool:
         return self._engine_map.get(engine_name, False)
@@ -139,20 +136,24 @@ class DeterministicEngine:
             try:
                 raw = json.loads(result.stdout)
                 for item in raw:
-                    findings.append({
-                        "tool": "ruff",
-                        "rule": item.get("code", "unknown"),
-                        "message": item.get("message", ""),
-                        "file": item.get("filename", ""),
-                        "line": item.get("location", {}).get("row", 0),
-                        "severity": "P2",
-                    })
+                    findings.append(
+                        {
+                            "tool": "ruff",
+                            "rule": item.get("code", "unknown"),
+                            "message": item.get("message", ""),
+                            "file": item.get("filename", ""),
+                            "line": item.get("location", {}).get("row", 0),
+                            "severity": "P2",
+                        }
+                    )
             except json.JSONDecodeError:
-                findings.append({
-                    "tool": "ruff",
-                    "message": result.stdout[:500],
-                    "severity": "P2",
-                })
+                findings.append(
+                    {
+                        "tool": "ruff",
+                        "message": result.stdout[:500],
+                        "severity": "P2",
+                    }
+                )
         logger.debug("ruff_completed", findings_count=len(findings))
         return findings
 
@@ -168,17 +169,19 @@ class DeterministicEngine:
             for line in result.stdout.strip().splitlines():
                 if ": error:" in line:
                     parts = line.split(":", maxsplit=3)
-                    findings.append({
-                        "tool": "mypy",
-                        "file": parts[0] if len(parts) > 0 else "",
-                        "line": (
-                            int(parts[1])
-                            if len(parts) > 1 and parts[1].strip().isdigit()
-                            else 0
-                        ),
-                        "message": parts[-1].strip() if parts else line,
-                        "severity": "P2",
-                    })
+                    findings.append(
+                        {
+                            "tool": "mypy",
+                            "file": parts[0] if len(parts) > 0 else "",
+                            "line": (
+                                int(parts[1])
+                                if len(parts) > 1 and parts[1].strip().isdigit()
+                                else 0
+                            ),
+                            "message": parts[-1].strip() if parts else line,
+                            "severity": "P2",
+                        }
+                    )
         logger.debug("mypy_completed", findings_count=len(findings))
         return findings
 
@@ -195,20 +198,24 @@ class DeterministicEngine:
                 raw = json.loads(result.stdout)
                 for item in raw.get("results", []):
                     sev = item.get("issue_severity", "MEDIUM")
-                    findings.append({
-                        "tool": "bandit",
-                        "rule": item.get("test_id", ""),
-                        "message": item.get("issue_text", ""),
-                        "file": item.get("filename", ""),
-                        "line": item.get("line_number", 0),
-                        "severity": "P0" if sev == "HIGH" else "P1",
-                    })
+                    findings.append(
+                        {
+                            "tool": "bandit",
+                            "rule": item.get("test_id", ""),
+                            "message": item.get("issue_text", ""),
+                            "file": item.get("filename", ""),
+                            "line": item.get("line_number", 0),
+                            "severity": "P0" if sev == "HIGH" else "P1",
+                        }
+                    )
             except json.JSONDecodeError:
-                findings.append({
-                    "tool": "bandit",
-                    "message": result.stdout[:500],
-                    "severity": "P1",
-                })
+                findings.append(
+                    {
+                        "tool": "bandit",
+                        "message": result.stdout[:500],
+                        "severity": "P1",
+                    }
+                )
         logger.debug("bandit_completed", findings_count=len(findings))
         return findings
 
@@ -225,14 +232,16 @@ class DeterministicEngine:
             try:
                 raw = json.loads(result.stdout)
                 for item in raw.get("results", []):
-                    findings.append({
-                        "tool": "semgrep",
-                        "rule": item.get("check_id", ""),
-                        "message": item.get("extra", {}).get("message", ""),
-                        "file": item.get("path", ""),
-                        "line": item.get("start", {}).get("line", 0),
-                        "severity": "P1",
-                    })
+                    findings.append(
+                        {
+                            "tool": "semgrep",
+                            "rule": item.get("check_id", ""),
+                            "message": item.get("extra", {}).get("message", ""),
+                            "file": item.get("path", ""),
+                            "line": item.get("start", {}).get("line", 0),
+                            "severity": "P1",
+                        }
+                    )
             except json.JSONDecodeError:
                 pass
         logger.debug("semgrep_completed", findings_count=len(findings))
@@ -251,46 +260,54 @@ class DeterministicEngine:
             for i, line in enumerate(content.splitlines(), start=1):
                 stripped = line.strip()
                 if stripped.startswith("import logging") or "logging.getLogger" in stripped:
-                    findings.append({
-                        "tool": "adr_checker",
-                        "rule": "ADR-0019",
-                        "message": f"stdlib logging in {file_str}",
-                        "file": file_str,
-                        "line": i,
-                        "severity": "P0",
-                    })
+                    findings.append(
+                        {
+                            "tool": "adr_checker",
+                            "rule": "ADR-0019",
+                            "message": f"stdlib logging in {file_str}",
+                            "file": file_str,
+                            "line": i,
+                            "severity": "P0",
+                        }
+                    )
                 if stripped.startswith("print(") and "# noqa" not in stripped:
-                    findings.append({
-                        "tool": "adr_checker",
-                        "rule": "ADR-0019",
-                        "message": f"print() statement in {file_str}",
-                        "file": file_str,
-                        "line": i,
-                        "severity": "P2",
-                    })
+                    findings.append(
+                        {
+                            "tool": "adr_checker",
+                            "rule": "ADR-0019",
+                            "message": f"print() statement in {file_str}",
+                            "file": file_str,
+                            "line": i,
+                            "severity": "P2",
+                        }
+                    )
 
             # ADR-0014: DORA metadata block required
             if "def " in content and "DORA:" not in content and "dora_meta" not in content:
-                findings.append({
-                    "tool": "adr_checker",
-                    "rule": "ADR-0014",
-                    "message": f"Missing DORA metadata block in {file_str}",
-                    "file": file_str,
-                    "line": 1,
-                    "severity": "P2",
-                })
+                findings.append(
+                    {
+                        "tool": "adr_checker",
+                        "rule": "ADR-0014",
+                        "message": f"Missing DORA metadata block in {file_str}",
+                        "file": file_str,
+                        "line": 1,
+                        "severity": "P2",
+                    }
+                )
 
             # ADR-0083: Naive datetime
             for i, line in enumerate(content.splitlines(), start=1):
                 if "datetime.now()" in line and "timezone" not in line and "tz=" not in line:
-                    findings.append({
-                        "tool": "adr_checker",
-                        "rule": "ADR-0083",
-                        "message": f"Naive datetime.now() in {file_str}",
-                        "file": file_str,
-                        "line": i,
-                        "severity": "P1",
-                    })
+                    findings.append(
+                        {
+                            "tool": "adr_checker",
+                            "rule": "ADR-0083",
+                            "message": f"Naive datetime.now() in {file_str}",
+                            "file": file_str,
+                            "line": i,
+                            "severity": "P1",
+                        }
+                    )
 
         logger.debug("adr_compliance_completed", findings_count=len(findings))
         return findings
@@ -315,14 +332,16 @@ class DeterministicEngine:
                     for block in blocks:
                         cc = block.get("complexity", 0)
                         if cc > max_cc:
-                            findings.append({
-                                "tool": "radon",
-                                "rule": "complexity",
-                                "message": f"{block.get('name', '?')} CC={cc} > {max_cc}",
-                                "file": file_path,
-                                "line": block.get("lineno", 0),
-                                "severity": "P2",
-                            })
+                            findings.append(
+                                {
+                                    "tool": "radon",
+                                    "rule": "complexity",
+                                    "message": f"{block.get('name', '?')} CC={cc} > {max_cc}",
+                                    "file": file_path,
+                                    "line": block.get("lineno", 0),
+                                    "severity": "P2",
+                                }
+                            )
             except json.JSONDecodeError:
                 pass
         logger.debug("complexity_completed", findings_count=len(findings))
@@ -347,14 +366,16 @@ class DeterministicEngine:
                 text=True,
             )
             if result.returncode != 0:
-                findings.append({
-                    "tool": "l9_ci_script",
-                    "rule": Path(script_path).stem,
-                    "message": result.stdout[:500] or result.stderr[:500],
-                    "file": script_path,
-                    "line": 0,
-                    "severity": "P1",
-                })
+                findings.append(
+                    {
+                        "tool": "l9_ci_script",
+                        "rule": Path(script_path).stem,
+                        "message": result.stdout[:500] or result.stderr[:500],
+                        "file": script_path,
+                        "line": 0,
+                        "severity": "P1",
+                    }
+                )
                 logger.warning(
                     "l9_ci_script_failed",
                     script=script_path,
@@ -390,14 +411,16 @@ class DeterministicEngine:
             if not summary:
                 summary = output_lines[-1] if output_lines else "pytest failed"
 
-            findings.append({
-                "tool": "pytest",
-                "rule": "test_suite",
-                "message": summary[:500],
-                "file": "tests/",
-                "line": 0,
-                "severity": "P0",
-            })
+            findings.append(
+                {
+                    "tool": "pytest",
+                    "rule": "test_suite",
+                    "message": summary[:500],
+                    "file": "tests/",
+                    "line": 0,
+                    "severity": "P0",
+                }
+            )
             logger.warning(
                 "pytest_failed",
                 returncode=result.returncode,
@@ -427,16 +450,16 @@ class DeterministicEngine:
             line_rate = float(root.get("line-rate", "0"))
             coverage_pct = round(line_rate * 100, 2)
             if coverage_pct < self._min_coverage:
-                findings.append({
-                    "tool": "coverage",
-                    "rule": "min_coverage",
-                    "message": (
-                        f"Coverage {coverage_pct}% < {self._min_coverage}% threshold"
-                    ),
-                    "file": "coverage.xml",
-                    "line": 0,
-                    "severity": "P1",
-                })
+                findings.append(
+                    {
+                        "tool": "coverage",
+                        "rule": "min_coverage",
+                        "message": (f"Coverage {coverage_pct}% < {self._min_coverage}% threshold"),
+                        "file": "coverage.xml",
+                        "line": 0,
+                        "severity": "P1",
+                    }
+                )
                 logger.warning(
                     "coverage_below_threshold",
                     actual=coverage_pct,

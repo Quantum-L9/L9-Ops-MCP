@@ -19,6 +19,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -53,11 +54,7 @@ class RiskScorer:
         own = self._ownership_gap_score(finding)
 
         score = round(
-            sev * 0.40
-            + blast * 0.25
-            + crit * 0.20
-            + churn * 0.10
-            + own * 0.05,
+            sev * 0.40 + blast * 0.25 + crit * 0.20 + churn * 0.10 + own * 0.05,
             2,
         )
 
