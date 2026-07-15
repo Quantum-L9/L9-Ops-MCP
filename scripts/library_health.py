@@ -13,7 +13,10 @@ library_health.py — L9 Pack library health check.
 Detects: stale last_tested dates, missing retrieval_keys, missing tier markers,
 eval coverage gaps, oversized kernels, and deprecated status.
 """
-import os, sys, yaml, argparse
+import os
+import sys
+import yaml
+import argparse
 from datetime import datetime, timedelta
 
 def check_file(filepath, stale_days):
@@ -27,12 +30,12 @@ def check_file(filepath, stale_days):
         if len(parts) >= 3:
             try:
                 meta = yaml.safe_load(parts[1])
-            except:
+            except Exception:
                 pass
     if meta is None:
         try:
             meta = yaml.safe_load(open(filepath))
-        except:
+        except Exception:
             pass
 
     if not meta or not isinstance(meta, dict):
@@ -46,7 +49,7 @@ def check_file(filepath, stale_days):
                 dt = datetime.strptime(last_tested, "%Y-%m-%d")
                 if datetime.now() - dt > timedelta(days=stale_days):
                     issues.append(f"STALE: {filepath} (last_tested: {last_tested})")
-            except:
+            except Exception:
                 pass
 
     # Check retrieval_keys
@@ -84,7 +87,7 @@ def main():
                     all_issues.extend(check_file(path, args.stale_days))
 
     with open(args.report, "w") as f:
-        f.write(f"# Library Health Report\n")
+        f.write("# Library Health Report\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
         if all_issues:
             f.write(f"## Issues Found ({len(all_issues)})\n\n")

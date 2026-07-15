@@ -13,7 +13,9 @@ l9-ops: Impact Analysis (v1.2.2)
 Answers: "If I change kernel X, what breaks?"
 Uses MANIFEST.json file-path lookup — never fragile string munging.
 """
-import argparse, json, sys
+import argparse
+import json
+import sys
 from pathlib import Path
 
 LIBRARY_ROOT = Path(__file__).parent.parent
@@ -50,12 +52,14 @@ def print_analysis(r):
     print(f"\n{bar}\n  Impact Analysis: {r['kernel_id']}\n  Risk: {r['risk']} | Impacted: {r['total']}\n{bar}")
     if r["skills"]:
         print("  Skills:")
-        for s in r["skills"]: print(f"    -> {s}")
+        for s in r["skills"]:
+            print(f"    -> {s}")
     else:
         print("  Skills: none")
     if r["playbooks"]:
         print("  Playbooks:")
-        for pb in r["playbooks"]: print(f"    -> {pb}")
+        for pb in r["playbooks"]:
+            print(f"    -> {pb}")
     else:
         print("  Playbooks: none")
     if r["eval_status"] == "untested":
@@ -87,7 +91,8 @@ def main():
             print_analysis(analyze(kid, manifest, reverse))
     elif a.kernel_id:
         if a.kernel_id not in kernel_ids:
-            print(f"ERROR: '{a.kernel_id}' not in MANIFEST kernels.registry", file=sys.stderr); sys.exit(1)
+            print(f"ERROR: '{a.kernel_id}' not in MANIFEST kernels.registry", file=sys.stderr)
+            sys.exit(1)
         print_analysis(analyze(a.kernel_id, manifest, reverse))
     elif a.changed:
         kid = resolve_file_to_id(a.changed, manifest)
@@ -97,7 +102,8 @@ def main():
             sys.exit(1)
         print_analysis(analyze(kid, manifest, reverse))
     else:
-        p.print_help(); sys.exit(1)
+        p.print_help()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

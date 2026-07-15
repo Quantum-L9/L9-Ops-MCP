@@ -19,7 +19,10 @@ Usage:
 
 Exit: 0 = fully wired, 1 = gaps found
 """
-import argparse, json, re, sys
+import argparse
+import json
+import re
+import sys
 from pathlib import Path
 
 LIBRARY_ROOT = Path(__file__).parent.parent
@@ -38,16 +41,21 @@ class R:
         self.passes = []
         self.fails = []
 
-    def ok(self, c, msg):  self.passes.append(f"  \u2713 [{c}] {msg}")
+    def ok(self, c, msg):
+        self.passes.append(f"  ✓ [{c}] {msg}")
+
     def fail(self, c, msg, fix=None):
-        e = f"  \u2717 [{c}] {msg}"
-        if fix: e += f"\n    FIX: {fix}"
+        e = f"  ✗ [{c}] {msg}"
+        if fix:
+            e += f"\n    FIX: {fix}"
         self.fails.append(e)
 
     def print(self, aid):
         print(f"\n{'─'*55}\n  Wiring: {aid}")
-        for l in self.passes: print(l)
-        for l in self.fails:  print(l)
+        for line in self.passes:
+            print(line)
+        for line in self.fails:
+            print(line)
         status = "FULLY WIRED" if not self.fails else f"GAPS FOUND ({len(self.fails)})"
         print(f"  Status: {status}")
         return len(self.fails) == 0, self
@@ -160,11 +168,15 @@ def check_skill(sid, m, agents, pf):
         r.fail("agents-md", f"'{sid}' not in AGENTS.md", "Add to Skills table")
 
     fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{sid}*.yaml"))
-    if fixtures: r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
-    else: r.fail("eval-fixture", f"No fixture for '{sid}'", f"Create evals/datasets/{sid}-basic.yaml")
+    if fixtures:
+        r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
+    else:
+        r.fail("eval-fixture", f"No fixture for '{sid}'", f"Create evals/datasets/{sid}-basic.yaml")
 
-    if sid in pf: r.ok("promptfoo", "In promptfooconfig.yaml")
-    else: r.fail("promptfoo", f"'{sid}' not in promptfooconfig.yaml")
+    if sid in pf:
+        r.ok("promptfoo", "In promptfooconfig.yaml")
+    else:
+        r.fail("promptfoo", f"'{sid}' not in promptfooconfig.yaml")
 
     return r.print(sid)
 
@@ -188,13 +200,17 @@ def check_playbook(pid, m, agents, pf):
         else:
             r.fail("trigger-triad", "Missing Trigger Triad", "Fill per PLAYBOOKS_DOCTRINE.md §2.2")
     else:
-        r.fail("file", f"PLAYBOOK.md not found")
+        r.fail("file", "PLAYBOOK.md not found")
 
     pbdir = LIBRARY_ROOT / "playbooks" / pid
-    if (pbdir / "steps").exists():   r.ok("dir-steps", "steps/ present")
-    else: r.fail("dir-steps", "Missing steps/", f"mkdir playbooks/{pid}/steps/")
-    if (pbdir / "data-types").exists(): r.ok("dir-dt", "data-types/ present")
-    else: r.fail("dir-dt", "Missing data-types/", f"mkdir playbooks/{pid}/data-types/")
+    if (pbdir / "steps").exists():
+        r.ok("dir-steps", "steps/ present")
+    else:
+        r.fail("dir-steps", "Missing steps/", f"mkdir playbooks/{pid}/steps/")
+    if (pbdir / "data-types").exists():
+        r.ok("dir-dt", "data-types/ present")
+    else:
+        r.fail("dir-dt", "Missing data-types/", f"mkdir playbooks/{pid}/data-types/")
 
     dep_kernels = m.get("dependencyGraph", {}).get("playbookKernelRequirements", {}).get(pid, [])
     known_ids = {k["id"] for k in m.get("kernels", {}).get("registry", [])}
@@ -204,12 +220,16 @@ def check_playbook(pid, m, agents, pf):
         else:
             r.ok("dep-graph", f"Kernel ref '{dk}' resolves")
 
-    if pid in agents: r.ok("agents-md", "In AGENTS.md")
-    else: r.fail("agents-md", f"'{pid}' not in AGENTS.md")
+    if pid in agents:
+        r.ok("agents-md", "In AGENTS.md")
+    else:
+        r.fail("agents-md", f"'{pid}' not in AGENTS.md")
 
     fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{pid}*.yaml"))
-    if fixtures: r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
-    else: r.fail("eval-fixture", f"No fixture for '{pid}'")
+    if fixtures:
+        r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
+    else:
+        r.fail("eval-fixture", f"No fixture for '{pid}'")
 
     return r.print(pid)
 
@@ -227,14 +247,18 @@ def check_prompt(pid, m, agents, pf):
     if fpath.exists():
         r.ok("file", f"Exists: {entry['file']}")
         c = fpath.read_text()
-        if "eval-status:" in c: r.ok("eval-status", "eval-status present")
-        else: r.fail("eval-status", "Missing eval-status field")
+        if "eval-status:" in c:
+            r.ok("eval-status", "eval-status present")
+        else:
+            r.fail("eval-status", "Missing eval-status field")
     else:
         r.fail("file", f"File not found: {entry.get('file')}")
 
     fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{pid}*.yaml"))
-    if fixtures: r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
-    else: r.fail("eval-fixture", f"No fixture for '{pid}'", f"Create evals/datasets/{pid}-basic.yaml")
+    if fixtures:
+        r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
+    else:
+        r.fail("eval-fixture", f"No fixture for '{pid}'", f"Create evals/datasets/{pid}-basic.yaml")
 
     return r.print(pid)
 
@@ -274,18 +298,22 @@ def main():
             sys.exit(1)
     else:
         if a.type in ("kernel",  None) or a.all:
-            for k in m.get("kernels",  {}).get("registry", []): run(check_kernel,   k["id"])
+            for k in m.get("kernels",  {}).get("registry", []):
+                run(check_kernel,   k["id"])
         if a.type in ("skill",   None) or a.all:
-            for s in m.get("skills",   {}).get("registry", []): run(check_skill,    s["id"])
-        if a.type in ("playbook",None) or a.all:
-            for pb in m.get("playbooks",{}).get("registry", []): run(check_playbook, pb["id"])
+            for s in m.get("skills",   {}).get("registry", []):
+                run(check_skill,    s["id"])
+        if a.type in ("playbook", None) or a.all:
+            for pb in m.get("playbooks", {}).get("registry", []):
+                run(check_playbook, pb["id"])
         if a.type in ("prompt",  None) or a.all:
-            for pr in m.get("prompts",  {}).get("registry", []): run(check_prompt,   pr["id"])
+            for pr in m.get("prompts",  {}).get("registry", []):
+                run(check_prompt,   pr["id"])
 
     print("\n" + "=" * 55)
     print(f"  Artifacts checked: {total}")
     print(f"  Wiring gaps:       {total_gaps}")
-    result = "ALL FULLY WIRED \u2713" if total_gaps == 0 else f"{total_gaps} WIRING GAPS — fix before merging"
+    result = "ALL FULLY WIRED ✓" if total_gaps == 0 else f"{total_gaps} WIRING GAPS — fix before merging"
     print(f"  Result: {result}")
     print("=" * 55)
     sys.exit(0 if total_gaps == 0 else 1)

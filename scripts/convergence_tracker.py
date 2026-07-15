@@ -19,7 +19,9 @@ Usage:
   python3 scripts/convergence_tracker.py --write-report
   python3 scripts/convergence_tracker.py --update-kernel context_budget_kernel.v1 --pass-rate 0.92 --model claude-sonnet-4
 """
-import argparse, os, re, sys
+import argparse
+import re
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -35,7 +37,8 @@ def extract_footer(kpath):
          "pass_count": 0, "final_ratio": 0.0, "lastRunDate": None,
          "modelVersion": None, "file": kpath.name}
     m = re.search(r'^kernelid:\s*(.+)$', c, re.MULTILINE)
-    if m: f["kernelid"] = m.group(1).strip()
+    if m:
+        f["kernelid"] = m.group(1).strip()
     cf = re.search(r'convergence_footer:(.*)', c, re.DOTALL | re.IGNORECASE)
     if cf:
         block = cf.group(1)
@@ -43,22 +46,30 @@ def extract_footer(kpath):
             fm = re.search(field + r":\s*(.+)", block)
             if fm:
                 v = fm.group(1).strip()
-                if v in ("null", "~", "", "[]"): f[field] = None
-                elif re.fullmatch(r"-?\d+\.\d+", v): f[field] = float(v)
-                elif re.fullmatch(r"-?\d+", v): f[field] = int(v)
-                else: f[field] = v
+                if v in ("null", "~", "", "[]"):
+                    f[field] = None
+                elif re.fullmatch(r"-?\d+\.\d+", v):
+                    f[field] = float(v)
+                elif re.fullmatch(r"-?\d+", v):
+                    f[field] = int(v)
+                else:
+                    f[field] = v
     return f
 
 
 def classify(footer, rot_days):
-    if footer.get("lastRunDate") is None: return "NEVER_EVALUATED"
+    if footer.get("lastRunDate") is None:
+        return "NEVER_EVALUATED"
     try:
         last = datetime.strptime(str(footer["lastRunDate"]), "%Y-%m-%d")
         age = (datetime.now() - last).days
-        if age > rot_days: return f"STALE({age}d)"
-        if (footer.get("final_ratio") or 0.0) < (footer.get("threshold") or 0.05): return "BELOW_THRESHOLD"
+        if age > rot_days:
+            return f"STALE({age}d)"
+        if (footer.get("final_ratio") or 0.0) < (footer.get("threshold") or 0.05):
+            return "BELOW_THRESHOLD"
         return "CURRENT"
-    except (ValueError, TypeError): return "INVALID_DATE"
+    except (ValueError, TypeError):
+        return "INVALID_DATE"
 
 
 def report(rot_days):
@@ -92,8 +103,9 @@ def print_report(r):
                         ("BELOW THRESHOLD", r["buckets"]["BELOW_THRESHOLD"])]:
         if ids:
             print(f"\n  {status}:")
-            for k in ids: print(f"    -> {k}")
-    print(f"\n  To collect evidence: npx promptfoo eval --config evals/promptfooconfig.yaml")
+            for k in ids:
+                print(f"    -> {k}")
+    print("\n  To collect evidence: npx promptfoo eval --config evals/promptfooconfig.yaml")
 
 
 def update_kernel(kernel_id, pass_rate, model):
@@ -110,12 +122,17 @@ def update_kernel(kernel_id, pass_rate, model):
     in_footer = False
     out = []
     for line in lines:
-        if re.search(r'convergence_footer:', line, re.IGNORECASE): in_footer = True
+        if re.search(r'convergence_footer:', line, re.IGNORECASE):
+            in_footer = True
         if in_footer:
-            if re.match(r"\s*final_ratio:", line): line = re.sub(r"final_ratio:.*", f"final_ratio: {round(pass_rate,3)}", line)
-            elif re.match(r"\s*status:", line):    line = re.sub(r"status:.*", f"status: {status}", line)
-            elif re.match(r"\s*lastRunDate:", line): line = re.sub(r"lastRunDate:.*", f"lastRunDate: {TODAY}", line)
-            elif re.match(r"\s*modelVersion:", line): line = re.sub(r"modelVersion:.*", f"modelVersion: {model}", line)
+            if re.match(r"\s*final_ratio:", line):
+                line = re.sub(r"final_ratio:.*", f"final_ratio: {round(pass_rate,3)}", line)
+            elif re.match(r"\s*status:", line):
+                line = re.sub(r"status:.*", f"status: {status}", line)
+            elif re.match(r"\s*lastRunDate:", line):
+                line = re.sub(r"lastRunDate:.*", f"lastRunDate: {TODAY}", line)
+            elif re.match(r"\s*modelVersion:", line):
+                line = re.sub(r"modelVersion:.*", f"modelVersion: {model}", line)
         out.append(line)
     target.write_text("\n".join(out))
     print(f"OK updated {kernel_id}: status={status} final_ratio={pass_rate:.3f} lastRunDate={TODAY} modelVersion={model}")
@@ -130,8 +147,11 @@ def main():
     p.add_argument("--write-report", action="store_true")
     a = p.parse_args()
     if a.update_kernel:
-        if a.pass_rate is None: print("ERROR: --pass-rate required", file=sys.stderr); sys.exit(1)
-        update_kernel(a.update_kernel, a.pass_rate, a.model); return
+        if a.pass_rate is None:
+            print("ERROR: --pass-rate required", file=sys.stderr)
+            sys.exit(1)
+        update_kernel(a.update_kernel, a.pass_rate, a.model)
+        return
     r = report(a.rot_threshold_days)
     print_report(r)
     if a.write_report:

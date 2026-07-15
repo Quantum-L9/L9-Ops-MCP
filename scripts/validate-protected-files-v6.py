@@ -162,7 +162,7 @@ def check_approval(policy: dict) -> bool:
 
     # Check PR labels (from GitHub Actions env)
     pr_labels_raw = os.environ.get("PR_LABELS", "")
-    pr_labels = [l.strip() for l in pr_labels_raw.split(",") if l.strip()]
+    pr_labels = [label.strip() for label in pr_labels_raw.split(",") if label.strip()]
     for label in pr_labels:
         if label in labels_allowed:
             logger.info("approval_found", signal_type="pr_label", signal=label)

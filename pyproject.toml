@@ -17,6 +17,7 @@ version = "0.3.0"
 description = "L9 MCP operations control plane for TransportPacket routing, skill/kernel retrieval, and downstream agent consumers."
 requires-python = ">=3.11"
 dependencies = [
+  "httpx>=0.27",
   "pydantic>=2.8",
   "pyyaml>=6.0",
   "structlog>=24.0",

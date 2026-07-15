@@ -21,7 +21,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from scripts.l11.orchestrator import L11Orchestrator, Finding, ScanResult
+from scripts.l11.orchestrator import L11Orchestrator, Finding
 
 
 @pytest.fixture

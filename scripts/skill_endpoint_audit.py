@@ -14,7 +14,10 @@ Scans all SKILL.md files for endpoint definitions and verifies they respond.
 All skills are custom — no third-party endpoints.
 Exits 1 on failure.
 """
-import os, sys, re, yaml, argparse
+import os
+import sys
+import yaml
+import argparse
 
 def find_skill_files(skills_dir):
     for root, dirs, files in os.walk(skills_dir):
@@ -42,14 +45,13 @@ def main():
             if len(parts) >= 3:
                 try:
                     meta = yaml.safe_load(parts[1])
-                except:
+                except Exception:
                     pass
         if not meta:
             print(f"  WARN: Could not parse frontmatter: {skill_path}")
             continue
 
         skill_id = meta.get("title", skill_path)
-        prod_ready = meta.get("production_ready", False)
 
         # Check required fields
         required = ["title", "purpose", "summary", "version", "retrieval_keys", "trigger_description"]
