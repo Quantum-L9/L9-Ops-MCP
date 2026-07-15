@@ -97,7 +97,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -e '.[dev]'
-          pip install bandit semgrep radon
 
       - name: Get Changed Files
         id: changed
@@ -128,6 +127,10 @@ jobs:
       # ── Mypy Type Check (only the strictly-typed package) ──
       - name: Mypy Type Check
         run: mypy src/l9_ops_mcp
+
+      # ── Config Syntax (all YAML + JSON must parse) ──
+      - name: Validate Config Syntax
+        run: python scripts/check_config_syntax.py
 
       # ── pytest (fast tests only, matches "make test-fast") ──
       - name: pytest (fast)
@@ -329,7 +332,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -e '.[dev]'
-          pip install pytest-cov
 
       - name: Run Full Test Suite
         run: |
