@@ -1,0 +1,14 @@
+type: object
+required: [name, objective, steps, handoffs, validation]
+properties:
+  name: {type: string}
+  objective: {type: string}
+  steps:
+    type: array
+    items:
+      type: object
+      required: [id, name, input, output]
+  handoffs:
+    type: array
+  validation:
+    type: array

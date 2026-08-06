@@ -1,0 +1,64 @@
+requested_next_build:
+  objective: >
+    Revise L9-Ops-MCP into a first-class MCP context control plane with real CI
+    proof, complete wiring validation, Quantum-L9 org invariants,
+    upload-to-repo routing contracts, and consolidated Graphiti/MCP PR lineage.
+
+  branch_attempted: fix/memory-newline-escapes-pyproject-tests
+  github_write_status: blocked_by_integration_permissions
+  fallback_deliverable: sandbox_build_pack
+
+  immediate_files:
+    revise:
+      - README.md
+      - Makefile
+      - .github/workflows/governance.yml
+      - scripts/library_health.sh
+      - scripts/enforce_progressive_disclosure.sh
+      - scripts/audit_hardban_duplication.sh
+      - scripts/impact_analysis.py
+      - scripts/convergence_tracker.py
+      - scripts/validate_wiring.py
+    create:
+      - ORG_INVARIANTS.yaml
+      - docs/REPO_IDENTITY.md
+      - docs/CI_PROOF_CONTRACT.md
+      - docs/PR_DEPENDENCY_ORDER.md
+      - schemas/skill_installability.schema.yaml
+      - schemas/playbook.schema.yaml
+      - schemas/repo_route_decision.schema.yaml
+      - schemas/org_invariant.schema.yaml
+      - scripts/validate_helpers.py
+      - scripts/validate_skill_installability.py
+      - scripts/validate_playbooks.py
+      - scripts/validate_pyproject_entrypoints.py
+      - scripts/validate_command_parity.py
+      - scripts/validate_org_invariants.py
+      - scripts/validate_upload_router.py
+      - playbooks/github-upload-capture/PLAYBOOK.md
+      - playbooks/github-upload-capture/handoffs/upload_manifest.schema.yaml
+      - playbooks/github-upload-capture/handoffs/repo_route_decision.schema.yaml
+      - playbooks/github-upload-capture/handoffs/context_slice_request.schema.yaml
+
+  accepted_deferred_structure:
+    note: Do not reorganize repo into library/runtime/governance yet.
+    deferred_tree:
+      - repo/library/skills
+      - repo/library/playbooks
+      - repo/library/prompts
+      - repo/library/docs/kernels
+      - repo/runtime/mcp/src/l9_ops_mcp
+      - repo/governance
+      - repo/schemas
+      - repo/scripts
+      - repo/evals
+
+  validation_coverage:
+    - skill_installability
+    - playbook_schema_validity
+    - AGENTS_registry_link_validity
+    - pyproject_script_entrypoint_validity
+    - README_Makefile_command_parity
+    - PR_dependency_conflict_ordering
+    - upload_to_repo_routing
+    - Quantum_L9_org_invariant_enforcement

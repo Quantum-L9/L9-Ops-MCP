@@ -1,4 +1,6 @@
 ---
+name: ops-recycling-compliance
+description: "Industrial recycling compliance guidance for the Guyana (GY) jurisdiction. Use when handling recycling operations compliance tasks."
 l9_schema: 1
 artifact_type: documentation
 tags: ['docs', 'retrieval', 'skill']

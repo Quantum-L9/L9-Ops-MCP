@@ -1,3 +1,7 @@
+---
+name: review-code-l9
+description: "Review L9 Constellation node code against l9_coding_kernel.v1 laws. Use when reviewing a diff, file, or node for L9 coding-kernel compliance."
+---
 <!-- L9_META
 id: review-code-l9
 version: 1.0.0

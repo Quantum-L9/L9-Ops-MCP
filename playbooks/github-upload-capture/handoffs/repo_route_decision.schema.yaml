@@ -1,0 +1,9 @@
+type: object
+required: [request_id, route, owner, evidence]
+properties:
+  request_id: {type: string}
+  route:
+    enum: [new_repo, existing_repo_pr, feature_branch, skill_candidate, playbook_candidate, archive_only, reject]
+  owner:
+    const: Quantum-L9
+  evidence: {type: array}

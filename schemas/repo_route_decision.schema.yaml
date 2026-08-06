@@ -1,0 +1,18 @@
+type: object
+required: [request_id, source_uploads, route, owner, evidence, decision_status]
+properties:
+  request_id: {type: string}
+  source_uploads:
+    type: array
+    items: {type: string}
+  route:
+    enum: [new_repo, existing_repo_pr, feature_branch, skill_candidate, playbook_candidate, archive_only, reject]
+  owner:
+    const: Quantum-L9
+  target_repo_url:
+    type: string
+    pattern: "^https://github.com/Quantum-L9/"
+  evidence:
+    type: array
+  decision_status:
+    enum: [PASS, FAIL, BLOCKED, UNKNOWN]

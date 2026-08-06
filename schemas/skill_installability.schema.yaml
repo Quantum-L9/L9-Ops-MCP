@@ -1,0 +1,12 @@
+type: object
+required: [path, has_skill_md, frontmatter, trigger_quality, installability_status]
+properties:
+  path: {type: string}
+  has_skill_md: {type: boolean}
+  frontmatter:
+    type: object
+    required: [name, description]
+  trigger_quality:
+    enum: [pass, warn, fail, unknown]
+  installability_status:
+    enum: [PASS, FAIL, BLOCKED, UNKNOWN]

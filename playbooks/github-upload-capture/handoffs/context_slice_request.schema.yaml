@@ -1,0 +1,9 @@
+type: object
+required: [request_id, objective, token_budget, allowed_scopes]
+properties:
+  request_id: {type: string}
+  objective: {type: string}
+  token_budget: {type: integer}
+  allowed_scopes:
+    type: array
+    items: {type: string}

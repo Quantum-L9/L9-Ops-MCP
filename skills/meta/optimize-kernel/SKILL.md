@@ -1,4 +1,6 @@
 ---
+name: optimize-kernel
+description: "Apply KERNEL_DOCTRINE to bring existing L9 kernels into compliance. Use when optimizing an existing kernel to doctrine."
 id: optimize-kernel
 version: 1.1.0
 title: Kernel Optimizer — Apply Doctrine to Existing Kernels

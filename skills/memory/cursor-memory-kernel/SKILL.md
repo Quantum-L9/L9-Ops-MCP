@@ -1,4 +1,5 @@
 ---
+name: cursor-memory-kernel
 title: "cursor-memory-kernel — Cursor Agent Memory Protocol Skill"
 purpose: "Full memory lifecycle management for Cursor AI agent sessions: injection, retrieval, write, dedupe, session lifecycle, degraded-mode fallback."
 summary: "5-layer context injection hierarchy, 12 CLI commands, 6 lifecycle hooks, packet taxonomy with TTLs, decision logic gates, anti-patterns, and degraded-mode behavior when MCP is unavailable."
