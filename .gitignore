@@ -10,3 +10,12 @@ build/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# CI-generated reports/artifacts
+.coverage
+coverage.xml
+bandit-report.json
+protected_files_gate_report.json
+dora_dryrun_report.json
+dora_injection_report.json
+*.egg-info/

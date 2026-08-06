@@ -17,7 +17,8 @@ def main() -> int:
         entry = pb / "PLAYBOOK.md"
         alt = pb / "playbook.yaml"
         if not entry.exists() and not alt.exists():
-            print(status_line("FAIL", rel(pb), "missing PLAYBOOK.md or playbook.yaml")); failures += 1
+            print(status_line("FAIL", rel(pb), "missing PLAYBOOK.md or playbook.yaml"))
+            failures += 1
         else:
             print(status_line("PASS", rel(entry if entry.exists() else alt), "entrypoint exists"))
         if not (pb / "steps").exists() and entry.exists():
@@ -26,11 +27,18 @@ def main() -> int:
             for schema in (pb / "handoffs").rglob("*.yaml"):
                 text = read(schema)
                 if "required" not in text and "properties" not in text:
-                    print(status_line("WARN", rel(schema), "schema-like handoff lacks required/properties markers"))
+                    print(
+                        status_line(
+                            "WARN",
+                            rel(schema),
+                            "schema-like handoff lacks required/properties markers",
+                        )
+                    )
                 else:
                     print(status_line("PASS", rel(schema), "handoff schema has structural markers"))
     if found == 0:
-        print(status_line("BLOCKED", "playbooks", "no playbook directories found")); return 1
+        print(status_line("BLOCKED", "playbooks", "no playbook directories found"))
+        return 1
     return 1 if failures else 0
 
 

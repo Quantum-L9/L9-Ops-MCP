@@ -15,6 +15,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import pytest
@@ -44,10 +45,12 @@ class TestAutoFixEnabled:
     @pytest.mark.asyncio
     async def test_unsupported_category_rejected(self, enabled_config):
         engine = AutoFixEngine(enabled_config)
-        result = await engine.attempt_fix({
-            "finding_hash": "abc123",
-            "category": "unknown_category",
-        })
+        result = await engine.attempt_fix(
+            {
+                "finding_hash": "abc123",
+                "category": "unknown_category",
+            }
+        )
         assert result.success is False
         assert "unsupported_category" in result.reason
 

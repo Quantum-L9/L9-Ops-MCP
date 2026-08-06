@@ -19,13 +19,17 @@ def main() -> int:
     for rel_path in REQUIRED:
         path = ROOT / rel_path
         if not path.exists():
-            print(status_line("FAIL", rel_path, "missing")); failures += 1
+            print(status_line("FAIL", rel_path, "missing"))
+            failures += 1
         else:
             print(status_line("PASS", rel_path, "exists"))
     route_schema = read(ROOT / "schemas" / "repo_route_decision.schema.yaml")
     for marker in ["new_repo", "existing_repo_pr", "archive_only", "Quantum-L9"]:
         if marker not in route_schema:
-            print(status_line("FAIL", "schemas/repo_route_decision.schema.yaml", f"missing {marker}")); failures += 1
+            print(
+                status_line("FAIL", "schemas/repo_route_decision.schema.yaml", f"missing {marker}")
+            )
+            failures += 1
     return 1 if failures else 0
 
 

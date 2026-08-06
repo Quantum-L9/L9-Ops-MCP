@@ -17,6 +17,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -46,9 +47,7 @@ class Finding:
     owner: str | None = None
     finding_hash: str = ""
     ai_enrichment: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(
-        default_factory=lambda: datetime.now(tz=timezone.utc)
-    )
+    created_at: datetime = field(default_factory=lambda: datetime.now(tz=timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize finding for JSON/Neo4j storage."""
@@ -172,30 +171,20 @@ class L11Orchestrator:
 
         # Phase 3
         if self.debt_graph is not None:
-            await self.debt_graph.upsert_findings(
-                [f.to_dict() for f in findings]
-            )
+            await self.debt_graph.upsert_findings([f.to_dict() for f in findings])
 
         # Phase 4
-        block_threshold: int = self.config["risk_model"]["thresholds"][
-            "block_pr"
-        ]
+        block_threshold: int = self.config["risk_model"]["thresholds"]["block_pr"]
         should_block = any(f.risk_score >= block_threshold for f in findings)
 
         # Phase 5
         enrichment_queued = False
         pr_cfg = self.config["execution"]["triggers"]["pr"]
         if pr_cfg.get("ai_enrichment_async") and self.ai_engine is not None:
-            asyncio.create_task(
-                self.ai_engine.enqueue_enrichment(
-                    [f.to_dict() for f in findings]
-                )
-            )
+            asyncio.create_task(self.ai_engine.enqueue_enrichment([f.to_dict() for f in findings]))
             enrichment_queued = True
 
-        duration_ms = (
-            datetime.now(tz=timezone.utc) - start
-        ).total_seconds() * 1000.0
+        duration_ms = (datetime.now(tz=timezone.utc) - start).total_seconds() * 1000.0
 
         logger.info(
             "pr_scan_completed",
@@ -237,15 +226,11 @@ class L11Orchestrator:
             f.risk_score = self.risk_scorer.calculate(f.to_dict())
 
         if self.debt_graph is not None:
-            await self.debt_graph.upsert_findings(
-                [f.to_dict() for f in findings]
-            )
+            await self.debt_graph.upsert_findings([f.to_dict() for f in findings])
 
         sched_cfg = self.config["execution"]["triggers"]["schedule"]
         if sched_cfg.get("ai_enrichment") and self.ai_engine is not None:
-            enriched = await self.ai_engine.enrich_batch(
-                [f.to_dict() for f in findings]
-            )
+            enriched = await self.ai_engine.enrich_batch([f.to_dict() for f in findings])
             for f, e in zip(findings, enriched, strict=True):
                 f.ai_enrichment = e.get("ai_enrichment", {})
 
@@ -253,9 +238,7 @@ class L11Orchestrator:
         if self.debt_graph is not None:
             regressions = await self.debt_graph.detect_regressions()
 
-        duration_ms = (
-            datetime.now(tz=timezone.utc) - start
-        ).total_seconds() * 1000.0
+        duration_ms = (datetime.now(tz=timezone.utc) - start).total_seconds() * 1000.0
 
         logger.info(
             "nightly_scan_completed",
@@ -277,9 +260,7 @@ class L11Orchestrator:
         components: dict[str, Any] = {}
 
         if self.deterministic_engine is not None:
-            components["deterministic_engine"] = (
-                await self.deterministic_engine.health()
-            )
+            components["deterministic_engine"] = await self.deterministic_engine.health()
         if self.ai_engine is not None:
             components["ai_engine"] = await self.ai_engine.health()
         if self.debt_graph is not None:
@@ -287,9 +268,7 @@ class L11Orchestrator:
         if self.risk_scorer is not None:
             components["risk_scorer"] = self.risk_scorer.health()
 
-        all_healthy = all(
-            v.get("healthy", False) for v in components.values()
-        )
+        all_healthy = all(v.get("healthy", False) for v in components.values())
         return {
             "healthy": all_healthy,
             "components": components,

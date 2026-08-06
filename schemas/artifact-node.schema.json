@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activation_signals": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "artifact_type": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "authority": {
+      "enum": [
+        "canonical_repo",
+        "metadata_index",
+        "unknown"
+      ],
+      "type": "string"
+    },
+    "callable": {
+      "type": "boolean"
+    },
+    "content_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dependencies": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "injectable": {
+      "type": "boolean"
+    },
+    "mcp_primitive": {
+      "type": "string"
+    },
+    "namespace": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "retrievable": {
+      "type": "boolean"
+    },
+    "sharing_scope": {
+      "enum": [
+        "shared",
+        "private",
+        "restricted",
+        "unknown"
+      ],
+      "type": "string"
+    },
+    "source_path": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "title": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "token_cost_estimate": {
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "artifact_type",
+    "source_path",
+    "authority",
+    "namespace",
+    "mcp_primitive",
+    "retrievable",
+    "injectable",
+    "callable",
+    "sharing_scope"
+  ],
+  "title": "L9 Artifact Node",
+  "type": "object"
+}

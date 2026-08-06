@@ -18,6 +18,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import json
@@ -50,9 +51,7 @@ class CircuitBreaker:
             return False
         if self.last_failure_time is None:
             return False
-        elapsed = (
-            datetime.now(tz=timezone.utc) - self.last_failure_time
-        ).total_seconds()
+        elapsed = (datetime.now(tz=timezone.utc) - self.last_failure_time).total_seconds()
         if elapsed >= self.cooldown:
             # Half-open: allow one attempt
             self.failure_count = 0
@@ -98,9 +97,7 @@ class AIEnrichmentEngine:
     def __init__(self, config: dict[str, Any]) -> None:
         ai_cfg = config["detection"]["ai_layer"]
         self.model: str = ai_cfg.get("model", "sonar-pro")
-        self.api_key: str | None = os.getenv(
-            ai_cfg.get("api_key_env", "PERPLEXITY_API_KEY")
-        )
+        self.api_key: str | None = os.getenv(ai_cfg.get("api_key_env", "PERPLEXITY_API_KEY"))
 
         cb_cfg = ai_cfg.get("circuit_breaker", {})
         self.circuit_breaker = CircuitBreaker(
@@ -118,9 +115,7 @@ class AIEnrichmentEngine:
         self.max_tokens: int = chunk_cfg.get("max_tokens", 2500)
 
     # ── Public API ──────────────────────────
-    async def enqueue_enrichment(
-        self, findings: list[dict[str, Any]]
-    ) -> None:
+    async def enqueue_enrichment(self, findings: list[dict[str, Any]]) -> None:
         """Queue findings for asynchronous enrichment.
 
         In production this pushes to a Redis/Celery priority queue.
@@ -129,9 +124,7 @@ class AIEnrichmentEngine:
         logger.info("enrichment_queued", findings_count=len(findings))
         await self.enrich_batch(findings)
 
-    async def enrich_batch(
-        self, findings: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    async def enrich_batch(self, findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Enrich a batch of findings with AI classification.
 
         Returns the same list with ``ai_enrichment`` dict added.
@@ -156,9 +149,7 @@ class AIEnrichmentEngine:
         return enriched
 
     # ── Internal ────────────────────────────
-    async def _enrich_single(
-        self, finding: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def _enrich_single(self, finding: dict[str, Any]) -> dict[str, Any]:
         """Call Perplexity API to classify one finding."""
         prompt = self._build_prompt(finding)
 

@@ -333,12 +333,26 @@ cp 01-L11-PIPELINE-CONFIG.yaml scripts/l11/pipeline_config.yaml
 echo "  ✅ Pipeline config"
 
 # ── Python modules ──
-cp 02-L11-ORCHESTRATOR.py             scripts/l11/orchestrator.py
-cp 03-L11-DETERMINISTIC-ENGINE.py     scripts/l11/deterministic_engine.py
-cp 04-L11-AI-ENRICHMENT-ENGINE.py     scripts/l11/ai_enrichment_engine.py
-cp 05-L11-DEBT-GRAPH-SERVICE.py       scripts/l11/debt_graph_service.py
-cp 06-L11-RISK-SCORER.py              scripts/l11/risk_scorer.py
-cp 07-L11-AUTO-FIX-ENGINE.py          scripts/l11/auto_fix_engine.py
+# scripts/l11/*.py is the canonical implementation. Numbered scripts/0*-L11-*.py
+# files are legacy path shims. Only copy numbered → l11 when the source is a
+# full module (kit layout), never when it is already a shim.
+_copy_l11_module() {
+  local src="$1" dest="$2"
+  if [ -f "$src" ] && ! grep -q "Legacy path shim" "$src" 2>/dev/null; then
+    cp "$src" "$dest"
+  elif [ -f "$dest" ]; then
+    echo "  ↷ keep existing $dest (numbered path is shim or missing)"
+  else
+    echo "  ❌ missing both $src and $dest" >&2
+    exit 1
+  fi
+}
+_copy_l11_module 02-L11-ORCHESTRATOR.py             scripts/l11/orchestrator.py
+_copy_l11_module 03-L11-DETERMINISTIC-ENGINE.py     scripts/l11/deterministic_engine.py
+_copy_l11_module 04-L11-AI-ENRICHMENT-ENGINE.py     scripts/l11/ai_enrichment_engine.py
+_copy_l11_module 05-L11-DEBT-GRAPH-SERVICE.py       scripts/l11/debt_graph_service.py
+_copy_l11_module 06-L11-RISK-SCORER.py              scripts/l11/risk_scorer.py
+_copy_l11_module 07-L11-AUTO-FIX-ENGINE.py          scripts/l11/auto_fix_engine.py
 echo "  ✅ L11 Python modules (6)"
 
 # ── Package init ──

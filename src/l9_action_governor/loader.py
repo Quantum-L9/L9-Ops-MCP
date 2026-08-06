@@ -47,10 +47,16 @@ def load_model(model: type[ModelT], path: Path) -> ModelT:
     return model.model_validate(data)
 
 
-def load_run(run_dir: Path) -> tuple[GovernanceGraphIR, GovernanceScores, ConvergencePlan, RuntimeFindings]:
+def load_run(
+    run_dir: Path,
+) -> tuple[GovernanceGraphIR, GovernanceScores, ConvergencePlan, RuntimeFindings]:
     graph = load_model(GovernanceGraphIR, run_dir / "governance_graph_ir.json")
     scores = load_model(GovernanceScores, run_dir / "governance_scores.yaml")
     plan = load_model(ConvergencePlan, run_dir / "convergence_plan.yaml")
     findings_path = run_dir / "runtime_findings.yaml"
-    findings = RuntimeFindings() if not findings_path.exists() else load_model(RuntimeFindings, findings_path)
+    findings = (
+        RuntimeFindings()
+        if not findings_path.exists()
+        else load_model(RuntimeFindings, findings_path)
+    )
     return graph, scores, plan, findings

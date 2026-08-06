@@ -1,12 +1,3 @@
-# --- L9_META ---
-# l9_schema: 1
-# artifact_type: runtime_module
-# component: l9_ops_mcp
-# tags: [mcp, control-plane, transportpacket]
-# retrieval: on_demand
-# status: active
-# --- /L9_META ---
+"""L9-Ops-MCP graph-backed memory + hydrator package."""
 
-from l9_ops_mcp.transport import build_transport_packet, validate_transport_packet
-
-__all__ = ["build_transport_packet", "validate_transport_packet"]
+__version__ = "0.1.0"

@@ -1,0 +1,10 @@
+artifacts:
+  - path: src/l9_ops_mcp/adapters/graph_export/exporter.py
+    purpose: "V2 index to graph-seed JSONL export and verification"
+    validation: "pytest, compileall"
+  - path: src/l9_ops_mcp/adapters/graph_import/ingester.py
+    purpose: "Validated graph seed ingestion boundary and local report sink"
+    validation: "pytest, compileall"
+  - path: src/l9_ops_mcp/adapters/graph_sync/syncer.py
+    purpose: "Single ingress export+ingest sync pipeline"
+    validation: "pytest, compileall"
