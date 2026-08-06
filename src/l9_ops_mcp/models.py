@@ -1,13 +1,9 @@
-"""Runtime payload + memory candidate models.
-
-RuntimePayload structure mirrors context_budget_kernel.v1 hydrator_contract.
-handoff_packets_are_views: readonly is always True (architecture invariant).
-"""
+"""Pydantic models — RuntimePayload, ContextSlice, MemoryCandidate."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -15,11 +11,11 @@ TrustLevel = Literal["L0", "L1", "L2", "L3", "L4", "L5"]
 
 
 class ContextFact(BaseModel):
-    uuid: str
+    uuid: str = ""
     fact: str
     valid_at: datetime | None = None
     invalid_at: datetime | None = None
-    group_id: str
+    group_id: str = ""
     score: float = 0.0
     token_estimate: int = 0
 
@@ -43,8 +39,6 @@ class RuntimePayload(BaseModel):
 
 
 class MemoryCandidate(BaseModel):
-    """A pending durable write, evaluated by the memory admission gate."""
-
     body: str
     source_agent_id: str
     session_id: str
@@ -52,3 +46,4 @@ class MemoryCandidate(BaseModel):
     group_ids: list[str] = Field(default_factory=list)
     semantic_score: float = 0.0
     trust_level: TrustLevel = "L2"
+    metadata: dict[str, Any] = Field(default_factory=dict)

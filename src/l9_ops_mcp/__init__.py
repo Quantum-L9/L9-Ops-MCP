@@ -1,3 +1,3 @@
-"""L9-Ops-MCP graph-backed memory + hydrator package."""
+"""L9-Ops-MCP — Graphiti-backed memory + hydrator for Cursor, Claude, agents."""
 
-__version__ = "0.1.0"
+__version__ = "0.4.0"

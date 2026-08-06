@@ -1,12 +1,8 @@
-"""L9-Ops-MCP server — exposes the graph as MCP tools.
-
-Makes mcp://l9-memory/session.update (multi-agent-routing playbook memory_persist
-step) a real endpoint. All agent<->graph traffic flows through these tools only;
-no raw graph access, no raw memory dumps (context_budget_kernel hard_bans).
-"""
+"""L9-Ops-MCP MCP server — 4 governed memory tools for Cursor, Claude, agents."""
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 
 from mcp.server.fastmcp import FastMCP
@@ -15,7 +11,14 @@ from .hydrator import hydrate
 from .memory_ops import ingest_episode
 from .models import MemoryCandidate
 
-mcp = FastMCP("l9-ops-mcp")
+mcp = FastMCP(
+    "l9-ops-mcp",
+    instructions=(
+        "L9 governed memory: use memory_get_budget_slice to read context, "
+        "memory_ingest_episode to write, memory_query_context for search, "
+        "memory_invalidate_fact to expire stale facts."
+    ),
+)
 
 
 @mcp.tool()  # type: ignore[untyped-decorator]
@@ -26,10 +29,10 @@ async def memory_get_budget_slice(
     trust_level: str,
     session_id: str,
 ) -> dict[str, object]:
-    """Hydrator entrypoint: return a budget-bounded, policy-filtered RuntimePayload."""
+    """Return a budget-bounded, read-only RuntimePayload for the given task.
+    This is the ONLY way to inject graph context into an agent context window."""
     payload = await hydrate(task_type, agent_id, token_budget, trust_level, session_id)  # type: ignore[arg-type]
-    dumped = payload.model_dump(mode="json")
-    return dict(dumped)
+    return payload.model_dump(mode="json")
 
 
 @mcp.tool()  # type: ignore[untyped-decorator]
@@ -41,8 +44,9 @@ async def memory_ingest_episode(
     semantic_score: float = 1.0,
     trust_level: str = "L2",
 ) -> dict[str, object]:
-    """Single durable write path (was mcp://l9-memory/session.update)."""
-    candidate = MemoryCandidate(
+    """Write a durable memory episode through the 5-criteria admission gate.
+    Low-quality or low-trust writes are quarantined, not silently admitted."""
+    c = MemoryCandidate(
         body=body,
         source_agent_id=source_agent_id,
         session_id=session_id,
@@ -51,14 +55,16 @@ async def memory_ingest_episode(
         semantic_score=semantic_score,
         trust_level=trust_level,  # type: ignore[arg-type]
     )
-    return await ingest_episode(candidate)
+    return await ingest_episode(c)
 
 
 @mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_query_context(
-    query: str, group_ids: list[str] | None = None, limit: int = 10
+    query: str,
+    group_ids: list[str] | None = None,
+    limit: int = 10,
 ) -> dict[str, object]:
-    """Read-only relational query across sessions/agents/playbooks."""
+    """Read-only graph search across sessions, agents, playbooks, decisions."""
     from .graphiti_client import get_graphiti
 
     g = await get_graphiti()
@@ -67,7 +73,7 @@ async def memory_query_context(
         "facts": [
             {
                 "fact": h.fact,
-                "uuid": getattr(h, "uuid", ""),
+                "uuid": str(getattr(h, "uuid", "")),
                 "valid_at": str(getattr(h, "valid_at", None)),
             }
             for h in hits
@@ -75,8 +81,33 @@ async def memory_query_context(
     }
 
 
+@mcp.tool()  # type: ignore[untyped-decorator]
+async def memory_invalidate_fact(entity_uuid: str, reason: str) -> dict[str, object]:
+    """Mark a graph fact as invalid (temporal expiry). Does not delete the node."""
+    from .graphiti_client import get_graphiti
+
+    g = await get_graphiti()
+    await g.driver.execute_query(
+        "MATCH (n {uuid: $uuid}) SET n.invalid_at = $ts, n.invalid_reason = $reason",
+        uuid=entity_uuid,
+        ts=datetime.now(timezone.utc).isoformat(),
+        reason=reason,
+    )
+    return {
+        "invalidated": entity_uuid,
+        "reason": reason,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 def main() -> None:
-    mcp.run()
+    transport = os.getenv("L9_MCP_TRANSPORT", "stdio")
+    if transport == "http":
+        host = os.getenv("L9_MCP_HTTP_HOST", "127.0.0.1")
+        port = int(os.getenv("L9_MCP_HTTP_PORT", "7010"))
+        mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")
+    else:
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
