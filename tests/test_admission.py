@@ -1,7 +1,6 @@
 """Unit tests for the admission gate. No Neo4j required."""
 
 import asyncio
-import pytest
 from l9_ops_mcp.admission import evaluate
 from l9_ops_mcp.models import MemoryCandidate
 

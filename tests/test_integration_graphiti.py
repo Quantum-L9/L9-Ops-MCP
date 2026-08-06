@@ -24,8 +24,7 @@ async def test_graphiti_indices_build():
 
 @pytest.mark.asyncio
 async def test_ingest_admitted():
-    from datetime import datetime, timezone
-    from l9_ops_mcp.memory_ops import ingest_episode
+        from l9_ops_mcp.memory_ops import ingest_episode
     from l9_ops_mcp.models import MemoryCandidate
 
     c = MemoryCandidate(
