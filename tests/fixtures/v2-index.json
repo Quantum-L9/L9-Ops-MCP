@@ -1,0 +1,38 @@
+{
+  "artifacts": [
+    {
+      "id": "context_budget_kernel.v1",
+      "title": "Context Budget Kernel",
+      "artifact_type": "kernel",
+      "source_path": "docs/kernels/R5/context_budget_kernel.v1.yaml",
+      "retrievable": true,
+      "injectable": true,
+      "callable": false,
+      "mcp_primitive": "resource",
+      "retrieval_keys": [
+        "context budgeting",
+        "hydrator"
+      ],
+      "dependencies": [
+        "memory_admission_kernel.v1"
+      ],
+      "token_cost_estimate": 1200
+    },
+    {
+      "id": "generate-execution-plan",
+      "title": "Generate Execution Plan",
+      "artifact_type": "skill",
+      "source_path": "skills/agent/generate-execution-plan/SKILL.md",
+      "retrievable": true,
+      "injectable": false,
+      "callable": true,
+      "mcp_primitive": "tool",
+      "activation_signals": [
+        "execution planning"
+      ],
+      "dependencies": [
+        "execution_plan_kernel.v1"
+      ]
+    }
+  ]
+}
