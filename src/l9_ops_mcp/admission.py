@@ -1,5 +1,8 @@
 """Memory Admission Gateway — memory_admission_kernel.v1, fail_closed."""
+
 from __future__ import annotations
+
+from collections.abc import Awaitable, Callable
 
 import json
 from datetime import datetime, timezone
@@ -14,7 +17,7 @@ MIN_TRUST = "L2"
 _ORDER = ["L0", "L1", "L2", "L3", "L4", "L5"]
 
 
-def _log(d: dict) -> None:
+def _log(d: dict[str, object]) -> None:
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with LOG.open("a") as fh:
         fh.write(json.dumps(d) + "\n")
@@ -24,7 +27,10 @@ def _ge(a: str, b: str) -> bool:
     return _ORDER.index(a) >= _ORDER.index(b)
 
 
-async def evaluate(candidate: MemoryCandidate, dedup_check) -> tuple[bool, str]:
+async def evaluate(
+    candidate: MemoryCandidate,
+    dedup_check: Callable[[str], Awaitable[bool]],
+) -> tuple[bool, str]:
     ts = datetime.now(timezone.utc).isoformat()
     base = {
         "session": candidate.session_id,
@@ -34,10 +40,19 @@ async def evaluate(candidate: MemoryCandidate, dedup_check) -> tuple[bool, str]:
 
     if candidate.semantic_score < THRESHOLD:
         QUARANTINE.mkdir(parents=True, exist_ok=True)
-        qf = QUARANTINE / f"{candidate.session_id}-{int(candidate.origin_timestamp.timestamp())}.json"
+        qf = (
+            QUARANTINE
+            / f"{candidate.session_id}-{int(candidate.origin_timestamp.timestamp())}.json"
+        )
         qf.write_text(candidate.model_dump_json(indent=2))
-        _log({**base, "criterion": "relevance", "disposition": "quarantine",
-              "score": candidate.semantic_score})
+        _log(
+            {
+                **base,
+                "criterion": "relevance",
+                "disposition": "quarantine",
+                "score": candidate.semantic_score,
+            }
+        )
         return False, "quarantine:relevance"
 
     if not _ge(candidate.trust_level, MIN_TRUST):
@@ -52,6 +67,5 @@ async def evaluate(candidate: MemoryCandidate, dedup_check) -> tuple[bool, str]:
         _log({**base, "criterion": "provenance", "disposition": "block"})
         return False, "block:provenance"
 
-    _log({**base, "criterion": "all", "disposition": "admit",
-          "score": candidate.semantic_score})
+    _log({**base, "criterion": "all", "disposition": "admit", "score": candidate.semantic_score})
     return True, "admit"

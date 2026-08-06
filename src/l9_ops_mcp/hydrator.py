@@ -1,4 +1,5 @@
 """Hydrator — ONLY authorized path from Graphiti to agent context window."""
+
 from __future__ import annotations
 
 import tiktoken

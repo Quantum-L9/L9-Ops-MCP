@@ -1,4 +1,5 @@
 """Single durable write path, gated by the admission gate."""
+
 from __future__ import annotations
 
 from . import admission
@@ -12,7 +13,7 @@ async def _dedup(body: str) -> bool:
     return bool(hits and float(getattr(hits[0], "score", 0) or 0) >= 0.95)
 
 
-async def ingest_episode(c: MemoryCandidate) -> dict:
+async def ingest_episode(c: MemoryCandidate) -> dict[str, object]:
     ok, disp = await admission.evaluate(c, _dedup)
     if not ok:
         return {"admitted": False, "disposition": disp}
@@ -28,8 +29,8 @@ async def ingest_episode(c: MemoryCandidate) -> dict:
         "admitted": True,
         "disposition": "admit",
         "provenance": {
-            "agent":   c.source_agent_id,
+            "agent": c.source_agent_id,
             "session": c.session_id,
-            "ts":      c.origin_timestamp.isoformat(),
+            "ts": c.origin_timestamp.isoformat(),
         },
     }

@@ -1,6 +1,11 @@
 """Write or merge l9-ops-mcp into Claude Desktop MCP config. Idempotent."""
+
 from __future__ import annotations
-import json, os, pathlib, platform, sys
+import json
+import os
+import pathlib
+import platform
+import sys
 
 REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 
@@ -8,7 +13,13 @@ REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
 def _cfg_path() -> pathlib.Path:
     system = platform.system()
     if system == "Darwin":
-        p = pathlib.Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json"
+        p = (
+            pathlib.Path.home()
+            / "Library"
+            / "Application Support"
+            / "Claude"
+            / "claude_desktop_config.json"
+        )
         if p.parent.exists():
             return p
         return pathlib.Path.home() / ".config" / "Claude" / "claude_desktop_config.json"
@@ -22,11 +33,11 @@ entry = {
     "command": "python",
     "args": ["-m", "l9_ops_mcp.server"],
     "env": {
-        "L9_NEO4J_URI":      os.getenv("L9_NEO4J_URI",  "bolt://localhost:7687"),
-        "L9_NEO4J_USER":     os.getenv("L9_NEO4J_USER", "neo4j"),
-        "L9_NEO4J_PASS":     os.getenv("L9_NEO4J_PASS", "l9_local_dev_pw"),
+        "L9_NEO4J_URI": os.getenv("L9_NEO4J_URI", "bolt://localhost:7687"),
+        "L9_NEO4J_USER": os.getenv("L9_NEO4J_USER", "neo4j"),
+        "L9_NEO4J_PASS": os.getenv("L9_NEO4J_PASS", "l9_local_dev_pw"),
         "L9_OPENAI_API_KEY": os.getenv("L9_OPENAI_API_KEY", ""),
-        "PYTHONPATH":        str(REPO_ROOT / "src"),
+        "PYTHONPATH": str(REPO_ROOT / "src"),
     },
 }
 

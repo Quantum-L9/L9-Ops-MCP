@@ -1,4 +1,5 @@
 """Token budget tier allocation — context_budget_kernel.v1 TIER-1/2/3."""
+
 from __future__ import annotations
 
 from .models import ContextFact, ContextSlice

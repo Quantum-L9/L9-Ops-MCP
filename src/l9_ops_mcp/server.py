@@ -1,4 +1,5 @@
 """L9-Ops-MCP MCP server — 4 governed memory tools for Cursor, Claude, agents."""
+
 from __future__ import annotations
 
 import os
@@ -20,21 +21,21 @@ mcp = FastMCP(
 )
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_get_budget_slice(
     task_type: str,
     agent_id: str,
     token_budget: int,
     trust_level: str,
     session_id: str,
-) -> dict:
+) -> dict[str, object]:
     """Return a budget-bounded, read-only RuntimePayload for the given task.
     This is the ONLY way to inject graph context into an agent context window."""
     payload = await hydrate(task_type, agent_id, token_budget, trust_level, session_id)  # type: ignore[arg-type]
     return payload.model_dump(mode="json")
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_ingest_episode(
     body: str,
     source_agent_id: str,
@@ -42,7 +43,7 @@ async def memory_ingest_episode(
     group_ids: list[str] | None = None,
     semantic_score: float = 1.0,
     trust_level: str = "L2",
-) -> dict:
+) -> dict[str, object]:
     """Write a durable memory episode through the 5-criteria admission gate.
     Low-quality or low-trust writes are quarantined, not silently admitted."""
     c = MemoryCandidate(
@@ -57,21 +58,22 @@ async def memory_ingest_episode(
     return await ingest_episode(c)
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_query_context(
     query: str,
     group_ids: list[str] | None = None,
     limit: int = 10,
-) -> dict:
+) -> dict[str, object]:
     """Read-only graph search across sessions, agents, playbooks, decisions."""
     from .graphiti_client import get_graphiti
+
     g = await get_graphiti()
     hits = await g.search(query=query, group_ids=group_ids, num_results=limit)
     return {
         "facts": [
             {
-                "fact":     h.fact,
-                "uuid":     str(getattr(h, "uuid", "")),
+                "fact": h.fact,
+                "uuid": str(getattr(h, "uuid", "")),
                 "valid_at": str(getattr(h, "valid_at", None)),
             }
             for h in hits
@@ -79,10 +81,11 @@ async def memory_query_context(
     }
 
 
-@mcp.tool()
-async def memory_invalidate_fact(entity_uuid: str, reason: str) -> dict:
+@mcp.tool()  # type: ignore[untyped-decorator]
+async def memory_invalidate_fact(entity_uuid: str, reason: str) -> dict[str, object]:
     """Mark a graph fact as invalid (temporal expiry). Does not delete the node."""
     from .graphiti_client import get_graphiti
+
     g = await get_graphiti()
     await g.driver.execute_query(
         "MATCH (n {uuid: $uuid}) SET n.invalid_at = $ts, n.invalid_reason = $reason",

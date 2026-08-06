@@ -2,6 +2,7 @@
 Safe to re-run: Graphiti deduplicates on ingest.
 Usage: python -m l9_ops_mcp.seed [--file /path/to/CANONICAL_LAW.md]
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -45,7 +46,7 @@ async def seed(path: pathlib.Path | None = None) -> None:
             reference_time=datetime.now(timezone.utc),
         )
         if i % 5 == 0:
-            print(f"  {i+1}/{len(chunks)}")
+            print(f"  {i + 1}/{len(chunks)}")
     print(f"Done: {len(chunks)} episodes written to global:decisions.")
 
 

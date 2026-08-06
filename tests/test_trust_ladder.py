@@ -1,4 +1,5 @@
 """Unit tests for trust-ladder scope resolution."""
+
 from l9_ops_mcp.trust_ladder import allowed_scopes
 
 

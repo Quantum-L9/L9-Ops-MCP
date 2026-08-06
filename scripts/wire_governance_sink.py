@@ -3,6 +3,7 @@
 Idempotent: skips if already patched. Creates .pre-graphiti.bak backup.
 Set CG_ROOT env var if Cursor-Governance lives outside ~/.cursor-governance.
 """
+
 from __future__ import annotations
 
 import os
@@ -10,9 +11,9 @@ import pathlib
 import re
 import shutil
 
-CG_ROOT   = pathlib.Path(os.getenv("CG_ROOT", str(pathlib.Path.home() / ".cursor-governance")))
+CG_ROOT = pathlib.Path(os.getenv("CG_ROOT", str(pathlib.Path.home() / ".cursor-governance")))
 EXTRACTOR = CG_ROOT / "intelligence" / "context-memory" / "context-extractor.py"
-SINK_SRC  = (
+SINK_SRC = (
     pathlib.Path(__file__).parent.parent
     / "Cursor-Governance"
     / "intelligence"

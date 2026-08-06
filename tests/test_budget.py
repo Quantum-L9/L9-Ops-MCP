@@ -1,11 +1,13 @@
 """Unit tests for token budget tier allocation."""
+
 from l9_ops_mcp.budget import allocate
 from l9_ops_mcp.models import ContextFact
 
 
 def _f(i: int, score: float, toks: int) -> ContextFact:
-    return ContextFact(uuid=str(i), fact="x" * toks, group_id="session:current",
-                       score=score, token_estimate=toks)
+    return ContextFact(
+        uuid=str(i), fact="x" * toks, group_id="session:current", score=score, token_estimate=toks
+    )
 
 
 def test_respects_80pct_cap():

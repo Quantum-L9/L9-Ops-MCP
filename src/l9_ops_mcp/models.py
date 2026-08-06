@@ -1,4 +1,5 @@
 """Pydantic models — RuntimePayload, ContextSlice, MemoryCandidate."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -21,8 +22,8 @@ class ContextFact(BaseModel):
 
 class ContextSlice(BaseModel):
     tier1_load_bearing: list[ContextFact] = Field(default_factory=list)
-    tier2_examples:     list[ContextFact] = Field(default_factory=list)
-    tier3_stakes:       list[ContextFact] = Field(default_factory=list)
+    tier2_examples: list[ContextFact] = Field(default_factory=list)
+    tier3_stakes: list[ContextFact] = Field(default_factory=list)
     token_count: int = 0
 
 

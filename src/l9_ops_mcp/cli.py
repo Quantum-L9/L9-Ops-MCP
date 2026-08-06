@@ -1,6 +1,7 @@
 """CLI shim — lets shell/cron call graph tools without an MCP client.
 Usage: python -m l9_ops_mcp.cli ingest '{...}' | query '{...}'
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -11,12 +12,13 @@ from .memory_ops import ingest_episode
 from .models import MemoryCandidate
 
 
-async def _ingest(p: dict) -> dict:
-    return await ingest_episode(MemoryCandidate(**p))
+async def _ingest(p: dict[str, object]) -> dict[str, object]:
+    return await ingest_episode(MemoryCandidate.model_validate(p))
 
 
-async def _query(p: dict) -> dict:
+async def _query(p: dict[str, object]) -> dict[str, object]:
     from .graphiti_client import get_graphiti
+
     g = await get_graphiti()
     hits = await g.search(
         query=p["query"],
