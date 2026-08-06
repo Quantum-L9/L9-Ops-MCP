@@ -3,8 +3,9 @@ from l9_ops_mcp.models import ContextFact
 
 
 def _f(i, score, toks):
-    return ContextFact(uuid=str(i), fact="x" * toks, group_id="session:current",
-                       score=score, token_estimate=toks)
+    return ContextFact(
+        uuid=str(i), fact="x" * toks, group_id="session:current", score=score, token_estimate=toks
+    )
 
 
 def test_budget_respects_cap():

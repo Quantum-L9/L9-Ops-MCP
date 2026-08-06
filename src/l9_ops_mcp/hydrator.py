@@ -5,6 +5,7 @@ Implements context_budget_kernel.v1 hydrator_contract assembly_order:
   4 apply budget tiers    5 compress >80%         6 seal read-only  7 emit
 Resolves U-H1 (impl language: Python) and U-H2 (backend: Graphiti).
 """
+
 from __future__ import annotations
 
 import tiktoken

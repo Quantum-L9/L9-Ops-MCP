@@ -4,6 +4,7 @@ Usage:
   python -m l9_ops_mcp.cli ingest '{"body": "...", ...}'
   python -m l9_ops_mcp.cli query  '{"query": "...", "limit": 10}'
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -14,15 +15,23 @@ from .memory_ops import ingest_episode
 from .models import MemoryCandidate
 
 
-async def _ingest(p: dict) -> dict:
-    return await ingest_episode(MemoryCandidate(**p))
+async def _ingest(p: dict[str, object]) -> dict[str, object]:
+    return await ingest_episode(MemoryCandidate.model_validate(p))
 
 
-async def _query(p: dict) -> dict:
+async def _query(p: dict[str, object]) -> dict[str, object]:
     from .graphiti_client import get_graphiti
+
     g = await get_graphiti()
-    hits = await g.search(query=p["query"], group_ids=p.get("group_ids"),
-                          num_results=p.get("limit", 10))
+    query = str(p["query"])
+    group_ids = p.get("group_ids")
+    limit_raw = p.get("limit", 10)
+    limit = int(limit_raw) if isinstance(limit_raw, int) else 10
+    hits = await g.search(
+        query=query,
+        group_ids=group_ids if isinstance(group_ids, list) else None,
+        num_results=limit,
+    )
     return {"facts": [{"fact": h.fact} for h in hits]}
 
 

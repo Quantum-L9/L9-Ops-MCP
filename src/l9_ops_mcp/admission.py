@@ -3,7 +3,10 @@
 Five criteria in order: relevance, trust, consent, deduplication, provenance.
 fail_closed: True. Every decision is logged. Failures quarantine or block.
 """
+
 from __future__ import annotations
+
+from collections.abc import Awaitable, Callable
 
 import json
 from datetime import datetime, timezone
@@ -18,7 +21,7 @@ MIN_TRUST = "L2"
 _TRUST_ORDER = ["L0", "L1", "L2", "L3", "L4", "L5"]
 
 
-def _log(decision: dict) -> None:
+def _log(decision: dict[str, object]) -> None:
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with LOG.open("a") as fh:
         fh.write(json.dumps(decision) + "\n")
@@ -28,7 +31,10 @@ def _trust_ge(level: str, minimum: str) -> bool:
     return _TRUST_ORDER.index(level) >= _TRUST_ORDER.index(minimum)
 
 
-async def evaluate(candidate: MemoryCandidate, dedup_check) -> tuple[bool, str]:
+async def evaluate(
+    candidate: MemoryCandidate,
+    dedup_check: Callable[[str], Awaitable[bool]],
+) -> tuple[bool, str]:
     """Return (admitted, disposition). dedup_check(body)->bool is graph-backed."""
     ts = datetime.now(timezone.utc).isoformat()
     base = {"session_id": candidate.session_id, "agent": candidate.source_agent_id, "ts": ts}
@@ -36,8 +42,14 @@ async def evaluate(candidate: MemoryCandidate, dedup_check) -> tuple[bool, str]:
     # 1. relevance
     if candidate.semantic_score < RELEVANCE_THRESHOLD:
         _quarantine(candidate)
-        _log({**base, "criterion": "relevance", "disposition": "quarantine",
-              "score": candidate.semantic_score})
+        _log(
+            {
+                **base,
+                "criterion": "relevance",
+                "disposition": "quarantine",
+                "score": candidate.semantic_score,
+            }
+        )
         return False, "quarantine:relevance"
 
     # 2. trust
@@ -56,8 +68,7 @@ async def evaluate(candidate: MemoryCandidate, dedup_check) -> tuple[bool, str]:
         _log({**base, "criterion": "provenance", "disposition": "block"})
         return False, "block:provenance"
 
-    _log({**base, "criterion": "all", "disposition": "admit",
-          "score": candidate.semantic_score})
+    _log({**base, "criterion": "all", "disposition": "admit", "score": candidate.semantic_score})
     return True, "admit"
 
 

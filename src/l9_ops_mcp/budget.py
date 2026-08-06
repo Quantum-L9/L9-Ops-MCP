@@ -4,6 +4,7 @@ TIER-1 load-bearing 60% | TIER-2 examples 15% | TIER-3 stakes 5%
 TIER-4 request 10% (reserved by caller) | TIER-5 model output 10% (reserved).
 Compresses when consumption exceeds 80% of the context slice budget.
 """
+
 from __future__ import annotations
 
 from .models import ContextFact, ContextSlice

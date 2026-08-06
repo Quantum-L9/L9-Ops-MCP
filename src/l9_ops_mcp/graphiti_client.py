@@ -4,6 +4,7 @@ Resolves U-M2 (memory_admission_kernel) and U-H2 (context_budget_kernel):
 Graphiti + Neo4j is the L9 graph backend for allowed_scopes resolution and
 durable memory. This is the ONLY module permitted to open a graph connection.
 """
+
 from __future__ import annotations
 
 import os
@@ -26,7 +27,7 @@ async def get_graphiti() -> Graphiti:
     g = _client()
     if not getattr(g, "_l9_indices_built", False):
         await g.build_indices_and_constraints()
-        g._l9_indices_built = True  # type: ignore[attr-defined]
+        setattr(g, "_l9_indices_built", True)
     return g
 
 

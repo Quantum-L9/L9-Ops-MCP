@@ -3,10 +3,11 @@
 RuntimePayload structure mirrors context_budget_kernel.v1 hydrator_contract.
 handoff_packets_are_views: readonly is always True (architecture invariant).
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -43,6 +44,7 @@ class RuntimePayload(BaseModel):
 
 class MemoryCandidate(BaseModel):
     """A pending durable write, evaluated by the memory admission gate."""
+
     body: str
     source_agent_id: str
     session_id: str
