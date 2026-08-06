@@ -7,7 +7,9 @@ def test_sync_graph_from_index_exports_and_ingests(tmp_path: Path) -> None:
     seed = tmp_path / "graph-seed.jsonl"
     report_path = tmp_path / "ingest-report.json"
 
-    report = sync_graph_from_index(Path("tests/fixtures/v2-index.json"), Path("."), seed, report_path)
+    report = sync_graph_from_index(
+        Path("tests/fixtures/v2-index.json"), Path("."), seed, report_path
+    )
 
     assert report["status"] == "pass"
     assert seed.exists()
