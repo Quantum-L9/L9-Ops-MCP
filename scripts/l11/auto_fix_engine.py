@@ -18,6 +18,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 import subprocess
@@ -40,9 +41,7 @@ class FixResult:
     tests_passed: bool = False
     pr_url: str = ""
     reason: str = ""
-    attempted_at: datetime = field(
-        default_factory=lambda: datetime.now(tz=timezone.utc)
-    )
+    attempted_at: datetime = field(default_factory=lambda: datetime.now(tz=timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -72,29 +71,23 @@ class AutoFixEngine:
         ADR-0078  Explicit approval for destructive ops
     """
 
-    SUPPORTED_CATEGORIES = frozenset({
-        "linting_errors",
-        "import_sorting",
-        "docstring_missing",
-        "type_hint_missing",
-        "structlog_migration",
-    })
+    SUPPORTED_CATEGORIES = frozenset(
+        {
+            "linting_errors",
+            "import_sorting",
+            "docstring_missing",
+            "type_hint_missing",
+            "structlog_migration",
+        }
+    )
 
     def __init__(self, config: dict[str, Any]) -> None:
         fix_cfg = config["remediation"]["auto_fix"]
         self.enabled: bool = fix_cfg.get("enabled", False)
-        self.require_tests: bool = fix_cfg["safety"].get(
-            "require_passing_tests", True
-        )
-        self.shadow_diff: bool = fix_cfg["safety"].get(
-            "shadow_diff_validation", True
-        )
-        self.rollback: bool = fix_cfg["safety"].get(
-            "rollback_on_failure", True
-        )
-        self.require_approval: bool = fix_cfg["safety"].get(
-            "require_approval", True
-        )
+        self.require_tests: bool = fix_cfg["safety"].get("require_passing_tests", True)
+        self.shadow_diff: bool = fix_cfg["safety"].get("shadow_diff_validation", True)
+        self.rollback: bool = fix_cfg["safety"].get("rollback_on_failure", True)
+        self.require_approval: bool = fix_cfg["safety"].get("require_approval", True)
 
     # ── Public API ──────────────────────────
     async def attempt_fix(self, finding: dict[str, Any]) -> FixResult:
@@ -135,7 +128,8 @@ class AutoFixEngine:
             if file_path:
                 self._git("add", file_path)
             self._git(
-                "commit", "-m",
+                "commit",
+                "-m",
                 f"auto-fix: {finding.get('rule', 'unknown')} in {file_path}",
             )
 
@@ -218,8 +212,10 @@ class AutoFixEngine:
             # Use L9 lint_forbidden_imports.py --fix
             subprocess.run(
                 [
-                    "python", "ci/check_forbidden_imports.py",
-                    "--fix", file_path,
+                    "python",
+                    "ci/check_forbidden_imports.py",
+                    "--fix",
+                    file_path,
                 ],
                 check=True,
                 capture_output=True,
@@ -248,9 +244,7 @@ class AutoFixEngine:
         )
         return result.stdout.strip()
 
-    def _cleanup_branch(
-        self, original: str, shadow: str
-    ) -> None:
+    def _cleanup_branch(self, original: str, shadow: str) -> None:
         """Force-checkout original and delete shadow branch."""
         try:
             self._git("checkout", "-f", original)
@@ -273,7 +267,4 @@ class AutoFixEngine:
         """Build the GitHub compare URL for PR creation."""
         repo = "cryptoxdog/L9"
         title = f"auto-fix: {finding.get('rule', 'unknown')}"
-        return (
-            f"https://github.com/{repo}/compare/main...{branch}"
-            f"?expand=1&title={title}"
-        )
+        return f"https://github.com/{repo}/compare/main...{branch}?expand=1&title={title}"

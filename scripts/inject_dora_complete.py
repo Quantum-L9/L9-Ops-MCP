@@ -69,8 +69,8 @@ import structlog
 # DATA MODELS
 
 
-
 logger = structlog.get_logger(__name__)
+
 
 @dataclass
 class FunctionInfo:
@@ -258,9 +258,7 @@ class DoraCompleteInjector:
         self.file_functions: dict[str, list[FunctionInfo]] = {}
         self.component_id_counter: dict[str, int] = {}
 
-    def scan_repository(
-        self, single_file: str | None = None, force: bool = False
-    ) -> None:
+    def scan_repository(self, single_file: str | None = None, force: bool = False) -> None:
         """Scan repository for Python and YAML files."""
         if single_file:
             file_path = Path(single_file)
@@ -572,9 +570,7 @@ class DoraCompleteInjector:
         # Default: active
         return "active"
 
-    def _detect_type_from_content(
-        self, file_path: str, classes: list[ClassInfo]
-    ) -> str | None:
+    def _detect_type_from_content(self, file_path: str, classes: list[ClassInfo]) -> str | None:
         """Detect file type from decorators, base classes, and content patterns."""
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -683,9 +679,7 @@ class DoraCompleteInjector:
                                 # Convert to module path
                                 try:
                                     imp_rel = Path(f).relative_to(Path("."))
-                                    imp_module = ".".join(
-                                        [*list(imp_rel.parts[:-1]), imp_rel.stem]
-                                    )
+                                    imp_module = ".".join([*list(imp_rel.parts[:-1]), imp_rel.stem])
                                     importers.add(imp_module)
                                 except ValueError:
                                     importers.add(f)
@@ -708,8 +702,7 @@ class DoraCompleteInjector:
 
         # PostgreSQL indicators
         if any(
-            p in content
-            for p in ["asyncpg", "psycopg", "databases", "sqlalchemy", "PostgreSQL"]
+            p in content for p in ["asyncpg", "psycopg", "databases", "sqlalchemy", "PostgreSQL"]
         ):
             datasources.add("PostgreSQL")
 
@@ -726,16 +719,11 @@ class DoraCompleteInjector:
             datasources.add("S3")
 
         # Gmail/Google API indicators
-        if any(
-            p in content for p in ["GmailClient", "gmail_client", "googleapiclient"]
-        ):
+        if any(p in content for p in ["GmailClient", "gmail_client", "googleapiclient"]):
             datasources.add("Gmail API")
 
         # Slack API indicators
-        if any(
-            p in content
-            for p in ["SlackClient", "slack_sdk", "WebClient", "slack_client"]
-        ):
+        if any(p in content for p in ["SlackClient", "slack_sdk", "WebClient", "slack_client"]):
             datasources.add("Slack API")
 
         # OpenAI indicators
@@ -747,9 +735,7 @@ class DoraCompleteInjector:
             datasources.add("Anthropic API")
 
         # HTTP client indicators (external APIs)
-        if any(
-            p in content for p in ["httpx", "aiohttp", "requests.get", "requests.post"]
-        ):
+        if any(p in content for p in ["httpx", "aiohttp", "requests.get", "requests.post"]):
             datasources.add("HTTP API")
 
         # Perplexity indicators
@@ -813,9 +799,7 @@ class DoraCompleteInjector:
 
         endpoints = []
         # Match @router.get("/path"), @router.post("/path"), etc.
-        pattern = (
-            r'@(?:router|app)\.(get|post|put|delete|patch)\s*\(\s*["\']([^"\']+)["\']'
-        )
+        pattern = r'@(?:router|app)\.(get|post|put|delete|patch)\s*\(\s*["\']([^"\']+)["\']'
         for match in re.finditer(pattern, content, re.IGNORECASE):
             method = match.group(1).upper()
             path = match.group(2)
@@ -920,10 +904,7 @@ class DoraCompleteInjector:
                 for section_name, markers in section_markers.items():
                     if any(
                         stripped_lower.startswith(m)
-                        or (
-                            stripped_lower.endswith(":")
-                            and m.rstrip(":") in stripped_lower
-                        )
+                        or (stripped_lower.endswith(":") and m.rstrip(":") in stripped_lower)
                         for m in markers
                     ):
                         # Save previous section
@@ -958,11 +939,7 @@ class DoraCompleteInjector:
                                 result["tags_from_docstring"].append(word)
 
                 # Collect paragraph content for purpose
-                elif (
-                    current_section == "purpose"
-                    and stripped
-                    and not stripped.endswith(":")
-                ):
+                elif current_section == "purpose" and stripped and not stripped.endswith(":"):
                     if not any(stripped.startswith(c) for c in ["=", "-", "*"]):
                         section_content.append(stripped)
 
@@ -1052,20 +1029,14 @@ class DoraCompleteInjector:
             stat = Path(file_path).stat()
             # st_birthtime is creation time on macOS
             # st_mtime is modification time
-            created = datetime.fromtimestamp(stat.st_birthtime).strftime(
-                "%Y-%m-%dT%H:%M:%SZ"
-            )
-            modified = datetime.fromtimestamp(stat.st_mtime).strftime(
-                "%Y-%m-%dT%H:%M:%SZ"
-            )
+            created = datetime.fromtimestamp(stat.st_birthtime).strftime("%Y-%m-%dT%H:%M:%SZ")
+            modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%dT%H:%M:%SZ")
             return created, modified
         except (AttributeError, OSError):
             # Fallback if st_birthtime not available (Linux)
             try:
                 stat = Path(file_path).stat()
-                modified = datetime.fromtimestamp(stat.st_mtime).strftime(
-                    "%Y-%m-%dT%H:%M:%SZ"
-                )
+                modified = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%dT%H:%M:%SZ")
                 return modified, modified  # Use mtime for both
             except OSError:
                 timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -1226,8 +1197,7 @@ class DoraCompleteInjector:
 
             if is_yaml:
                 return {
-                    "header": "# DORA META" in content
-                    or "# component_name:" in content,
+                    "header": "# DORA META" in content or "# component_name:" in content,
                     "footer": "# DORA FOOTER" in content or "# tags:" in content,
                     "trace": True,  # YAML files don't have trace blocks
                     "legacy": False,
@@ -1236,19 +1206,11 @@ class DoraCompleteInjector:
             # ONLY detect dict assignments - not string templates or comments
             # This prevents false positives in generator/validator scripts
             return {
-                "header": bool(
-                    re.search(r"^__dora_meta__\s*=\s*\{", content, re.MULTILINE)
-                ),
-                "footer": bool(
-                    re.search(r"^__dora_footer__\s*=\s*\{", content, re.MULTILINE)
-                ),
-                "trace": bool(
-                    re.search(r"^__l9_trace__\s*=\s*\{", content, re.MULTILINE)
-                ),
+                "header": bool(re.search(r"^__dora_meta__\s*=\s*\{", content, re.MULTILINE)),
+                "footer": bool(re.search(r"^__dora_footer__\s*=\s*\{", content, re.MULTILINE)),
+                "trace": bool(re.search(r"^__l9_trace__\s*=\s*\{", content, re.MULTILINE)),
                 # Check for old-style blocks (actual assignment at line start)
-                "legacy": bool(
-                    re.search(r"^__dora_block__\s*=\s*\{", content, re.MULTILINE)
-                ),
+                "legacy": bool(re.search(r"^__dora_block__\s*=\s*\{", content, re.MULTILINE)),
             }
         except Exception:
             return {"header": False, "footer": False, "trace": False, "legacy": False}
@@ -1305,9 +1267,7 @@ class DoraCompleteInjector:
         content = self._strip_dict_block(content, "__dora_block__")  # Legacy
 
         # Trace block - full block with dict (76 = signs specifically)
-        trace_pattern = (
-            r"\n?# ={76}\n# L9 DORA BLOCK[^\n]*\n[^#]*# END L9 DORA BLOCK\n# ={76}\n?"
-        )
+        trace_pattern = r"\n?# ={76}\n# L9 DORA BLOCK[^\n]*\n[^#]*# END L9 DORA BLOCK\n# ={76}\n?"
         content = re.sub(trace_pattern, "", content, flags=re.DOTALL)
 
         # Trace block - empty/stub blocks (just comments, no dict)
@@ -1330,28 +1290,20 @@ class DoraCompleteInjector:
 
         # Clean up orphaned DORA comment blocks (76 = signs, any format)
         # Pattern: ={76} line followed by DORA-related comment, followed by ={76} line
-        orphan_pattern = (
-            r"\n?# ={76}\n(?:# (?:DORA|See footer|L9 DORA|END L9)[^\n]*\n)+# ={76}\n?"
-        )
+        orphan_pattern = r"\n?# ={76}\n(?:# (?:DORA|See footer|L9 DORA|END L9)[^\n]*\n)+# ={76}\n?"
         content = re.sub(orphan_pattern, "\n", content)
 
         # Clean up standalone 76-char banner lines (orphaned after dict removal)
         content = re.sub(r"# ={76}\n(?=\n)", "", content)  # Before blank line
-        content = re.sub(
-            r"\n# ={76}\n(?=from |import )", "\n", content
-        )  # Before imports
+        content = re.sub(r"\n# ={76}\n(?=from |import )", "\n", content)  # Before imports
         return re.sub(r"\n{3,}", "\n\n", content)
 
-    def _format_header_meta(
-        self, header: HeaderMeta, file_path: str, modified_at: str
-    ) -> str:
+    def _format_header_meta(self, header: HeaderMeta, file_path: str, modified_at: str) -> str:
         """Format Header Meta block for Python file (TOP)."""
         module_name = Path(file_path).stem
 
         # Generate integrates_with from actual file analysis
-        integrates_with = self._generate_integrates_with(
-            file_path, header.domain, header.layer
-        )
+        integrates_with = self._generate_integrates_with(file_path, header.domain, header.layer)
 
         return f'''# ============================================================================
 __dora_meta__ = {{
@@ -1375,9 +1327,7 @@ __dora_meta__ = {{
 # ============================================================================
 '''
 
-    def _format_header_meta_yaml(
-        self, header: HeaderMeta, file_path: str, modified_at: str
-    ) -> str:
+    def _format_header_meta_yaml(self, header: HeaderMeta, file_path: str, modified_at: str) -> str:
         """Format Header Meta block for YAML file (TOP)."""
         file_name = Path(file_path).stem
 
@@ -1399,9 +1349,7 @@ __dora_meta__ = {{
         self, footer: FooterMeta, header: HeaderMeta, file_path: str
     ) -> str:
         """Format Footer Meta block for YAML file (BOTTOM)."""
-        tags = self._generate_smart_tags_yaml(
-            file_path, header.domain, header.type, header.layer
-        )
+        tags = self._generate_smart_tags_yaml(file_path, header.domain, header.type, header.layer)
         keywords = self._generate_smart_keywords_yaml(file_path, header.component_name)
 
         return f"""
@@ -1452,9 +1400,7 @@ __dora_meta__ = {{
 
         return sorted(tags)[:8]
 
-    def _generate_smart_keywords_yaml(
-        self, file_path: str, component_name: str
-    ) -> list[str]:
+    def _generate_smart_keywords_yaml(self, file_path: str, component_name: str) -> list[str]:
         """Generate keywords for YAML files."""
         keywords = set()
 
@@ -1484,9 +1430,7 @@ __dora_meta__ = {{
 
         return sorted(keywords)[:6]
 
-    def _generate_integrates_with(
-        self, file_path: str, domain: str, layer: str
-    ) -> dict:
+    def _generate_integrates_with(self, file_path: str, domain: str, layer: str) -> dict:
         """Generate integrates_with from actual file analysis."""
         # Get real data from file analysis
         api_endpoints = self._detect_api_endpoints(file_path)
@@ -1584,17 +1528,13 @@ __dora_meta__ = {{
             tags = self._generate_smart_tags(
                 file_path, classes, header.domain, header.type, header.layer
             )
-            keywords = self._generate_smart_keywords(
-                file_path, classes, header.component_name
-            )
+            keywords = self._generate_smart_keywords(file_path, classes, header.component_name)
         else:
             tags = self._generate_tags(header.domain, header.type, header.layer)
             keywords = self._generate_keywords(header.component_name, header.domain)
 
         # Generate purpose/business value
-        purpose = (
-            self._generate_purpose(classes, file_path) if file_path else header.purpose
-        )
+        purpose = self._generate_purpose(classes, file_path) if file_path else header.purpose
 
         return f'''
 # ============================================================================
@@ -1818,10 +1758,7 @@ __dora_footer__ = {{
                 # it's likely describing what we DETECT, not what we ARE
                 if is_analysis_tool and keyword in docstring:
                     # Check if it's mentioned as an implementation (import, class, etc.)
-                    if (
-                        f"import {keyword}" in content_lower
-                        or f"from {keyword}" in content_lower
-                    ):
+                    if f"import {keyword}" in content_lower or f"from {keyword}" in content_lower:
                         tags.add(tag)
                     # Skip - it's what we analyze, not what we implement
                 else:
@@ -2055,9 +1992,7 @@ __dora_footer__ = {{
                     if test_path.exists():
                         matches = list(test_path.glob(pattern))
                         for m in matches:
-                            result["test_files"].append(
-                                str(m.relative_to(self.repo_path))
-                            )
+                            result["test_files"].append(str(m.relative_to(self.repo_path)))
 
                 # Check in tests/ root
                 matches = list(test_dir.glob(f"**/{pattern}"))
@@ -2200,7 +2135,9 @@ __l9_trace__ = {
 
             # Skip files with legacy blocks (need manual migration)
             if existing["legacy"] and not force:
-                logger.info("⚠️  file path has legacy   dora block   - needs migration", file_path=file_path)
+                logger.info(
+                    "⚠️  file path has legacy   dora block   - needs migration", file_path=file_path
+                )
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -2231,9 +2168,7 @@ __l9_trace__ = {
                     modified = True
 
                 if not existing["footer"]:
-                    footer_block = self._format_footer_meta_yaml(
-                        footer, header, file_path
-                    )
+                    footer_block = self._format_footer_meta_yaml(footer, header, file_path)
                     new_content = new_content.rstrip() + footer_block
                     results["footer"] = True
                     modified = True
@@ -2244,23 +2179,16 @@ __l9_trace__ = {
             else:
                 # Python file injection
                 if not existing["header"]:
-                    header_block = self._format_header_meta(
-                        header, file_path, footer.last_modified
-                    )
+                    header_block = self._format_header_meta(header, file_path, footer.last_modified)
                     insert_pos = self._find_insertion_point(new_content)
                     new_content = (
-                        new_content[:insert_pos]
-                        + header_block
-                        + "\n"
-                        + new_content[insert_pos:]
+                        new_content[:insert_pos] + header_block + "\n" + new_content[insert_pos:]
                     )
                     results["header"] = True
                     modified = True
 
                 if not existing["footer"]:
-                    footer_block = self._format_footer_meta(
-                        footer, header, file_path, classes
-                    )
+                    footer_block = self._format_footer_meta(footer, header, file_path, classes)
                     new_content = new_content.rstrip() + footer_block
                     results["footer"] = True
                     modified = True
@@ -2278,7 +2206,11 @@ __l9_trace__ = {
                     logger.info("✅ injected dora blocks into file path", file_path=file_path)
                 else:
                     injected = [k for k, v in results.items() if v]
-                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
+                    logger.info(
+                        "🔍 [dry run] would inject injected into file path",
+                        injected=injected,
+                        file_path=file_path,
+                    )
             else:
                 logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
 
