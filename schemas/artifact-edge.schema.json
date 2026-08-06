@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "type": "number"
+    },
+    "evidence": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "provenance": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "relation": {
+      "enum": [
+        "depends_on",
+        "activates_on",
+        "implements",
+        "governs",
+        "validates",
+        "routes_to",
+        "references"
+      ],
+      "type": "string"
+    },
+    "source_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_id": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_id",
+    "target_id",
+    "relation",
+    "evidence",
+    "confidence",
+    "provenance"
+  ],
+  "title": "L9 Artifact Edge",
+  "type": "object"
+}
