@@ -15,6 +15,7 @@ DORA:
     lifecycle: production
     owner: platform-engineering
 """
+
 from __future__ import annotations
 
 from scripts.l11.risk_scorer import RiskScorer

@@ -125,14 +125,30 @@ class ActionGovernor:
 
         return ActionGovernorResult(
             ranked_decisions=ranked,
-            execution_queue=[d for d in ranked if d.decision_class in {DecisionClass.build_now, DecisionClass.build_next, DecisionClass.build_later}],
-            remediation_queue=[d for d in ranked if d.decision_class in {DecisionClass.remediate_now, DecisionClass.rename, DecisionClass.reorganize}],
-            escalation_queue=[d for d in ranked if d.decision_class in {DecisionClass.escalate, DecisionClass.delete}],
+            execution_queue=[
+                d
+                for d in ranked
+                if d.decision_class
+                in {DecisionClass.build_now, DecisionClass.build_next, DecisionClass.build_later}
+            ],
+            remediation_queue=[
+                d
+                for d in ranked
+                if d.decision_class
+                in {DecisionClass.remediate_now, DecisionClass.rename, DecisionClass.reorganize}
+            ],
+            escalation_queue=[
+                d
+                for d in ranked
+                if d.decision_class in {DecisionClass.escalate, DecisionClass.delete}
+            ],
             rename_plan=rename_items,
             reorg_plan=reorg_items,
         )
 
-    def _group_actions(self, actions: list[ConvergenceAction]) -> dict[str, list[ConvergenceAction]]:
+    def _group_actions(
+        self, actions: list[ConvergenceAction]
+    ) -> dict[str, list[ConvergenceAction]]:
         grouped: dict[str, list[ConvergenceAction]] = defaultdict(list)
         for action in actions:
             grouped[action.component_id].append(action)
@@ -190,7 +206,11 @@ class ActionGovernor:
             return DecisionClass.rename
         if action and action.action_type in {"move", "reorganize", "canonicalize_folder"}:
             return DecisionClass.reorganize
-        if score.strategic_value >= 75 and score.execution_readiness >= 65 and score.entropy_risk <= 60:
+        if (
+            score.strategic_value >= 75
+            and score.execution_readiness >= 65
+            and score.entropy_risk <= 60
+        ):
             return DecisionClass.build_now
         if score.strategic_value >= 70:
             return DecisionClass.build_next
@@ -234,7 +254,9 @@ class ActionGovernor:
         blockers: list[str],
     ) -> str:
         if blockers:
-            return f"{node.name} is blocked by {', '.join(blockers)} and requires governed escalation."
+            return (
+                f"{node.name} is blocked by {', '.join(blockers)} and requires governed escalation."
+            )
         if findings:
             return f"{node.name} has runtime findings and governance criticality {score.governance_criticality}."
         if decision_class in {DecisionClass.build_now, DecisionClass.build_next}:
@@ -243,7 +265,13 @@ class ActionGovernor:
             return f"{node.name} has low strategic value and high entropy risk."
         return f"{node.name} requires further evidence before irreversible action."
 
-    def _next_action(self, decision_class: DecisionClass, canonical_name: str, target_folder: str, blockers: list[str]) -> str:
+    def _next_action(
+        self,
+        decision_class: DecisionClass,
+        canonical_name: str,
+        target_folder: str,
+        blockers: list[str],
+    ) -> str:
         if blockers:
             return "Resolve blocker authority and re-run Action Governor."
         mapping = {

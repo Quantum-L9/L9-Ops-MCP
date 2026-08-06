@@ -29,10 +29,18 @@ def model_dump_yaml(obj: BaseModel | list[BaseModel]) -> str:
 
 def write_result(result: ActionGovernorResult, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "ranked_decisions.yaml").write_text(model_dump_yaml(result.ranked_decisions), encoding="utf-8")
-    (out_dir / "execution_queue.yaml").write_text(model_dump_yaml(result.execution_queue), encoding="utf-8")
-    (out_dir / "remediation_queue.yaml").write_text(model_dump_yaml(result.remediation_queue), encoding="utf-8")
-    (out_dir / "escalation_queue.yaml").write_text(model_dump_yaml(result.escalation_queue), encoding="utf-8")
+    (out_dir / "ranked_decisions.yaml").write_text(
+        model_dump_yaml(result.ranked_decisions), encoding="utf-8"
+    )
+    (out_dir / "execution_queue.yaml").write_text(
+        model_dump_yaml(result.execution_queue), encoding="utf-8"
+    )
+    (out_dir / "remediation_queue.yaml").write_text(
+        model_dump_yaml(result.remediation_queue), encoding="utf-8"
+    )
+    (out_dir / "escalation_queue.yaml").write_text(
+        model_dump_yaml(result.escalation_queue), encoding="utf-8"
+    )
     (out_dir / "rename_plan.yaml").write_text(model_dump_yaml(result.rename_plan), encoding="utf-8")
     (out_dir / "reorg_plan.yaml").write_text(model_dump_yaml(result.reorg_plan), encoding="utf-8")
     (out_dir / "decision_report.md").write_text(render_decision_report(result), encoding="utf-8")
