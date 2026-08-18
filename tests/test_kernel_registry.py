@@ -22,7 +22,9 @@ from l9_ops_mcp.kernel_models import (
 from l9_ops_mcp.kernel_registry import KernelRegistry
 
 
-CANONICAL_SCHEMA_SRC = Path(__file__).resolve().parents[1] / "schemas" / "kernel.canonical.schema.json"
+CANONICAL_SCHEMA_SRC = (
+    Path(__file__).resolve().parents[1] / "schemas" / "kernel.canonical.schema.json"
+)
 
 
 def _write_yaml_kernel(path: Path, doc: dict) -> None:
@@ -47,9 +49,13 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _minimal_valid_kernel(kernel_id: str, ring: str = "R5", weight: float = 1.0,
-                          requires: list[str] | None = None,
-                          status: str = "active") -> dict:
+def _minimal_valid_kernel(
+    kernel_id: str,
+    ring: str = "R5",
+    weight: float = 1.0,
+    requires: list[str] | None = None,
+    status: str = "active",
+) -> dict:
     return {
         "kernel_id": kernel_id,
         "version": "1.0.0",
@@ -66,13 +72,15 @@ def _minimal_valid_kernel(kernel_id: str, ring: str = "R5", weight: float = 1.0,
     }
 
 
-def _build_fixture(tmp_path: Path,
-                   kernels: dict[str, dict],
-                   *,
-                   subdir: str = "R5",
-                   corrupt_hash: str | None = None,
-                   omit_from_index: str | None = None,
-                   duplicate_of: tuple[str, str] | None = None) -> Path:
+def _build_fixture(
+    tmp_path: Path,
+    kernels: dict[str, dict],
+    *,
+    subdir: str = "R5",
+    corrupt_hash: str | None = None,
+    omit_from_index: str | None = None,
+    duplicate_of: tuple[str, str] | None = None,
+) -> Path:
     """Build a synthetic repository under tmp_path and return its root."""
 
     root = tmp_path / "repo"
@@ -221,7 +229,8 @@ def test_unknown_kernel_id_fails(tmp_path: Path) -> None:
 def test_duplicate_kernel_id_fails(tmp_path: Path) -> None:
     kernels = {"alpha_kernel.v1.yaml": _minimal_valid_kernel("alpha_kernel.v1")}
     root = _build_fixture(
-        tmp_path, kernels,
+        tmp_path,
+        kernels,
         duplicate_of=("alpha_kernel.v1.yaml", "alpha_dup.yaml"),
     )
     with pytest.raises(KernelDuplicateIdError):

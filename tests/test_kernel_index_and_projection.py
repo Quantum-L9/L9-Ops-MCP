@@ -56,23 +56,35 @@ def test_every_indexed_kernel_hash_matches_actual_bytes() -> None:
         expected = meta["sha256"]
         actual = hashlib.sha256((REPO_ROOT / rel).read_bytes()).hexdigest()
         assert expected == actual, (
-            f"retrieval index sha drift for {rel}: "
-            f"indexed={expected[:12]} actual={actual[:12]}"
+            f"retrieval index sha drift for {rel}: indexed={expected[:12]} actual={actual[:12]}"
         )
 
 
 def test_build_normative_context_is_tier1_bounded() -> None:
     resolver = KernelResolver(KernelRegistry.load(REPO_ROOT))
-    resolution = resolver.resolve(KernelResolutionRequest(
-        "BUILD", "PE", "x", "L3", 6.0,
-    ))
+    resolution = resolver.resolve(
+        KernelResolutionRequest(
+            "BUILD",
+            "PE",
+            "x",
+            "L3",
+            6.0,
+        )
+    )
     ctx = resolution.normative_context
     assert set(ctx) == {"kernels"}
     for k in ctx["kernels"]:
         # Must carry identity, purpose, hard_bans, path/hash.
         assert set(k) >= {
-            "kernel_id", "version", "ring", "activation_phase", "status",
-            "purpose", "hard_bans", "canonical_path", "sha256",
+            "kernel_id",
+            "version",
+            "ring",
+            "activation_phase",
+            "status",
+            "purpose",
+            "hard_bans",
+            "canonical_path",
+            "sha256",
         }
         # Progressive disclosure: no whole-doctrine dump. Purpose must be
         # short (single-sentence Trigger Triad, per doctrine §5).
@@ -84,9 +96,15 @@ def test_build_normative_context_is_tier1_bounded() -> None:
 
 def test_build_response_does_not_include_unrelated_kernels() -> None:
     resolver = KernelResolver(KernelRegistry.load(REPO_ROOT))
-    resolution = resolver.resolve(KernelResolutionRequest(
-        "BUILD", "PE", "x", "L3", 6.0,
-    ))
+    resolution = resolver.resolve(
+        KernelResolutionRequest(
+            "BUILD",
+            "PE",
+            "x",
+            "L3",
+            6.0,
+        )
+    )
     ids = {k.kernel_id for k in resolution.kernels}
     # Only BUILD closure — no accidental soul/preferences/trust_ladder scoops.
     assert ids == {"l9_build_kernel.v1", "l9_coding_kernel.v1"}

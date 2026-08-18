@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pytest
 
+
 def _probe_mcp_sdk() -> tuple[bool, str]:
     """Return ``(fastmcp_available, installed_version)``.
 
@@ -94,13 +95,15 @@ async def _list_tool_names(server_module) -> list[str]:
 
 
 def test_kernel_resolve_build_happy_path(server_module):
-    payload = asyncio.run(server_module.kernel_resolve(
-        profile="BUILD",
-        consumer="Cursor-Governance/PE",
-        objective="ship slice 1",
-        trust_level="L3",
-        max_overload_weight=6.0,
-    ))
+    payload = asyncio.run(
+        server_module.kernel_resolve(
+            profile="BUILD",
+            consumer="Cursor-Governance/PE",
+            objective="ship slice 1",
+            trust_level="L3",
+            max_overload_weight=6.0,
+        )
+    )
     assert payload["status"] == "ok"
     assert payload["profile"] == "BUILD"
     assert payload["resolution_digest"]
@@ -118,37 +121,43 @@ def test_kernel_resolve_build_happy_path(server_module):
 
 
 def test_kernel_resolve_unknown_profile_returns_stable_error(server_module):
-    payload = asyncio.run(server_module.kernel_resolve(
-        profile="NOT_A_PROFILE",
-        consumer="PE",
-        objective="x",
-        trust_level="L3",
-        max_overload_weight=6.0,
-    ))
+    payload = asyncio.run(
+        server_module.kernel_resolve(
+            profile="NOT_A_PROFILE",
+            consumer="PE",
+            objective="x",
+            trust_level="L3",
+            max_overload_weight=6.0,
+        )
+    )
     assert payload["status"] == "error"
     assert payload["code"] == "KERNEL_PROFILE_UNKNOWN"
 
 
 def test_kernel_resolve_insufficient_trust_returns_stable_error(server_module):
-    payload = asyncio.run(server_module.kernel_resolve(
-        profile="BUILD",
-        consumer="PE",
-        objective="x",
-        trust_level="L2",
-        max_overload_weight=6.0,
-    ))
+    payload = asyncio.run(
+        server_module.kernel_resolve(
+            profile="BUILD",
+            consumer="PE",
+            objective="x",
+            trust_level="L2",
+            max_overload_weight=6.0,
+        )
+    )
     assert payload["status"] == "error"
     assert payload["code"] == "KERNEL_TRUST_INSUFFICIENT"
 
 
 def test_kernel_resolve_budget_exceeded_returns_stable_error(server_module):
-    payload = asyncio.run(server_module.kernel_resolve(
-        profile="BUILD",
-        consumer="PE",
-        objective="x",
-        trust_level="L3",
-        max_overload_weight=0.5,
-    ))
+    payload = asyncio.run(
+        server_module.kernel_resolve(
+            profile="BUILD",
+            consumer="PE",
+            objective="x",
+            trust_level="L3",
+            max_overload_weight=0.5,
+        )
+    )
     assert payload["status"] == "error"
     assert payload["code"] == "KERNEL_BUDGET_EXCEEDED"
 
@@ -166,10 +175,15 @@ def test_kernel_resolve_integrity_failure_cannot_return_success(
 
     # Copy just the subset needed for the resolver.
     fake_root = tmp_path / "repo"
-    shutil.copytree(REPO_ROOT, fake_root, dirs_exist_ok=False, symlinks=False,
-                    ignore=shutil.ignore_patterns(
-                        "__pycache__", ".git", "dist", "build",
-                        "*.egg-info", "node_modules"))
+    shutil.copytree(
+        REPO_ROOT,
+        fake_root,
+        dirs_exist_ok=False,
+        symlinks=False,
+        ignore=shutil.ignore_patterns(
+            "__pycache__", ".git", "dist", "build", "*.egg-info", "node_modules"
+        ),
+    )
     # Corrupt one canonical kernel by appending a newline (changes hash).
     target = fake_root / "docs/kernels/R5/l9_build_kernel.v1.md"
     target.write_bytes(target.read_bytes() + b"\n")
@@ -179,13 +193,15 @@ def test_kernel_resolve_integrity_failure_cannot_return_success(
     server_module._KERNEL_REGISTRY = None
     server_module._KERNEL_RESOLVER = None
 
-    payload = asyncio.run(server_module.kernel_resolve(
-        profile="BUILD",
-        consumer="PE",
-        objective="x",
-        trust_level="L3",
-        max_overload_weight=6.0,
-    ))
+    payload = asyncio.run(
+        server_module.kernel_resolve(
+            profile="BUILD",
+            consumer="PE",
+            objective="x",
+            trust_level="L3",
+            max_overload_weight=6.0,
+        )
+    )
     assert payload["status"] == "error"
     assert payload["code"] == "KERNEL_DIGEST_MISMATCH"
 

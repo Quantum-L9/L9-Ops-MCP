@@ -42,7 +42,10 @@ def _isolate_profile_map(monkeypatch):
     )
     yield
 
-CANONICAL_SCHEMA_SRC = Path(__file__).resolve().parents[1] / "schemas" / "kernel.canonical.schema.json"
+
+CANONICAL_SCHEMA_SRC = (
+    Path(__file__).resolve().parents[1] / "schemas" / "kernel.canonical.schema.json"
+)
 
 
 def _sha(path: Path) -> str:
@@ -60,8 +63,14 @@ def _copy_schema(root: Path) -> None:
     dest.write_text(CANONICAL_SCHEMA_SRC.read_text(encoding="utf-8"), encoding="utf-8")
 
 
-def _kernel(kernel_id: str, *, ring: str = "R5", weight: float = 1.0,
-            requires: list[str] | None = None, status: str = "active") -> dict:
+def _kernel(
+    kernel_id: str,
+    *,
+    ring: str = "R5",
+    weight: float = 1.0,
+    requires: list[str] | None = None,
+    status: str = "active",
+) -> dict:
     return {
         "kernel_id": kernel_id,
         "version": "1.0.0",
@@ -107,8 +116,9 @@ def _fixture_repo(tmp_path: Path, docs: dict[str, dict]) -> Path:
     return root
 
 
-def _custom_resolver(tmp_path: Path, kernels: dict[str, dict],
-                     profile_map: dict[str, tuple[str, ...]] | None = None) -> KernelResolver:
+def _custom_resolver(
+    tmp_path: Path, kernels: dict[str, dict], profile_map: dict[str, tuple[str, ...]] | None = None
+) -> KernelResolver:
     root = _fixture_repo(tmp_path, kernels)
     registry = KernelRegistry.load(root)
     resolver = KernelResolver(registry)
@@ -154,13 +164,21 @@ def test_build_resolves_canonical_kernel_on_real_repo() -> None:
 def test_build_insufficient_trust_fails(trust: str, tmp_path: Path) -> None:
     resolver = _custom_resolver(
         tmp_path,
-        {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", requires=[]),
-         "l9_coding_kernel.v1": _kernel("l9_coding_kernel.v1")},
+        {
+            "l9_build_kernel.v1": _kernel("l9_build_kernel.v1", requires=[]),
+            "l9_coding_kernel.v1": _kernel("l9_coding_kernel.v1"),
+        },
     )
     with pytest.raises(KernelTrustInsufficientError) as ei:
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", trust, 10.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                trust,
+                10.0,
+            )
+        )
     assert ei.value.code == "KERNEL_TRUST_INSUFFICIENT"
 
 
@@ -169,9 +187,15 @@ def test_build_sufficient_trust_succeeds(tmp_path: Path) -> None:
         tmp_path,
         {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", requires=[])},
     )
-    resolution = resolver.resolve(KernelResolutionRequest(
-        "BUILD", "PE", "x", "L3", 10.0,
-    ))
+    resolution = resolver.resolve(
+        KernelResolutionRequest(
+            "BUILD",
+            "PE",
+            "x",
+            "L3",
+            10.0,
+        )
+    )
     assert resolution.resolution_digest
 
 
@@ -183,12 +207,20 @@ def test_build_sufficient_trust_succeeds(tmp_path: Path) -> None:
 def test_required_dependency_resolves(tmp_path: Path) -> None:
     resolver = _custom_resolver(
         tmp_path,
-        {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", requires=["dep.v1"]),
-         "dep.v1": _kernel("dep.v1", weight=0.5)},
+        {
+            "l9_build_kernel.v1": _kernel("l9_build_kernel.v1", requires=["dep.v1"]),
+            "dep.v1": _kernel("dep.v1", weight=0.5),
+        },
     )
-    resolution = resolver.resolve(KernelResolutionRequest(
-        "BUILD", "PE", "x", "L3", 10.0,
-    ))
+    resolution = resolver.resolve(
+        KernelResolutionRequest(
+            "BUILD",
+            "PE",
+            "x",
+            "L3",
+            10.0,
+        )
+    )
     ids = [k.kernel_id for k in resolution.kernels]
     assert ids == ["dep.v1", "l9_build_kernel.v1"]
 
@@ -199,23 +231,34 @@ def test_missing_dependency_fails(tmp_path: Path) -> None:
         {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", requires=["ghost.v1"])},
     )
     with pytest.raises(KernelDependencyMissingError) as ei:
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L3", 10.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L3",
+                10.0,
+            )
+        )
     assert ei.value.code == "KERNEL_DEPENDENCY_MISSING"
 
 
 def test_dependency_cycle_fails(tmp_path: Path) -> None:
     resolver = _custom_resolver(
         tmp_path,
-        {"a.v1": _kernel("a.v1", requires=["b.v1"]),
-         "b.v1": _kernel("b.v1", requires=["a.v1"])},
+        {"a.v1": _kernel("a.v1", requires=["b.v1"]), "b.v1": _kernel("b.v1", requires=["a.v1"])},
         profile_map={"BUILD": ("a.v1",)},
     )
     with pytest.raises(KernelDependencyCycleError) as ei:
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L3", 10.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L3",
+                10.0,
+            )
+        )
     assert ei.value.code == "KERNEL_DEPENDENCY_CYCLE"
 
 
@@ -230,9 +273,15 @@ def test_deprecated_kernel_fails(tmp_path: Path) -> None:
         {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", status="deprecated")},
     )
     with pytest.raises(KernelDeprecatedError) as ei:
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L3", 10.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L3",
+                10.0,
+            )
+        )
     assert ei.value.code == "KERNEL_DEPRECATED"
 
 
@@ -242,13 +291,26 @@ def test_experimental_kernel_blocked_without_optin(tmp_path: Path) -> None:
         {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", status="experimental")},
     )
     with pytest.raises(KernelExperimentalNotAllowedError):
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L3", 10.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L3",
+                10.0,
+            )
+        )
     # And permitted when explicit opt-in is set.
-    resolver.resolve(KernelResolutionRequest(
-        "BUILD", "PE", "x", "L3", 10.0, allow_experimental=True,
-    ))
+    resolver.resolve(
+        KernelResolutionRequest(
+            "BUILD",
+            "PE",
+            "x",
+            "L3",
+            10.0,
+            allow_experimental=True,
+        )
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -259,27 +321,45 @@ def test_experimental_kernel_blocked_without_optin(tmp_path: Path) -> None:
 def test_overload_budget_totals_correctly(tmp_path: Path) -> None:
     resolver = _custom_resolver(
         tmp_path,
-        {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", weight=1.5,
-                                        requires=["l9_coding_kernel.v1"]),
-         "l9_coding_kernel.v1": _kernel("l9_coding_kernel.v1", weight=2.0)},
+        {
+            "l9_build_kernel.v1": _kernel(
+                "l9_build_kernel.v1", weight=1.5, requires=["l9_coding_kernel.v1"]
+            ),
+            "l9_coding_kernel.v1": _kernel("l9_coding_kernel.v1", weight=2.0),
+        },
     )
-    resolution = resolver.resolve(KernelResolutionRequest(
-        "BUILD", "PE", "x", "L3", 10.0,
-    ))
+    resolution = resolver.resolve(
+        KernelResolutionRequest(
+            "BUILD",
+            "PE",
+            "x",
+            "L3",
+            10.0,
+        )
+    )
     assert resolution.total_overload_weight == pytest.approx(3.5)
 
 
 def test_overload_budget_exceeded_fails(tmp_path: Path) -> None:
     resolver = _custom_resolver(
         tmp_path,
-        {"l9_build_kernel.v1": _kernel("l9_build_kernel.v1", weight=1.5,
-                                        requires=["l9_coding_kernel.v1"]),
-         "l9_coding_kernel.v1": _kernel("l9_coding_kernel.v1", weight=2.0)},
+        {
+            "l9_build_kernel.v1": _kernel(
+                "l9_build_kernel.v1", weight=1.5, requires=["l9_coding_kernel.v1"]
+            ),
+            "l9_coding_kernel.v1": _kernel("l9_coding_kernel.v1", weight=2.0),
+        },
     )
     with pytest.raises(KernelBudgetExceededError) as ei:
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L3", 1.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L3",
+                1.0,
+            )
+        )
     assert ei.value.code == "KERNEL_BUDGET_EXCEEDED"
 
 
@@ -293,9 +373,15 @@ def test_unknown_profile_fails() -> None:
     registry = KernelRegistry.load(repo_root)
     resolver = KernelResolver(registry)
     with pytest.raises(KernelProfileUnknownError) as ei:
-        resolver.resolve(KernelResolutionRequest(
-            "WHATEVER", "PE", "x", "L3", 6.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "WHATEVER",
+                "PE",
+                "x",
+                "L3",
+                6.0,
+            )
+        )
     assert ei.value.code == "KERNEL_PROFILE_UNKNOWN"
 
 
@@ -304,10 +390,16 @@ def test_requested_kernel_ids_rejected_in_slice_1() -> None:
     registry = KernelRegistry.load(repo_root)
     resolver = KernelResolver(registry)
     with pytest.raises(KernelRequestInvalidError):
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L3", 6.0,
-            requested_kernel_ids=("some.v1",),
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L3",
+                6.0,
+                requested_kernel_ids=("some.v1",),
+            )
+        )
 
 
 def test_invalid_trust_level_rejected() -> None:
@@ -315,9 +407,15 @@ def test_invalid_trust_level_rejected() -> None:
     registry = KernelRegistry.load(repo_root)
     resolver = KernelResolver(registry)
     with pytest.raises(KernelRequestInvalidError):
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L9", 6.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L9",
+                6.0,
+            )
+        )
 
 
 def test_schema_invalid_kernel_rejected(tmp_path: Path) -> None:
@@ -325,6 +423,12 @@ def test_schema_invalid_kernel_rejected(tmp_path: Path) -> None:
     bad.pop("version")
     resolver = _custom_resolver(tmp_path, {"l9_build_kernel.v1": bad})
     with pytest.raises(KernelSchemaInvalidError):
-        resolver.resolve(KernelResolutionRequest(
-            "BUILD", "PE", "x", "L3", 10.0,
-        ))
+        resolver.resolve(
+            KernelResolutionRequest(
+                "BUILD",
+                "PE",
+                "x",
+                "L3",
+                10.0,
+            )
+        )

@@ -68,12 +68,18 @@ def test_subprocess_replay_yields_same_digest() -> None:
         "print(r.resolve(req).resolution_digest)"
     )
     a = subprocess.run(
-        [sys.executable, "-c", script], cwd=REPO_ROOT,
-        capture_output=True, text=True, check=True,
+        [sys.executable, "-c", script],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
     b = subprocess.run(
-        [sys.executable, "-c", script], cwd=REPO_ROOT,
-        capture_output=True, text=True, check=True,
+        [sys.executable, "-c", script],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
     assert a == b
     assert len(a) == 64  # sha256 hex

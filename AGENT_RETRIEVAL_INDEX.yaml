@@ -33,7 +33,7 @@ files:
   AGENT_RETRIEVAL_INDEX.yaml:
     retrieval: on_demand
     role: context
-    sha256: c653dc7215c08f13c21547f73cd0f4397619a001680c48aace74d1b00406f7c4
+    sha256: 1366187f60c2929458aee8c479b1f83b62ade0aab7db82217acf793b985c098f
     tags:
     - general
   ARCHITECTURE.md:
@@ -1703,43 +1703,43 @@ files:
   src/l9_ops_mcp/kernel_registry.py:
     retrieval: on_demand
     role: context
-    sha256: aea279c185dcd418b082e689d9b5f090e15a0976617913d79926cb2a2efabf54
+    sha256: 3d78c1b5cdf1140a911ec71dabd771589d038e4423729842bf743e9e6b67274a
     tags:
     - general
   src/l9_ops_mcp/kernel_resolver.py:
     retrieval: on_demand
     role: context
-    sha256: 5482bc28d554d84fd0d88f24d495dcd6cf8f7a15d28d24bf8b81c1b8cd361218
+    sha256: 35a1bed4f87a1ca0d5c28c9d8b463e65c9af634348ffe34b8868da9920600dfc
     tags:
     - general
   tests/test_kernel_registry.py:
     retrieval: on_demand
     role: context
-    sha256: 2db45507795fd0f6d797992fe410106aea9cc32320aacc8f42c33164279218eb
+    sha256: 0f3b68fd7a15f0156791153bcd1d2833f910b1af3b9be1a84dda2515e36a2363
     tags:
     - general
   tests/test_kernel_resolver.py:
     retrieval: on_demand
     role: context
-    sha256: 1c63c9aabf898983ac47124315f78cc1643fb767803a8c5d2d5955e0b321de22
+    sha256: 7322a37915d17d82a71cb62ec563b617f5d3409df28271c8958a96ca68a0dfe4
     tags:
     - general
   tests/test_kernel_determinism.py:
     retrieval: on_demand
     role: context
-    sha256: 5e495eff0cf0c2a03af582321dab32f47a6a9f5727d012242ddaa65f98ec9d48
+    sha256: 4ae6f8c8d14f0e2227e9bf8030259896e0e88f363fae6be2842b6d78452ffcf4
     tags:
     - general
   tests/test_kernel_index_and_projection.py:
     retrieval: on_demand
     role: context
-    sha256: 75e0f6027101fd36984e38d234952f0f2c508e62a3b4f490070fa920eb4e3e2b
+    sha256: 026cd798d7c6e3f8bfacb3fa35a30a1fb0bd6466920e10101d12da2d681349f8
     tags:
     - general
   tests/test_kernel_mcp_tool.py:
     retrieval: on_demand
     role: context
-    sha256: aecf51a8d6f3cd1c0f8ce7e85aa4aac1a80062aae30dc024b6dac3cae30c31a3
+    sha256: 8f562220886c93d1a1772e6dec04372eb45a0640b4ea5efbc904d5132bcb5942
     tags:
     - general
   docs/KERNEL_AUTHORITY.md:

@@ -111,9 +111,7 @@ def _resolve_within_repo(repo_root: Path, rel: str) -> Path:
     try:
         joined.relative_to(root_resolved)
     except ValueError as exc:
-        raise KernelNotFoundError(
-            f"path escapes repository root: {rel}"
-        ) from exc
+        raise KernelNotFoundError(f"path escapes repository root: {rel}") from exc
     return joined
 
 
@@ -134,10 +132,10 @@ def _parse_yaml_kernel(raw_text: str) -> dict[str, Any]:
     body = raw_text
     m_hash = _L9_META_HASH_COMMENT_RE.search(body)
     if m_hash is not None and m_hash.start() == 0:
-        body = body[m_hash.end():]
+        body = body[m_hash.end() :]
     m_front = _L9_META_YAML_HEADER_RE.search(body)
     if m_front is not None and m_front.start() == 0:
-        body = body[m_front.end():]
+        body = body[m_front.end() :]
     doc = yaml.safe_load(body)
     if doc is None:
         return {}
@@ -235,14 +233,10 @@ def _read_index(repo_root: Path) -> dict[str, dict[str, Any]]:
     index_path = _resolve_within_repo(repo_root, RETRIEVAL_INDEX_FILENAME)
     doc = yaml.safe_load(index_path.read_text(encoding="utf-8"))
     if not isinstance(doc, dict):
-        raise KernelIndexEntryMissingError(
-            f"{RETRIEVAL_INDEX_FILENAME} is not a mapping"
-        )
+        raise KernelIndexEntryMissingError(f"{RETRIEVAL_INDEX_FILENAME} is not a mapping")
     files = doc.get("files")
     if not isinstance(files, dict):
-        raise KernelIndexEntryMissingError(
-            f"{RETRIEVAL_INDEX_FILENAME} missing 'files' mapping"
-        )
+        raise KernelIndexEntryMissingError(f"{RETRIEVAL_INDEX_FILENAME} missing 'files' mapping")
     return files
 
 
@@ -302,14 +296,10 @@ class KernelRegistry:
         for rel in canonical_paths:
             abs_path = _resolve_within_repo(root, rel)
             if not abs_path.exists():
-                raise KernelNotFoundError(
-                    f"indexed canonical kernel missing on disk: {rel}"
-                )
+                raise KernelNotFoundError(f"indexed canonical kernel missing on disk: {rel}")
             indexed_sha = files[rel].get("sha256")
             if not isinstance(indexed_sha, str):
-                raise KernelIndexEntryMissingError(
-                    f"index entry for {rel} has no sha256"
-                )
+                raise KernelIndexEntryMissingError(f"index entry for {rel} has no sha256")
             raw_bytes = abs_path.read_bytes()
             verified_sha = sha256_bytes(raw_bytes)
             if verified_sha != indexed_sha:
@@ -339,10 +329,7 @@ class KernelRegistry:
                 schema_errors.append(
                     f"status: {meta.get('status')!r} not in {sorted(VALID_STATUS)}"
                 )
-            if (
-                meta.get("activation_phase") not in VALID_ACTIVATION_PHASE
-                and schema_valid
-            ):
+            if meta.get("activation_phase") not in VALID_ACTIVATION_PHASE and schema_valid:
                 schema_valid = False
                 schema_errors.append(
                     f"activation_phase: {meta.get('activation_phase')!r} "
@@ -354,14 +341,11 @@ class KernelRegistry:
                 # An indexed 'kernels'-tagged artifact with no recoverable
                 # kernel_id is a data defect. Fail closed rather than
                 # register a nameless kernel definition.
-                raise KernelSchemaInvalidError(
-                    f"kernel at {rel} has no kernel_id after parsing"
-                )
+                raise KernelSchemaInvalidError(f"kernel at {rel} has no kernel_id after parsing")
 
             if kernel_id in seen_ids:
                 raise KernelDuplicateIdError(
-                    f"duplicate kernel_id {kernel_id!r} in "
-                    f"{seen_ids[kernel_id]} and {rel}"
+                    f"duplicate kernel_id {kernel_id!r} in {seen_ids[kernel_id]} and {rel}"
                 )
             seen_ids[kernel_id] = rel
 

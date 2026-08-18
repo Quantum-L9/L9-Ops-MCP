@@ -100,15 +100,11 @@ class KernelResolver:
 
         seeds = PROFILE_KERNELS.get(request.profile.upper())
         if seeds is None:
-            raise KernelProfileUnknownError(
-                f"unknown profile: {request.profile}"
-            )
+            raise KernelProfileUnknownError(f"unknown profile: {request.profile}")
 
         # Slice 1: requested_kernel_ids is defined but not implemented.
         if request.requested_kernel_ids:
-            raise KernelRequestInvalidError(
-                "requested_kernel_ids is not supported in Slice 1"
-            )
+            raise KernelRequestInvalidError("requested_kernel_ids is not supported in Slice 1")
 
         selected = self._resolve_closure(seeds)
         self._enforce_lifecycle(selected, allow_experimental=request.allow_experimental)
@@ -177,13 +173,9 @@ class KernelResolver:
             )
         for kid in request.requested_kernel_ids:
             if not _ID_RE.match(kid):
-                raise KernelRequestInvalidError(
-                    f"malformed requested_kernel_id: {kid}"
-                )
+                raise KernelRequestInvalidError(f"malformed requested_kernel_id: {kid}")
 
-    def _resolve_closure(
-        self, seeds: tuple[str, ...]
-    ) -> tuple[KernelDefinition, ...]:
+    def _resolve_closure(self, seeds: tuple[str, ...]) -> tuple[KernelDefinition, ...]:
         """Walk requires dependencies deterministically.
 
         Order guarantee: dependencies before dependents; kernel_id is the
@@ -201,9 +193,7 @@ class KernelResolver:
                 return
             if state == GREY:
                 cycle_path = " -> ".join(path + (kid,))
-                raise KernelDependencyCycleError(
-                    f"dependency cycle: {cycle_path}", kernel_id=kid
-                )
+                raise KernelDependencyCycleError(f"dependency cycle: {cycle_path}", kernel_id=kid)
             colour[kid] = GREY
             try:
                 kernel = self._registry.get(kid)
@@ -240,8 +230,7 @@ class KernelResolver:
                 )
             if k.status == "experimental" and not allow_experimental:
                 raise KernelExperimentalNotAllowedError(
-                    f"kernel {k.kernel_id} is experimental "
-                    "and no explicit opt-in was provided",
+                    f"kernel {k.kernel_id} is experimental and no explicit opt-in was provided",
                     kernel_id=k.kernel_id,
                 )
             if k.status == "archived":
@@ -251,9 +240,7 @@ class KernelResolver:
                 )
 
     @staticmethod
-    def _enforce_trust(
-        selected: tuple[KernelDefinition, ...], trust_level: str
-    ) -> None:
+    def _enforce_trust(selected: tuple[KernelDefinition, ...], trust_level: str) -> None:
         caller_ord = TRUST_ORDINALS[trust_level]
         for k in selected:
             required = RING_TRUST_MINIMUM.get(k.ring)
@@ -277,8 +264,7 @@ class KernelResolver:
         total = round(sum(float(k.overload_weight) for k in selected), 6)
         if total > float(max_overload_weight):
             raise KernelBudgetExceededError(
-                f"required kernels overload_weight={total} "
-                f"exceeds budget={max_overload_weight}"
+                f"required kernels overload_weight={total} exceeds budget={max_overload_weight}"
             )
         return total
 
