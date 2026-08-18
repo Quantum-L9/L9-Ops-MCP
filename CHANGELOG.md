@@ -7,6 +7,40 @@ status: active
 ---
 # L9 Commit Pack Changelog
 
+## v0.5.0 — Kernel Authority Slice 1 (2026-08-18)
+
+### Added
+- `src/l9_ops_mcp/kernel_models.py` — typed domain models for the kernel
+  authority plane, stable error taxonomy, canonical resolution payload.
+- `src/l9_ops_mcp/kernel_registry.py` — deterministic canonical kernel
+  registry with retrieval-index SHA-256 verification, safe YAML+Markdown
+  parsing, two-phase schema validation, duplicate detection, and path
+  containment.
+- `src/l9_ops_mcp/kernel_resolver.py` — profile-driven deterministic
+  applicability with dependency-closure resolution, ring-based trust
+  enforcement, overload budget, Tier-1 progressive-disclosure projection,
+  and canonical `resolution_digest` computation.
+- `kernel_resolve` MCP tool exposed alongside the four existing memory
+  tools; memory-plane imports are lazy so kernel authority runs without
+  Graphiti, Neo4j, or tiktoken.
+- `docs/KERNEL_AUTHORITY.md` — plane documentation, error taxonomy,
+  determinism guarantee, and Slice 1 residuals.
+- `tests/test_kernel_*.py` — 46 new tests covering registry, resolver,
+  determinism, MCP surface, index integrity, and Tier-1 projection bounds.
+
+### Changed
+- `schemas/kernel.canonical.schema.json` upgraded from a permissive
+  "any mapping" schema to a canonical Draft 2020-12 contract aligned with
+  `docs/KERNEL_DOCTRINE.md` §4.
+- `pyproject.toml` adds `jsonschema>=4.20` as a runtime dependency.
+
+### Preserved
+- All four memory tools (`memory_get_budget_slice`, `memory_ingest_episode`,
+  `memory_query_context`, `memory_invalidate_fact`) remain registered and
+  callable with unchanged contracts.
+- Cursor-Governance is not modified; PE is not integrated. Graphiti is
+  not consulted for normative authority.
+
 ## v1.0.0 — 2026-06-10
 
 ### Added

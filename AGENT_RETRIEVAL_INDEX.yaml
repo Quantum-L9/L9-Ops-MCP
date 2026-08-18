@@ -33,7 +33,7 @@ files:
   AGENT_RETRIEVAL_INDEX.yaml:
     retrieval: on_demand
     role: context
-    sha256: 6dca3ce658a153e5e49a7056eca150aa89d43132dab25f19ad8ec7dc453f393c
+    sha256: 1366187f60c2929458aee8c479b1f83b62ade0aab7db82217acf793b985c098f
     tags:
     - general
   ARCHITECTURE.md:
@@ -45,7 +45,7 @@ files:
   CHANGELOG.md:
     retrieval: on_demand
     role: context
-    sha256: 7c8f1e055d6bf86bc5fde770a5af8e2a1e816618cf37e87d1726694f6f79e34b
+    sha256: 74b9dc16cdfb5cb5912c0e1fddd96a6959a16b18150bc86b57d87df9c37f297f
     tags:
     - general
   CHANGE_SUMMARY.md:
@@ -100,11 +100,11 @@ files:
     retrieval: on_demand
     role: context
     sha256: c1b938edd354b7a21e060790631519cac924bfb4237438a67774d11996d0aa2c
-    tags:
+    tags: null
   README.md:
     retrieval: on_demand
     role: context
-    sha256: 6848f8a574b773336c7c9d2b6a8ea80f86d8fac16350b81d613768f340eb82e8
+    sha256: b273d9f0b2bf9d85ceb9c96e8fd3377e454046ec235a7a5a0b2c3f31bdc4e1ee
     tags:
     - general
   REGRESSION_GUARD.md:
@@ -633,6 +633,12 @@ files:
     retrieval: on_demand
     role: context
     sha256: 2847df9922e03b8e4a3c1dd286e50fda4ceda2fb62b60e97b9243e6c4f3b64f7
+    tags:
+    - general
+  docs/KERNEL_AUTHORITY.md:
+    retrieval: on_demand
+    role: context
+    sha256: 633b3b4e7c388d4a37eed837a12d3e2e88c5be14fc58f5fdd6667f35b4cd8939
     tags:
     - general
   docs/KERNEL_DOCTRINE.md:
@@ -1196,7 +1202,7 @@ files:
   pyproject.toml:
     retrieval: on_demand
     role: context
-    sha256: d1bba83c9fb3ef6f99fbbd7a87157383a039b33be26eb92be752c7d3586a7caa
+    sha256: 4f60e813f954758acd182ecfd4caf58009ab4b6f396341ee0655db5a362e7d60
     tags:
     - general
   runtime/ARTIFACT_CONTRACT.md:
@@ -1268,12 +1274,7 @@ files:
   schemas/kernel.canonical.schema.json:
     retrieval: on_demand
     role: contract
-    sha256: bd4a487b40adcbe369078adc87bdb8b224e6b3cbccfff66e4e5b77a2ac81934b
-    tags:
-    - kernels
-    retrieval: on_demand
-    role: contract
-    sha256: 8b4db7cb8239c852fb8d86eb0c54098f4060b03433fefe1e198c4740d7683862
+    sha256: 8edf8cf88d191927a65138799fc19285cbb2f82856f3a94daa3f2739acd2d4b3
     tags:
     - general
   schemas/runtime_findings.schema.json:
@@ -1343,11 +1344,6 @@ files:
     tags:
     - general
   scripts/audit_hardban_duplication.sh:
-    retrieval: on_demand
-    role: script
-    sha256: 543a030ac1eeb0ce5afe10ce869ec0f75511c01b76d8ee60d55ed6f85bafba8f
-    tags:
-    - general
     retrieval: on_demand
     role: script
     sha256: 3fdd16d22c7efce47271bf1e36de056350c3c03a6106d9eb819ebaff53a22295
@@ -1450,11 +1446,6 @@ files:
     tags:
     - general
   scripts/library_health_v341.sh:
-    retrieval: on_demand
-    role: script
-    sha256: 617932df8f0343b054b351733277d3129ae781b1d9079bd7131122882b1a77a2
-    tags:
-    - general
     retrieval: on_demand
     role: script
     sha256: 290c6b75e91048378e2689ef7f29d7e1a87462995d3bdc5c0960b4fd44476afd
@@ -1685,22 +1676,28 @@ files:
   src/l9_ops_mcp/adapters/__init__.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: e90a54156782b2843c4bc7af273c564e5784c947eecb88a4480e19048562777f
-    tags:
-    - mcp
-    - control-plane
-    retrieval: on_demand
-    role: runtime_module
-    sha256: 5531b846806c96f667e043df23b0540f67277a6852003f59a828a01435db8940
-    tags:
-    - mcp
-    - control-plane
-    retrieval: on_demand
-    role: runtime_module
     sha256: 5e08417c00fd86f3184e7ad4536e636ab79f969708d4d66be076a2448df6c7ac
     tags:
     - mcp
     - control-plane
+  src/l9_ops_mcp/kernel_models.py:
+    retrieval: on_demand
+    role: context
+    sha256: cd236ec1d27013aaf68f8244624e6181998041379384e83f76aae318fbf6c957
+    tags:
+    - general
+  src/l9_ops_mcp/kernel_registry.py:
+    retrieval: on_demand
+    role: context
+    sha256: 27c48d0afeaad16aae70728d514db5454ab8f4a360f06c203f4ba06dc696a142
+    tags:
+    - general
+  src/l9_ops_mcp/kernel_resolver.py:
+    retrieval: on_demand
+    role: context
+    sha256: b26090c05e26f875d62af1544dd3a339620be1d826029bbd2c88053e6bb183ac
+    tags:
+    - general
   src/l9_ops_mcp/transport.py:
     retrieval: on_demand
     role: runtime_module
@@ -1713,6 +1710,42 @@ files:
     retrieval: on_demand
     role: context
     sha256: 53faef1944bf251a6ba244183d2f8bc2577e79bca5da9007e8e9b2bcd442f20b
+    tags:
+    - general
+  tests/test_kernel_determinism.py:
+    retrieval: on_demand
+    role: context
+    sha256: 4ae6f8c8d14f0e2227e9bf8030259896e0e88f363fae6be2842b6d78452ffcf4
+    tags:
+    - general
+  tests/test_kernel_index_and_projection.py:
+    retrieval: on_demand
+    role: context
+    sha256: 026cd798d7c6e3f8bfacb3fa35a30a1fb0bd6466920e10101d12da2d681349f8
+    tags:
+    - general
+  tests/test_kernel_mcp_tool.py:
+    retrieval: on_demand
+    role: context
+    sha256: 8f562220886c93d1a1772e6dec04372eb45a0640b4ea5efbc904d5132bcb5942
+    tags:
+    - general
+  tests/test_kernel_projection_and_envelope.py:
+    retrieval: on_demand
+    role: context
+    sha256: a204c459bb70f723d45e1bb4c24a87b374aa424e1b59eca5226286d1b97e7cec
+    tags:
+    - general
+  tests/test_kernel_registry.py:
+    retrieval: on_demand
+    role: context
+    sha256: 0f3b68fd7a15f0156791153bcd1d2833f910b1af3b9be1a84dda2515e36a2363
+    tags:
+    - general
+  tests/test_kernel_resolver.py:
+    retrieval: on_demand
+    role: context
+    sha256: 7f47f80157b3d653a695e657b2be5de2b386186e0e584e9d68ee101bf3700514
     tags:
     - general
   validation_results_doctrine_pass.json:
