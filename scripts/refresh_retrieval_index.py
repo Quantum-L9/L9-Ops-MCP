@@ -154,7 +154,7 @@ def write_index(index: dict[str, Any]) -> None:
 
 def format_report(report: RefreshReport) -> str:
     lines = [
-        f"AGENT_RETRIEVAL_INDEX.yaml refresh report",
+        "AGENT_RETRIEVAL_INDEX.yaml refresh report",
         f"  total indexed entries: {report.total_entries}",
         f"  non-canonical drift:   {len(report.drift)}",
         f"  canonical-kernel drift: {len(report.canonical_drift)}  (FATAL if > 0)",

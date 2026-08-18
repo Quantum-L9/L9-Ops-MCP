@@ -1401,7 +1401,7 @@ files:
   scripts/refresh_retrieval_index.py:
     retrieval: on_demand
     role: script
-    sha256: 4b20cb90c7ecfc8f0c04e8a38f0500f5b63a9125ab9dcb38e50a05479c602c03
+    sha256: 905b40a960c00c9a7f90d42e33880dfe6c9f8bf4b9e799d9f5bd99cffccbf75e
     tags:
     - general
   scripts/skill_endpoint_audit.py:
