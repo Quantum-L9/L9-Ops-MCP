@@ -3,6 +3,15 @@
 These tests import the server module and drive the tool through both the
 direct Python coroutine and the FastMCP registration. They do NOT require
 Neo4j, Graphiti, or any external service.
+
+MCP SDK compatibility
+---------------------
+
+The server module imports ``FastMCP`` from ``mcp.server.fastmcp``. That
+import path was removed in ``mcp>=2.0`` (which replaced FastMCP with a
+different server surface). ``pyproject.toml`` pins ``mcp[cli]<2.0``; the
+guard below turns any accidental unpin into a clear, actionable skip with
+remediation instructions rather than a cryptic ``ModuleNotFoundError``.
 """
 
 from __future__ import annotations
@@ -12,6 +21,38 @@ import os
 from pathlib import Path
 
 import pytest
+
+def _probe_mcp_sdk() -> tuple[bool, str]:
+    """Return ``(fastmcp_available, installed_version)``.
+
+    The 1.x and 2.x wheels both expose the ``mcp`` top-level package; only
+    1.x exposes ``mcp.server.fastmcp.FastMCP``. ``mcp.__version__`` is not
+    reliably populated on either, so we probe the import path directly and
+    read the installed distribution version via ``importlib.metadata``.
+    """
+
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        installed = version("mcp")
+    except PackageNotFoundError:
+        installed = "not-installed"
+    try:
+        from mcp.server.fastmcp import FastMCP  # noqa: F401
+    except ImportError:
+        return False, installed
+    return True, installed
+
+
+_fastmcp_ok, _mcp_installed = _probe_mcp_sdk()
+if not _fastmcp_ok:
+    pytest.skip(
+        f"kernel_resolve MCP tests require the FastMCP surface "
+        f"(mcp<2.0). Installed mcp=={_mcp_installed}. Pin mcp[cli]<2.0 "
+        f"in pyproject.toml or migrate src/l9_ops_mcp/server.py to the "
+        f"mcp>=2.0 server surface before removing this guard.",
+        allow_module_level=True,
+    )
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]

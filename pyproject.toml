@@ -24,7 +24,11 @@ dependencies = [
   "structlog>=24.0",
   "graphiti-core>=0.3.17",
   "neo4j>=5.20.0",
-  "mcp[cli]>=1.2.0",
+  # mcp 2.0 removed FastMCP and rewired the server surface to MCPServer.
+  # Pin below 2.0 until the memory + kernel tools are migrated; see
+  # docs/KERNEL_AUTHORITY.md “MCP SDK compatibility”.
+  "mcp[cli]>=1.2.0,<2.0",
+  "anyio>=4.0",  # transitive dep of mcp 1.x, pinned explicitly for CI reproducibility
   "tiktoken>=0.7.0",
 ]
 

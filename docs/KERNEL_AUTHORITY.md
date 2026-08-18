@@ -139,3 +139,7 @@ Run: `pytest tests/test_kernel_*.py -q`.
   profile-applicable authority.
 - Tier-2/Tier-3 progressive-disclosure levels are deferred; Slice 1 only
   emits Tier-1.
+- The `mcp` SDK 2.0 removed the `FastMCP` surface. Slice 1 pins
+  `mcp[cli]<2.0` and `tests/test_kernel_mcp_tool.py` skips loudly if a 2.x
+  SDK is present. A later slice must migrate `src/l9_ops_mcp/server.py` to
+  the new server surface before the pin can be lifted.

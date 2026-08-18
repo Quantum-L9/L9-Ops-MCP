@@ -33,7 +33,7 @@ files:
   AGENT_RETRIEVAL_INDEX.yaml:
     retrieval: on_demand
     role: context
-    sha256: 84cea501027e73de331bd34ceab53d9523ee2f8203203f06188227256e8ae748
+    sha256: c653dc7215c08f13c21547f73cd0f4397619a001680c48aace74d1b00406f7c4
     tags:
     - general
   ARCHITECTURE.md:
@@ -1196,7 +1196,7 @@ files:
   pyproject.toml:
     retrieval: on_demand
     role: context
-    sha256: 3ecb22cf2007ce7f2ec5ddaeca3e2f32ebf08c293200bfa5cc30903c6fd9e612
+    sha256: 4f60e813f954758acd182ecfd4caf58009ab4b6f396341ee0655db5a362e7d60
     tags:
     - general
   runtime/ARTIFACT_CONTRACT.md:
@@ -1739,13 +1739,13 @@ files:
   tests/test_kernel_mcp_tool.py:
     retrieval: on_demand
     role: context
-    sha256: 6d48a00063d1eb66fd7acfcc5a74b6c6a7e6af991a5bc9bff6cf9b0080347ecf
+    sha256: aecf51a8d6f3cd1c0f8ce7e85aa4aac1a80062aae30dc024b6dac3cae30c31a3
     tags:
     - general
   docs/KERNEL_AUTHORITY.md:
     retrieval: on_demand
     role: context
-    sha256: 070290c8dbe93e2363f9dc6663068bfebf0b70c786ef0d82fb5577398251ba6f
+    sha256: 0f4770e279c5474b89009b9c6052b3dc9b45e3daf370bac702857c9639808f8f
     tags:
     - general
 index_version: 2026-06-18.consumer_only
