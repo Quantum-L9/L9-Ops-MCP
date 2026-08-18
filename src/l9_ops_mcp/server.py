@@ -24,6 +24,8 @@ from mcp.server.fastmcp import FastMCP
 
 from .kernel_models import (
     KernelAuthorityError,
+    KernelNotFoundError,
+    KernelRequestInvalidError,
     KernelResolutionRequest,
 )
 from .kernel_registry import KernelRegistry
@@ -62,10 +64,30 @@ def _repo_root() -> Path:
 
 
 def _get_resolver() -> KernelResolver:
+    """Return the process-cached resolver, loading it on first call.
+
+    Cache-invalidation contract (execution contract §37):
+
+    - The cache is safe as long as canonical kernel bytes and the
+      retrieval index are immutable during the server's lifetime. A
+      fresh process and a warm process produce identical resolutions
+      for identical inputs (proved by the determinism test suite).
+    - If ``L9_KERNEL_STRICT_INTEGRITY`` is set to a truthy value the
+      registry re-verifies every canonical kernel's on-disk sha256
+      against its cached record on every call. This defeats the cache
+      for latency but guarantees zero staleness — useful for PE
+      integrations that must detect a mid-process repo mutation.
+    - Full cache invalidation on repo mutation is a Slice 2 PE-integration
+      prerequisite; the current cache assumes an immutable repo checkout.
+    """
+
     global _KERNEL_REGISTRY, _KERNEL_RESOLVER
     if _KERNEL_RESOLVER is None:
         _KERNEL_REGISTRY = KernelRegistry.load(_repo_root())
         _KERNEL_RESOLVER = KernelResolver(_KERNEL_REGISTRY)
+    strict = os.getenv("L9_KERNEL_STRICT_INTEGRITY", "").lower() in {"1", "true", "yes", "on"}
+    if strict and _KERNEL_REGISTRY is not None:
+        _KERNEL_REGISTRY.verify_integrity()
     return _KERNEL_RESOLVER
 
 
@@ -165,27 +187,36 @@ async def kernel_resolve(
     """Resolve deterministic canonical kernel authority for an execution profile.
 
     Returns the exact selected kernel set, provenance sufficient to re-pin
-    authority, a bounded Tier-1 normative-context projection, and an
-    aggregate ``resolution_digest`` that is stable across processes for the
-    same repository state and request.
+    authority, a bounded Tier-1 normative-context projection, the
+    ``trust_level`` used to gate the resolution, and an aggregate
+    ``resolution_digest`` that is stable across processes for the same
+    repository state and request.
 
     Fails closed on: unknown profile, insufficient trust for a kernel's
     ring, deprecated / experimental kernel selection, unsatisfied
     requirement, dependency cycle, overload-budget exceeded, retrieval-index
-    digest mismatch, or malformed request. See
-    ``src/l9_ops_mcp/kernel_models.py`` for the stable error-code taxonomy.
+    digest mismatch, malformed request, or any unexpected internal error
+    while loading the registry. See ``src/l9_ops_mcp/kernel_models.py`` for
+    the stable error-code taxonomy.
+
+    Every failure path returns the ``{status: 'error', code, message}``
+    envelope. Non-``KernelAuthorityError`` exceptions (bad input types,
+    NaN/Inf floats, IO errors on registry load) are caught and mapped to
+    ``KERNEL_REQUEST_INVALID`` or ``KERNEL_NOT_FOUND`` so the MCP boundary
+    never leaks a raw Python traceback to callers.
 
     This tool is normative authority. It does NOT read Graphiti, memory, or
     an LLM.
     """
 
     try:
+        coerced_budget = _coerce_max_overload_weight(max_overload_weight)
         request = KernelResolutionRequest(
             profile=profile,
             consumer=consumer,
             objective=objective,
             trust_level=trust_level,
-            max_overload_weight=float(max_overload_weight),
+            max_overload_weight=coerced_budget,
             requested_kernel_ids=(),
             allow_experimental=bool(allow_experimental),
         )
@@ -193,10 +224,47 @@ async def kernel_resolve(
         resolution = resolver.resolve(request)
     except KernelAuthorityError as exc:
         return exc.to_dict()
+    except (TypeError, ValueError) as exc:
+        # Malformed input types that reached the domain layer despite the
+        # coercion guard. Map to the stable request-invalid envelope.
+        return KernelRequestInvalidError(f"malformed kernel_resolve request: {exc}").to_dict()
+    except FileNotFoundError as exc:
+        # Registry load hit missing repository state (retrieval index,
+        # canonical kernel, or schema). Surface as KERNEL_NOT_FOUND rather
+        # than a raw OSError traceback.
+        return KernelNotFoundError(f"kernel authority load failed: {exc}").to_dict()
 
     payload = resolution.to_dict()
     payload["status"] = "ok"
+    # Trust provenance: surface the gating trust_level at the top of the
+    # response so PE consumers can persist it in Program Lock without
+    # re-reading ``normalized_request``. This value is already part of the
+    # digest via ``normalized_request``.
+    payload["trust_level"] = request.trust_level
     return payload
+
+
+def _coerce_max_overload_weight(value: object) -> float:
+    """Coerce the max_overload_weight argument to a well-formed float.
+
+    Accepts Python numbers and numeric strings (e.g. ``"6.0"``); rejects
+    non-coercible types, NaN, and ±Inf with a stable
+    :class:`KernelRequestInvalidError`. Called from inside the
+    ``kernel_resolve`` try-block so the whole coercion feeds the same
+    error envelope.
+    """
+
+    import math
+
+    try:
+        coerced = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError) as exc:
+        raise KernelRequestInvalidError(
+            f"max_overload_weight must be a real number, got {value!r}: {exc}"
+        ) from exc
+    if math.isnan(coerced) or math.isinf(coerced):
+        raise KernelRequestInvalidError(f"max_overload_weight must be finite, got {coerced!r}")
+    return coerced
 
 
 def main() -> None:

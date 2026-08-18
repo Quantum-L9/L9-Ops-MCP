@@ -223,6 +223,13 @@ class KernelResolver:
                     + "; ".join(k.schema_errors[:3]),
                     kernel_id=k.kernel_id,
                 )
+            if k.init_behavior_source == "absent":
+                raise KernelSchemaInvalidError(
+                    f"kernel {k.kernel_id} has no normative init.behavior "
+                    f"or Tier-1 block; refusing to project a documentation "
+                    f"surrogate as normative authority",
+                    kernel_id=k.kernel_id,
+                )
             if k.status == "deprecated":
                 raise KernelDeprecatedError(
                     f"kernel {k.kernel_id} is deprecated and cannot load",
@@ -270,13 +277,36 @@ class KernelResolver:
 
     @staticmethod
     def _project_tier1(selected: tuple[KernelDefinition, ...]) -> dict[str, Any]:
-        """Bounded Tier-1 projection (execution contract §21).
+        """Bounded Tier-1 projection (execution contract §21, doctrine §6).
 
-        Emits identity, ring, activation_phase, hard_bans, and a short
-        purpose string. Full Tier-2/Tier-3 doctrine is NOT included; consumers
-        must call the kernel authority again with a broader disclosure level
-        (deferred beyond Slice 1) or read the canonical file directly.
+        Emits per selected kernel:
+
+        - identity (``kernel_id``, ``version``, ``canonical_path``, ``sha256``);
+        - lifecycle (``ring``, ``activation_phase``, ``status``);
+        - the normative ``init_behavior`` string and its mechanical source
+          label (``init.behavior`` for YAML kernels, ``tier1_block`` for
+          Markdown kernels);
+        - the ``hard_bans`` list;
+        - the documentation ``purpose`` (Trigger Triad summary) as a
+          human-readable adjunct that is NOT normative.
+
+        Full Tier-2/Tier-3 doctrine is not included — later slices will add
+        an explicit ``disclosure_tier`` request field.
+
+        Selection contract: a kernel that reaches projection with
+        ``init_behavior_source == "absent"`` is a schema defect. The
+        resolver's :meth:`_enforce_lifecycle` catches this earlier by
+        refusing selection of any kernel whose canonical artifact lacks a
+        normative init directive; this method assumes that guard already
+        ran and asserts the invariant.
         """
+
+        for k in selected:
+            assert k.init_behavior_source != "absent", (
+                f"projection invariant violated: kernel {k.kernel_id} "
+                f"reached Tier-1 with no init.behavior source; lifecycle "
+                f"gate should have refused it"
+            )
 
         return {
             "kernels": [
@@ -286,8 +316,10 @@ class KernelResolver:
                     "ring": k.ring,
                     "activation_phase": k.activation_phase,
                     "status": k.status,
-                    "purpose": k.purpose,
+                    "init_behavior": k.init_behavior,
+                    "init_behavior_source": k.init_behavior_source,
                     "hard_bans": list(k.hard_bans),
+                    "purpose": k.purpose,
                     "canonical_path": k.canonical_path,
                     "sha256": k.sha256,
                 }

@@ -159,6 +159,14 @@ class KernelDefinition:
     canonical_path: str
     sha256: str
     schema_valid: bool
+    # Normative init directive block projected as the doctrine §6 Tier-1
+    # ``init.behavior`` payload. Sourced mechanically from either the YAML
+    # ``init.behavior`` field or a Markdown ``## TIER 1`` body. Never
+    # derived from ``purpose`` (documentation) or ``title`` (label).
+    init_behavior: str = ""
+    # Mechanical label recording which source produced ``init_behavior``.
+    # One of: ``init.behavior``, ``tier1_block``, ``absent``.
+    init_behavior_source: str = "absent"
     schema_errors: tuple[str, ...] = field(default_factory=tuple)
     raw_metadata: dict[str, Any] = field(default_factory=dict)
 

@@ -82,6 +82,10 @@ _MD_INIT_BEHAVIOR_RE = re.compile(
     r"^\s*\*\*capability\*\*\s*:\s*(?P<val>.+?)(?:\n\n|\n\*\*)",
     re.DOTALL | re.MULTILINE,
 )
+_MD_TIER1_RE = re.compile(
+    r"^##\s+TIER\s+1\b[^\n]*\n(?P<body>.*?)(?=^##\s+TIER\s+\d|^---\s*$)",
+    re.DOTALL | re.MULTILINE,
+)
 _KERNEL_ID_FROM_FILENAME_RE = re.compile(r"^(?P<id>[a-z][a-z0-9_]*\.v[0-9]+)")
 
 
@@ -155,6 +159,10 @@ def _parse_markdown_kernel(raw_text: str, canonical_path: str) -> dict[str, Any]
     - ``**hard_bans**:`` list → ``hard_bans`` array.
     - ``**capability**:`` sentence → ``purpose`` fallback when the meta
       block does not provide one.
+    - ``## TIER 1`` header body → ``tier1_block`` (verbatim Markdown block
+      up to the next ``## TIER`` header or horizontal rule). The resolver
+      emits this as ``init_behavior`` for Markdown kernels that do not
+      declare a structured ``init.behavior`` mapping.
     - Doctrine §2 ring-to-activation-phase table → ``activation_phase``.
 
     No semantic guessing; unknown fields are preserved verbatim in
@@ -193,6 +201,15 @@ def _parse_markdown_kernel(raw_text: str, canonical_path: str) -> dict[str, Any]
                 items.append(text)
         if items:
             meta.setdefault("hard_bans", items)
+
+    # Deterministic Tier-1 block extraction from the Markdown body itself.
+    # Captured verbatim so the resolver's Tier-1 projection can emit real
+    # normative init directives instead of a documentation surrogate.
+    t1 = _MD_TIER1_RE.search(raw_text)
+    if t1 is not None:
+        block = t1.group("body").strip()
+        if block:
+            meta["tier1_block"] = block
 
     # Category from layer[-1] (mechanical) when absent.
     layer = meta.get("layer")
@@ -367,6 +384,8 @@ class KernelRegistry:
                 sha256=verified_sha,
                 schema_valid=schema_valid,
                 schema_errors=tuple(schema_errors),
+                init_behavior=_extract_init_behavior(meta),
+                init_behavior_source=_init_behavior_source(meta),
                 raw_metadata=_freeze_metadata(meta),
             )
             kernels[kernel_id] = definition
@@ -414,6 +433,52 @@ class KernelRegistry:
                     f"registered={kernel.sha256[:12]} now={verified[:12]}",
                     kernel_id=kernel.kernel_id,
                 )
+
+
+def _extract_init_behavior(meta: dict[str, Any]) -> str:
+    """Return the normative init.behavior string for the Tier-1 projection.
+
+    Precedence (mechanical, no semantic derivation):
+
+    1. ``init.behavior`` — doctrine §4 canonical location. YAML kernels.
+    2. ``tier1_block`` — raw Markdown ``## TIER 1`` body captured by
+       :func:`_parse_markdown_kernel`. Markdown kernels.
+    3. Empty string when neither is present. If such a kernel is actually
+       selected the resolver surfaces ``KERNEL_SCHEMA_INVALID``.
+
+    This function never inspects ``purpose`` — that field is a
+    documentation summary (doctrine §5 Trigger Triad) and is not
+    interchangeable with normative init.behavior.
+    """
+
+    init = meta.get("init")
+    if isinstance(init, dict):
+        behavior = init.get("behavior")
+        if isinstance(behavior, str) and behavior.strip():
+            return behavior.strip()
+    tier1 = meta.get("tier1_block")
+    if isinstance(tier1, str) and tier1.strip():
+        return tier1.strip()
+    return ""
+
+
+def _init_behavior_source(meta: dict[str, Any]) -> str:
+    """Return the mechanical source label for init.behavior.
+
+    One of: ``init.behavior``, ``tier1_block``, ``absent``. Recorded in
+    provenance so PE consumers can distinguish YAML-declared normative
+    directives from Markdown Tier-1 body captures.
+    """
+
+    init = meta.get("init")
+    if isinstance(init, dict):
+        behavior = init.get("behavior")
+        if isinstance(behavior, str) and behavior.strip():
+            return "init.behavior"
+    tier1 = meta.get("tier1_block")
+    if isinstance(tier1, str) and tier1.strip():
+        return "tier1_block"
+    return "absent"
 
 
 def _as_str_list(value: Any) -> list[str]:

@@ -635,6 +635,12 @@ files:
     sha256: 2847df9922e03b8e4a3c1dd286e50fda4ceda2fb62b60e97b9243e6c4f3b64f7
     tags:
     - general
+  docs/KERNEL_AUTHORITY.md:
+    retrieval: on_demand
+    role: context
+    sha256: 633b3b4e7c388d4a37eed837a12d3e2e88c5be14fc58f5fdd6667f35b4cd8939
+    tags:
+    - general
   docs/KERNEL_DOCTRINE.md:
     retrieval: on_demand
     role: context
@@ -1674,6 +1680,24 @@ files:
     tags:
     - mcp
     - control-plane
+  src/l9_ops_mcp/kernel_models.py:
+    retrieval: on_demand
+    role: context
+    sha256: cd236ec1d27013aaf68f8244624e6181998041379384e83f76aae318fbf6c957
+    tags:
+    - general
+  src/l9_ops_mcp/kernel_registry.py:
+    retrieval: on_demand
+    role: context
+    sha256: 27c48d0afeaad16aae70728d514db5454ab8f4a360f06c203f4ba06dc696a142
+    tags:
+    - general
+  src/l9_ops_mcp/kernel_resolver.py:
+    retrieval: on_demand
+    role: context
+    sha256: b26090c05e26f875d62af1544dd3a339620be1d826029bbd2c88053e6bb183ac
+    tags:
+    - general
   src/l9_ops_mcp/transport.py:
     retrieval: on_demand
     role: runtime_module
@@ -1686,42 +1710,6 @@ files:
     retrieval: on_demand
     role: context
     sha256: 53faef1944bf251a6ba244183d2f8bc2577e79bca5da9007e8e9b2bcd442f20b
-    tags:
-    - general
-  validation_results_doctrine_pass.json:
-    retrieval: on_demand
-    role: context
-    sha256: 388ef42eff59399e1c4128294877a0810cb961b7d58125a673069c2476c22f24
-    tags:
-    - general
-  src/l9_ops_mcp/kernel_models.py:
-    retrieval: on_demand
-    role: context
-    sha256: 528fdd443228351c9c76199390c4bb58f6a4b94c9499d44d2c10b7fbf6a3b73e
-    tags:
-    - general
-  src/l9_ops_mcp/kernel_registry.py:
-    retrieval: on_demand
-    role: context
-    sha256: 3d78c1b5cdf1140a911ec71dabd771589d038e4423729842bf743e9e6b67274a
-    tags:
-    - general
-  src/l9_ops_mcp/kernel_resolver.py:
-    retrieval: on_demand
-    role: context
-    sha256: 35a1bed4f87a1ca0d5c28c9d8b463e65c9af634348ffe34b8868da9920600dfc
-    tags:
-    - general
-  tests/test_kernel_registry.py:
-    retrieval: on_demand
-    role: context
-    sha256: 0f3b68fd7a15f0156791153bcd1d2833f910b1af3b9be1a84dda2515e36a2363
-    tags:
-    - general
-  tests/test_kernel_resolver.py:
-    retrieval: on_demand
-    role: context
-    sha256: 7322a37915d17d82a71cb62ec563b617f5d3409df28271c8958a96ca68a0dfe4
     tags:
     - general
   tests/test_kernel_determinism.py:
@@ -1742,10 +1730,28 @@ files:
     sha256: 8f562220886c93d1a1772e6dec04372eb45a0640b4ea5efbc904d5132bcb5942
     tags:
     - general
-  docs/KERNEL_AUTHORITY.md:
+  tests/test_kernel_projection_and_envelope.py:
     retrieval: on_demand
     role: context
-    sha256: 0f4770e279c5474b89009b9c6052b3dc9b45e3daf370bac702857c9639808f8f
+    sha256: a204c459bb70f723d45e1bb4c24a87b374aa424e1b59eca5226286d1b97e7cec
+    tags:
+    - general
+  tests/test_kernel_registry.py:
+    retrieval: on_demand
+    role: context
+    sha256: 0f3b68fd7a15f0156791153bcd1d2833f910b1af3b9be1a84dda2515e36a2363
+    tags:
+    - general
+  tests/test_kernel_resolver.py:
+    retrieval: on_demand
+    role: context
+    sha256: 7f47f80157b3d653a695e657b2be5de2b386186e0e584e9d68ee101bf3700514
+    tags:
+    - general
+  validation_results_doctrine_pass.json:
+    retrieval: on_demand
+    role: context
+    sha256: 388ef42eff59399e1c4128294877a0810cb961b7d58125a673069c2476c22f24
     tags:
     - general
 index_version: 2026-06-18.consumer_only

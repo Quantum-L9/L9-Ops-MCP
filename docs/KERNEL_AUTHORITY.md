@@ -30,14 +30,30 @@ context, and it never consults Graphiti or an LLM.
   deterministically (dependencies before dependents; kernel-id tie-break).
 - Enforces:
   - **Lifecycle** — `deprecated` or `archived` kernels fail closed;
-    `experimental` requires explicit `allow_experimental=true`.
+    `experimental` requires explicit `allow_experimental=true`. A kernel
+    with no normative `init.behavior` source (neither doctrine §4
+    `init.behavior` nor a Markdown `## TIER 1` block) is refused with
+    `KERNEL_SCHEMA_INVALID` — the projection refuses to substitute a
+    documentation surrogate (`purpose`) for normative authority.
   - **Trust** — `ring` maps to the doctrine minimum trust level
-    (R5 → L3, R4 → L2, etc.); insufficient trust fails closed.
+    (R5 → L3, R4 → L2, etc.); insufficient trust fails closed. The
+    successful response carries `trust_level` at the top level for PE
+    consumers to persist directly.
   - **Budget** — the sum of selected `overload_weight` values must fit
-    within the requested `max_overload_weight`.
-- Projects a **Tier-1** normative context (`init.behavior`-equivalent plus
-  `hard_bans` plus identity/provenance). Full Tier-2/Tier-3 doctrine is not
-  emitted by default.
+    within the requested `max_overload_weight`. `max_overload_weight` is
+    coerced to a well-formed finite float at the MCP boundary; NaN and
+    ±Inf are rejected with `KERNEL_REQUEST_INVALID`.
+- Projects a **Tier-1** normative context per doctrine §6:
+  - `init_behavior` (the raw doctrine §4 directive block, or the
+    verbatim Markdown `## TIER 1` body for Markdown kernels),
+  - `init_behavior_source` (`init.behavior` or `tier1_block`,
+    mechanical label),
+  - `hard_bans`,
+  - identity/provenance (`kernel_id`, `version`, `canonical_path`,
+    `sha256`, `ring`, `activation_phase`, `status`),
+  - `purpose` as a human-readable adjunct (NOT normative).
+  Full Tier-2/Tier-3 doctrine is not emitted by default. A later slice
+  will add an explicit `disclosure_tier` request field.
 - Computes `resolution_digest = sha256(canonical_json(payload))`. Timestamps,
   packet IDs, host state, PID, mtime, and absolute checkout paths are
   deliberately excluded so the same request against the same repo state
@@ -63,9 +79,14 @@ compact separators, `allow_nan=False`).
 
 ## Failure semantics
 
-A failed resolution never looks like a successful empty context. The tool
-returns a stable JSON error object with a machine-actionable `code` and a
-human-readable `message`. Codes (from `src/l9_ops_mcp/kernel_models.py`):
+A failed resolution never looks like a successful empty context. Every
+failure path — domain error, malformed request, or unexpected internal
+error on registry load — returns the stable JSON envelope
+`{status: 'error', code, message}`. The MCP boundary catches
+`KernelAuthorityError` (mapped by its `code`), `TypeError` / `ValueError`
+(mapped to `KERNEL_REQUEST_INVALID`), and `FileNotFoundError` (mapped to
+`KERNEL_NOT_FOUND`) so no raw Python traceback ever leaks. Codes
+(from `src/l9_ops_mcp/kernel_models.py`):
 
 | Code | Meaning |
 |------|---------|
@@ -143,3 +164,14 @@ Run: `pytest tests/test_kernel_*.py -q`.
   `mcp[cli]<2.0` and `tests/test_kernel_mcp_tool.py` skips loudly if a 2.x
   SDK is present. A later slice must migrate `src/l9_ops_mcp/server.py` to
   the new server surface before the pin can be lifted.
+- **PE-integration prerequisite (cache invalidation).** The server
+  currently caches the loaded `KernelRegistry` in a module global. The
+  cache is safe as long as canonical kernel bytes and the retrieval
+  index are immutable during the process's lifetime — the determinism
+  test suite proves fresh and warm processes agree. If PE runs
+  long-lived and the repo can mutate underneath it, staleness is a real
+  hazard. As an opt-in guard, setting `L9_KERNEL_STRICT_INTEGRITY=1`
+  makes `_get_resolver()` re-verify every canonical kernel's sha256 on
+  every call; PE's Program Lock integration should either run in strict
+  mode or invalidate the cache on repo-state changes. A full
+  invalidation contract is a Slice 2 PE-integration prerequisite.

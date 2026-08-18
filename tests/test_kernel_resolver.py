@@ -70,8 +70,9 @@ def _kernel(
     weight: float = 1.0,
     requires: list[str] | None = None,
     status: str = "active",
+    init_behavior: str | None = "deterministic fixture init directive",
 ) -> dict:
-    return {
+    doc: dict = {
         "kernel_id": kernel_id,
         "version": "1.0.0",
         "ring": ring,
@@ -85,6 +86,14 @@ def _kernel(
         "fail_closed": True,
         "requires": requires or [],
     }
+    if init_behavior is not None:
+        # Fixture kernels declare the doctrine §4 canonical ``init.behavior``
+        # mapping so the resolver's Tier-1 projection can emit real
+        # normative content. Pass ``init_behavior=None`` to build a kernel
+        # that intentionally lacks any init source (used to exercise the
+        # projection guard).
+        doc["init"] = {"behavior": init_behavior}
+    return doc
 
 
 def _fixture_repo(tmp_path: Path, docs: dict[str, dict]) -> Path:
