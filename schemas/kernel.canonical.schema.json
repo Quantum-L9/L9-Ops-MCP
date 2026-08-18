@@ -1,8 +1,67 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "L9 observed kernel document schema",
+  "$id": "https://l9-ops-mcp/schemas/kernel.canonical.schema.json",
+  "title": "L9 canonical kernel document (v3.4.1)",
+  "description": "Machine-enforced canonical kernel contract derived from docs/KERNEL_DOCTRINE.md §4. This schema is applied lazily at resolution time — malformed kernels remain parseable in the registry but cannot be selected. See src/l9_ops_mcp/kernel_registry.py for the two-phase enforcement contract and docs/KERNEL_AUTHORITY.md for rationale.",
   "type": "object",
-  "description": "Permissive schema derived from consolidated kernel YAML files. Requires a mapping document and allows kernel-specific keys.",
-  "minProperties": 1,
+  "required": [
+    "kernel_id",
+    "version",
+    "ring",
+    "category",
+    "title",
+    "purpose",
+    "activation_phase",
+    "status",
+    "overload_weight",
+    "hard_bans"
+  ],
+  "properties": {
+    "kernel_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*\\.v[0-9]+$",
+      "description": "Canonical logical identity, e.g. l9_build_kernel.v1"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+(\\.[0-9]+){0,2}(-[A-Za-z0-9.-]+)?$",
+      "description": "SemVer-ish artifact version distinct from kernel_id.v<N> generation"
+    },
+    "ring": {
+      "type": "string",
+      "enum": ["R0", "R1", "R2", "R3", "R4", "R5", "R6"]
+    },
+    "category": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "purpose": {"type": "string", "minLength": 1},
+    "activation_phase": {
+      "type": "string",
+      "enum": ["always", "on_demand", "lazy"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "experimental", "deprecated", "archived"]
+    },
+    "overload_weight": {"type": "number", "minimum": 0},
+    "hard_bans": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^MUST NOT "},
+      "minItems": 0
+    },
+    "fail_closed": {"type": "boolean"},
+    "requires": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*\\.v[0-9]+$"}
+    },
+    "routing_hints": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "compatibility": {"type": "object", "additionalProperties": true},
+    "session_hooks": {"type": "array"},
+    "meta_context": {"type": "object", "additionalProperties": true},
+    "convergence_footer": {"type": "object", "additionalProperties": true},
+    "tags": {"type": "array"}
+  },
   "additionalProperties": true
 }

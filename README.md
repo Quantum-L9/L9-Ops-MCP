@@ -29,9 +29,16 @@ repo files / uploads
 - Inject and validate canonical metadata on inbound files.
 - Build artifact manifests, retrieval indexes, trace maps, and unknown registers.
 - Bridge artifact metadata to Graphiti / Neo4j.
-- Expose MCP tools for budget-bounded context slices.
+- Expose MCP tools for budget-bounded context slices (governed memory plane) and for deterministic canonical kernel authority (kernel authority plane).
 - Validate skills, playbooks, registries, pyproject entrypoints, and command wiring.
 - Enforce the Quantum-L9 org invariant for upload-to-repo routing.
+
+## Kernel Authority Plane
+
+Slice 1 adds a `kernel_resolve` MCP tool that returns deterministic canonical
+kernel authority for a declared execution profile. It never consults
+Graphiti or an LLM. See [docs/KERNEL_AUTHORITY.md](docs/KERNEL_AUTHORITY.md)
+for the full contract, error taxonomy, and determinism guarantee.
 
 ## Non-Goals
 
