@@ -1,3 +1,14 @@
+# --- L9_META ---
+# l9_schema: 1
+# origin: l9-ops-mcp
+# layer: adapter
+# artifact_type: runtime_module
+# component: manus_kernel_server
+# tags: [manus, mcp, kernel-authority]
+# owner: Quantum-L9
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
 """Restricted Manus MCP facade for deterministic L9 kernel authority.
 
 This process deliberately exposes only ``kernel_resolve`` from the native
@@ -10,6 +21,7 @@ kernel bytes drift.
 from __future__ import annotations
 
 import os
+from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -42,7 +54,7 @@ async def kernel_resolve(
     """
 
     os.environ["L9_KERNEL_STRICT_INTEGRITY"] = "1"
-    return await native_server.kernel_resolve(
+    payload = await native_server.kernel_resolve(
         profile=profile,
         consumer=consumer,
         objective=objective,
@@ -50,6 +62,7 @@ async def kernel_resolve(
         max_overload_weight=max_overload_weight,
         allow_experimental=allow_experimental,
     )
+    return cast(dict[str, object], payload)
 
 
 def main() -> None:

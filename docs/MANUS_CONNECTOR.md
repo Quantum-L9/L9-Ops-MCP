@@ -18,14 +18,18 @@ The connector does **not** expose the native server's Graphiti-backed memory too
 
 ## Local command
 
-Install the package and invoke the restricted console entry point:
+Install the package and invoke the restricted module entry point:
 
 ```bash
 uv sync --extra dev
-l9-manus-kernel-mcp
+python -m l9_ops_mcp.manus_kernel_server
 ```
 
-The connector must be registered as a local stdio server using the installed `l9-manus-kernel-mcp` command. Set `L9_OPS_MCP_REPO_ROOT` to the immutable L9-Ops-MCP checkout that contains the canonical kernel retrieval index. No credential or secret environment variable is required.
+The connector must be registered as a local stdio server using the checkout's
+locked Python interpreter with arguments `-m l9_ops_mcp.manus_kernel_server`.
+Set `L9_OPS_MCP_REPO_ROOT` to the immutable L9-Ops-MCP checkout that contains
+the canonical kernel retrieval index. No credential or secret environment
+variable is required.
 
 ## Verification
 

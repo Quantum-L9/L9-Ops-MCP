@@ -1,3 +1,14 @@
+# --- L9_META ---
+# l9_schema: 1
+# origin: l9-ops-mcp
+# layer: test
+# artifact_type: test_module
+# component: manus_kernel_server_tests
+# tags: [manus, mcp, kernel-authority, tests]
+# owner: Quantum-L9
+# retrieval: on_demand
+# status: active
+# --- /L9_META ---
 """Safety tests for the restricted Manus kernel-authority MCP facade."""
 
 from __future__ import annotations
@@ -9,16 +20,48 @@ from pathlib import Path
 import pytest
 
 
+def _probe_mcp_sdk() -> tuple[bool, str]:
+    """Return whether the pinned FastMCP surface is importable and its version."""
+
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        installed = version("mcp")
+    except PackageNotFoundError:
+        installed = "not-installed"
+    try:
+        from mcp.server.fastmcp import FastMCP  # noqa: F401
+    except ImportError:
+        return False, installed
+    return True, installed
+
+
+_fastmcp_ok, _mcp_installed = _probe_mcp_sdk()
+if not _fastmcp_ok:
+    pytest.skip(
+        f"Manus kernel facade tests require FastMCP (mcp<2.0). Installed "
+        f"mcp=={_mcp_installed}. Pin mcp[cli]<2.0 or migrate the facade before "
+        "removing this guard.",
+        allow_module_level=True,
+    )
+
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture(scope="module", autouse=True)
 def configure_repository_root():
-    """Point the native resolver to this immutable test checkout."""
+    """Isolate native resolver state from other MCP test modules."""
+
+    from l9_ops_mcp import server as native_server
 
     prior = os.environ.get("L9_OPS_MCP_REPO_ROOT")
     os.environ["L9_OPS_MCP_REPO_ROOT"] = str(REPO_ROOT)
+    native_server._KERNEL_REGISTRY = None
+    native_server._KERNEL_RESOLVER = None
     yield
+    native_server._KERNEL_REGISTRY = None
+    native_server._KERNEL_RESOLVER = None
     if prior is None:
         os.environ.pop("L9_OPS_MCP_REPO_ROOT", None)
     else:

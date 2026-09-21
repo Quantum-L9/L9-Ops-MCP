@@ -46,7 +46,6 @@ dev = [
 [project.scripts]
 l9-action-governor = "l9_action_governor.cli:main"
 l9-mcp-server      = "l9_ops_mcp.server:main"
-l9-manus-kernel-mcp = "l9_ops_mcp.manus_kernel_server:main"
 l9-preflight       = "l9_ops_mcp.preflight:main"
 l9-seed            = "l9_ops_mcp.seed:main"
 
