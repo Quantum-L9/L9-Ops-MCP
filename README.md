@@ -40,6 +40,10 @@ kernel authority for a declared execution profile. It never consults
 Graphiti or an LLM. See [docs/KERNEL_AUTHORITY.md](docs/KERNEL_AUTHORITY.md)
 for the full contract, error taxonomy, and determinism guarantee.
 
+For the restricted Manus integration, see
+[docs/MANUS_CONNECTOR.md](docs/MANUS_CONNECTOR.md). It exposes only
+`kernel_resolve`, never the governed-memory plane.
+
 ## Non-Goals
 
 - Do not own long-term semantic memory.
