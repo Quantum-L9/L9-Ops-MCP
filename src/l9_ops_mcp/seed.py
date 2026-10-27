@@ -90,25 +90,36 @@ def _candidate(chunk: str, index: int, source: pathlib.Path) -> MemoryCandidate:
     )
 
 
-async def seed(path: pathlib.Path | None = None) -> dict[str, object]:
+def _resolve_target(path: pathlib.Path | None) -> pathlib.Path:
     target = path or _find()
     if target is None or not target.is_file():
         raise SeedInputMissingError([path] if path is not None else _candidates())
+    return target
+
+
+async def _ingest_chunk(
+    chunk: str, index: int, source: pathlib.Path, written: int, total: int
+) -> str:
+    """Admit one chunk; report progress on stderr before re-raising a write failure."""
+    try:
+        result = await ingest_episode(_candidate(chunk, index, source))
+    except Exception:
+        print(
+            f"seed failed at chunk {index}: {written} of {total} chunks written",
+            file=sys.stderr,
+        )
+        raise
+    return str(result["disposition"])
+
+
+async def seed(path: pathlib.Path | None = None) -> dict[str, object]:
+    target = _resolve_target(path)
     chunks = _chunk(target.read_text(encoding="utf-8"))
     print(f"Seeding {len(chunks)} chunks -> {GLOBAL_DECISIONS} through the admission gate ...")
     admitted = merged = 0
     rejected: list[tuple[int, str]] = []
     for i, chunk in enumerate(chunks):
-        try:
-            result = await ingest_episode(_candidate(chunk, i, target))
-        except Exception:
-            written = admitted + merged
-            print(
-                f"seed failed at chunk {i}: {written} of {len(chunks)} chunks written",
-                file=sys.stderr,
-            )
-            raise
-        disposition = str(result["disposition"])
+        disposition = await _ingest_chunk(chunk, i, target, admitted + merged, len(chunks))
         if disposition == "admit":
             admitted += 1
         elif disposition == "merge:dedup":
