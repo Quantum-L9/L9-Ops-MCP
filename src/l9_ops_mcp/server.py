@@ -17,6 +17,7 @@ Two planes are exposed:
 from __future__ import annotations
 
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -272,12 +273,38 @@ def _coerce_max_overload_weight(value: object) -> float:
     return coerced
 
 
+_LOOPBACK_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
+def _configure_http(host: str, port: int) -> None:
+    """Apply streamable-HTTP settings to the module-level FastMCP instance.
+
+    mcp 1.x ``FastMCP.run()`` accepts only ``transport`` (and ``mount_path``);
+    host, port and path live in ``FastMCP.settings`` and are read when
+    ``run_streamable_http_async`` builds the app, so setting them here takes
+    effect. DNS-rebinding protection mirrors the FastMCP constructor: enabled
+    for loopback hosts, left as constructed otherwise (the constructor's
+    loopback default would reject every non-loopback Host header).
+    """
+    settings = mcp.settings
+    settings.host = host
+    settings.port = port
+    settings.streamable_http_path = "/mcp"
+    if host not in _LOOPBACK_HOSTS:
+        settings.transport_security = None
+
+
 def main() -> None:
     transport = os.getenv("L9_MCP_TRANSPORT", "stdio")
     if transport == "http":
         host = os.getenv("L9_MCP_HTTP_HOST", "127.0.0.1")
-        port = int(os.getenv("L9_MCP_HTTP_PORT", "7010"))
-        mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")
+        raw_port = os.getenv("L9_MCP_HTTP_PORT", "7010")
+        try:
+            port = int(raw_port)
+        except ValueError:
+            sys.exit(f"L9_MCP_HTTP_PORT must be an integer port, got {raw_port!r}")
+        _configure_http(host, port)
+        mcp.run(transport="streamable-http")
     else:
         mcp.run(transport="stdio")
 
