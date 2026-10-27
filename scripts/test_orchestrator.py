@@ -25,6 +25,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from scripts.l11.ai_enrichment_engine import AIEnrichmentEngine
 from scripts.l11.debt_graph_service import DebtGraphService
 from scripts.l11.deterministic_engine import DeterministicEngine
 from scripts.l11.orchestrator import Finding, L11Orchestrator
@@ -251,3 +252,51 @@ class TestRealProducerPipeline:
         result = await orch.run_nightly_scan(scope=["core/a.py"])
         assert result.passed is False
         assert [f.file for f in result.findings] == ["core/a.py"]
+
+
+# ─────────────────────────────────────────────
+# WU-21 regression (RG-22): default construction and health
+# ─────────────────────────────────────────────
+SHIPPED_CONFIG = Path(__file__).resolve().parent / "l11" / "pipeline_config.yaml"
+
+
+class TestDefaultConstruction:
+    def test_shipped_config_builds_required_engines(self):
+        orch = L11Orchestrator(SHIPPED_CONFIG)
+        assert isinstance(orch.deterministic_engine, DeterministicEngine)
+        assert isinstance(orch.risk_scorer, RiskScorer)
+        assert isinstance(orch.debt_graph, DebtGraphService)
+        assert isinstance(orch.ai_engine, AIEnrichmentEngine)
+
+    async def test_default_constructed_orchestrator_scans(
+        self, real_pipeline_config, tmp_path, monkeypatch
+    ):
+        """subaudit_A r7: runbook usage L11Orchestrator(config) must scan."""
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "core").mkdir()
+        (tmp_path / "core" / "a.py").write_text("import logging\n")
+        orch = L11Orchestrator(_write_config(real_pipeline_config, tmp_path))
+        result = await orch.run_pr_scan(pr_number=1, changed_files=["core/a.py"])
+        assert result.should_block_merge is True
+        assert json.loads((tmp_path / "debt.json").read_text())[0]["file"] == "core/a.py"
+
+    def test_missing_required_engine_config_fails_at_construction(self, sample_config, tmp_path):
+        cfg = copy.deepcopy(sample_config)
+        del cfg["detection"]["deterministic_layer"]
+        with pytest.raises(ValueError, match="deterministic_engine"):
+            L11Orchestrator(_write_config(cfg, tmp_path))
+
+    async def test_health_with_no_components_is_unhealthy(self, mock_engines):
+        mock_engines.deterministic_engine = None
+        mock_engines.ai_engine = None
+        mock_engines.debt_graph = None
+        mock_engines.risk_scorer = None
+        health = await mock_engines.health_check()
+        assert health["healthy"] is False
+        assert set(health["missing_components"]) == {"deterministic_engine", "risk_scorer"}
+
+    async def test_health_with_missing_required_component_is_unhealthy(self, mock_engines):
+        mock_engines.risk_scorer = None
+        health = await mock_engines.health_check()
+        assert health["healthy"] is False
+        assert health["missing_components"] == ["risk_scorer"]
