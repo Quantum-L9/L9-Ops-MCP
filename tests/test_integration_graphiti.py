@@ -14,6 +14,23 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+@pytest.fixture(autouse=True)
+async def _fresh_graphiti_client():
+    """Give each test its own Graphiti client, closed on the loop that made it.
+
+    get_graphiti() caches one client per process; pytest-asyncio runs each test
+    on a new event loop, so a client cached by an earlier test is bound to a
+    closed loop ("RuntimeError: Event loop is closed").
+    """
+    from l9_ops_mcp import graphiti_client
+
+    graphiti_client._client.cache_clear()
+    yield
+    if graphiti_client._client.cache_info().currsize:
+        await graphiti_client.close()
+    graphiti_client._client.cache_clear()
+
+
 @pytest.mark.asyncio
 async def test_graphiti_indices_build():
     from l9_ops_mcp.graphiti_client import get_graphiti
