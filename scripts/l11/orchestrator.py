@@ -21,10 +21,11 @@ DORA:
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import structlog
 
@@ -36,12 +37,22 @@ logger = structlog.get_logger(__name__)
 # ─────────────────────────────────────────────
 @dataclass
 class Finding:
-    """Single debt finding from any detection engine."""
+    """Single debt finding from any detection engine.
+
+    The canonical wire shape is the producer contract of
+    ``DeterministicEngine.scan`` (``scripts/l11/deterministic_engine.py``):
+    a mapping with ``tool``, ``rule``, ``message``, ``file``, ``line`` and
+    ``severity``.  ``RiskScorer`` and ``DebtGraphService`` read those same keys,
+    so :meth:`to_dict` must emit them unchanged.
+    """
+
+    REQUIRED_KEYS: ClassVar[tuple[str, ...]] = ("tool", "message", "severity")
 
     tool: str
     message: str
     severity: str
-    file_path: str = ""
+    rule: str = ""
+    file: str = ""
     line: int = 0
     risk_score: float = 0.0
     owner: str | None = None
@@ -49,13 +60,41 @@ class Finding:
     ai_enrichment: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=lambda: datetime.now(tz=timezone.utc))
 
+    @classmethod
+    def from_dict(cls, raw: Mapping[str, Any]) -> Finding:
+        """Build a Finding from a producer dict.
+
+        Raises:
+            ValueError: If *raw* is not a mapping or lacks a required key.
+        """
+        if not isinstance(raw, Mapping):
+            msg = f"producer finding must be a mapping, got {type(raw).__name__}"
+            raise ValueError(msg)
+        missing = [k for k in cls.REQUIRED_KEYS if not isinstance(raw.get(k), str)]
+        if missing:
+            msg = f"producer finding missing required string keys: {', '.join(missing)}"
+            raise ValueError(msg)
+        line = raw.get("line", 0)
+        enrichment = raw.get("ai_enrichment")
+        return cls(
+            tool=raw["tool"],
+            message=raw["message"],
+            severity=raw["severity"],
+            rule=str(raw.get("rule") or ""),
+            file=str(raw.get("file") or ""),
+            line=line if isinstance(line, int) else 0,
+            owner=raw.get("owner"),
+            ai_enrichment=dict(enrichment) if isinstance(enrichment, Mapping) else {},
+        )
+
     def to_dict(self) -> dict[str, Any]:
-        """Serialize finding for JSON/Neo4j storage."""
+        """Serialize finding for scoring and JSON/Neo4j storage (producer keys)."""
         return {
             "tool": self.tool,
+            "rule": self.rule,
             "message": self.message,
             "severity": self.severity,
-            "file_path": self.file_path,
+            "file": self.file,
             "line": self.line,
             "risk_score": self.risk_score,
             "owner": self.owner,
@@ -63,6 +102,39 @@ class Finding:
             "ai_enrichment": self.ai_enrichment,
             "created_at": self.created_at.isoformat(),
         }
+
+
+def findings_from_producer(raw_findings: Any) -> list[Finding]:
+    """Convert producer output into Findings.
+
+    A malformed entry does not abort the scan: it becomes a failing
+    ``malformed_finding`` Finding so the scan cannot pass on bad input.
+    """
+    if not isinstance(raw_findings, list):
+        logger.error("malformed_producer_findings", type=type(raw_findings).__name__)
+        return [
+            Finding(
+                tool="l11_orchestrator",
+                rule="malformed_finding",
+                message=(f"producer findings must be a list, got {type(raw_findings).__name__}"),
+                severity="P1",
+            )
+        ]
+    findings: list[Finding] = []
+    for index, raw in enumerate(raw_findings):
+        try:
+            findings.append(Finding.from_dict(raw))
+        except ValueError as exc:
+            logger.error("malformed_producer_finding", index=index, error=str(exc))
+            findings.append(
+                Finding(
+                    tool="l11_orchestrator",
+                    rule="malformed_finding",
+                    message=f"finding #{index} rejected: {exc}",
+                    severity="P1",
+                )
+            )
+    return findings
 
 
 @dataclass
@@ -73,6 +145,8 @@ class ScanResult:
     findings: list[Finding]
     should_block_merge: bool = False
     enrichment_queued: bool = False
+    enrichment_completed: bool = False
+    enrichment_error: str | None = None
     regressions: list[dict[str, Any]] = field(default_factory=list)
     duration_ms: float = 0.0
 
@@ -84,7 +158,7 @@ def load_config(config_path: Path) -> dict[str, Any]:
     """Load pipeline YAML configuration.
 
     Args:
-        config_path: Path to 01-L11-PIPELINE-CONFIG.yaml
+        config_path: Path to the pipeline YAML (``scripts/l11/pipeline_config.yaml``).
 
     Returns:
         Parsed configuration dictionary.
@@ -111,6 +185,33 @@ def load_config(config_path: Path) -> dict[str, Any]:
 
 
 # ─────────────────────────────────────────────
+# Engine factories (imported lazily: engines never import the orchestrator)
+# ─────────────────────────────────────────────
+def _build_deterministic_engine(config: dict[str, Any]) -> Any:
+    from scripts.l11.deterministic_engine import DeterministicEngine  # noqa: PLC0415
+
+    return DeterministicEngine(config)
+
+
+def _build_risk_scorer(config: dict[str, Any]) -> Any:
+    from scripts.l11.risk_scorer import RiskScorer  # noqa: PLC0415
+
+    return RiskScorer(config)
+
+
+def _build_debt_graph(config: dict[str, Any]) -> Any:
+    from scripts.l11.debt_graph_service import DebtGraphService  # noqa: PLC0415
+
+    return DebtGraphService(config)
+
+
+def _build_ai_engine(config: dict[str, Any]) -> Any:
+    from scripts.l11.ai_enrichment_engine import AIEnrichmentEngine  # noqa: PLC0415
+
+    return AIEnrichmentEngine(config)
+
+
+# ─────────────────────────────────────────────
 # Orchestrator
 # ─────────────────────────────────────────────
 class L11Orchestrator:
@@ -124,6 +225,9 @@ class L11Orchestrator:
         ADR-0083  UTC datetime standard
     """
 
+    #: Components without which a scan cannot produce a merge decision.
+    REQUIRED_COMPONENTS: ClassVar[tuple[str, ...]] = ("deterministic_engine", "risk_scorer")
+
     def __init__(
         self,
         config_path: Path,
@@ -133,12 +237,38 @@ class L11Orchestrator:
         debt_graph: Any | None = None,
         risk_scorer: Any | None = None,
     ) -> None:
+        """Load config and build every engine not injected (ADR-0052 DI/DIP).
+
+        Required engines (deterministic engine, risk scorer) are built from
+        config; optional ones (debt graph, AI engine) are built when their
+        config section is present.
+
+        Raises:
+            ValueError: If a required engine cannot be built from config.
+        """
         self.config = load_config(config_path)
-        # Accept injected engines for testability (ADR-0052 DI/DIP).
-        self.deterministic_engine = deterministic_engine
-        self.ai_engine = ai_engine
+        self._enrichment_tasks: set[asyncio.Task[Any]] = set()
+        self.deterministic_engine: Any = deterministic_engine
+        if self.deterministic_engine is None:
+            self.deterministic_engine = self._build(
+                "deterministic_engine", _build_deterministic_engine
+            )
+        self.risk_scorer: Any = risk_scorer
+        if self.risk_scorer is None:
+            self.risk_scorer = self._build("risk_scorer", _build_risk_scorer)
         self.debt_graph = debt_graph
-        self.risk_scorer = risk_scorer
+        if self.debt_graph is None and "state_management" in self.config:
+            self.debt_graph = self._build("debt_graph", _build_debt_graph)
+        self.ai_engine = ai_engine
+        if self.ai_engine is None and "ai_layer" in self.config.get("detection", {}):
+            self.ai_engine = self._build("ai_engine", _build_ai_engine)
+
+    def _build(self, name: str, factory: Any) -> Any:
+        try:
+            return factory(self.config)
+        except (KeyError, TypeError, AttributeError) as exc:
+            msg = f"cannot build {name} from config: missing or invalid {exc}"
+            raise ValueError(msg) from exc
 
     # ── PR Scan (Incremental) ───────────────
     async def run_pr_scan(
@@ -152,7 +282,7 @@ class L11Orchestrator:
         Phase 2 — Risk scoring.
         Phase 3 — Debt graph upsert.
         Phase 4 — Merge decision.
-        Phase 5 — Queue AI enrichment (NON-BLOCKING).
+        Phase 5 — AI enrichment (cannot change the decision; drained before return).
         """
         start = datetime.now(tz=timezone.utc)
         logger.info(
@@ -163,7 +293,8 @@ class L11Orchestrator:
 
         # Phase 1
         det_result = await self.deterministic_engine.scan(changed_files)
-        findings: list[Finding] = det_result["findings"]
+        findings = findings_from_producer(det_result.get("findings"))
+        passed = bool(det_result.get("passed")) and not findings
 
         # Phase 2
         for f in findings:
@@ -177,13 +308,16 @@ class L11Orchestrator:
         block_threshold: int = self.config["risk_model"]["thresholds"]["block_pr"]
         should_block = any(f.risk_score >= block_threshold for f in findings)
 
-        # Phase 5
+        # Phase 5 — the merge decision above is final; enrichment cannot
+        # change it.  The enrichment task is retained and drained before
+        # returning so it is never cancelled by the caller's loop shutdown.
         enrichment_queued = False
+        enrichment_completed = False
+        enrichment_error: str | None = None
         pr_cfg = self.config["execution"]["triggers"]["pr"]
         if pr_cfg.get("ai_enrichment_async") and self.ai_engine is not None:
-            asyncio.create_task(self.ai_engine.enqueue_enrichment([f.to_dict() for f in findings]))
             enrichment_queued = True
-
+            enrichment_completed, enrichment_error = await self._drain_enrichment(findings)
         duration_ms = (datetime.now(tz=timezone.utc) - start).total_seconds() * 1000.0
 
         logger.info(
@@ -192,16 +326,38 @@ class L11Orchestrator:
             findings_count=len(findings),
             should_block=should_block,
             enrichment_queued=enrichment_queued,
+            enrichment_completed=enrichment_completed,
             duration_ms=round(duration_ms, 1),
         )
 
         return ScanResult(
-            passed=det_result["passed"],
+            passed=passed,
             findings=findings,
             should_block_merge=should_block,
             enrichment_queued=enrichment_queued,
+            enrichment_completed=enrichment_completed,
+            enrichment_error=enrichment_error,
             duration_ms=duration_ms,
         )
+
+    async def _drain_enrichment(self, findings: list[Finding]) -> tuple[bool, str | None]:
+        """Run enrichment as a retained task, await it, and copy results back.
+
+        Returns ``(completed, error)``.  Failures are logged, never raised.
+        """
+        payload = [f.to_dict() for f in findings]
+        task = asyncio.create_task(self.ai_engine.enqueue_enrichment(payload))
+        self._enrichment_tasks.add(task)
+        task.add_done_callback(self._enrichment_tasks.discard)
+        try:
+            await task
+        except Exception as exc:  # noqa: BLE001 — enrichment is non-blocking by contract
+            error = f"{type(exc).__name__}: {exc}"
+            logger.error("ai_enrichment_failed", error=error)
+            return False, error
+        for f, enriched in zip(findings, payload, strict=True):
+            f.ai_enrichment = enriched.get("ai_enrichment", {}) or {}
+        return True, None
 
     # ── Nightly Full-Repo Scan ──────────────
     async def run_nightly_scan(
@@ -220,13 +376,16 @@ class L11Orchestrator:
         logger.info("nightly_scan_started", scope=scope)
 
         det_result = await self.deterministic_engine.scan(scope)
-        findings: list[Finding] = det_result["findings"]
+        findings = findings_from_producer(det_result.get("findings"))
+        passed = bool(det_result.get("passed")) and not findings
 
         for f in findings:
             f.risk_score = self.risk_scorer.calculate(f.to_dict())
 
+        # A nightly scan is a complete scan of *scope*: it drives the
+        # open -> fixed -> regressed lifecycle.  PR scans only upsert.
         if self.debt_graph is not None:
-            await self.debt_graph.upsert_findings([f.to_dict() for f in findings])
+            await self.debt_graph.upsert_findings([f.to_dict() for f in findings], scope=scope)
 
         sched_cfg = self.config["execution"]["triggers"]["schedule"]
         if sched_cfg.get("ai_enrichment") and self.ai_engine is not None:
@@ -248,7 +407,7 @@ class L11Orchestrator:
         )
 
         return ScanResult(
-            passed=det_result["passed"],
+            passed=passed,
             findings=findings,
             regressions=regressions,
             duration_ms=duration_ms,
@@ -268,9 +427,11 @@ class L11Orchestrator:
         if self.risk_scorer is not None:
             components["risk_scorer"] = self.risk_scorer.health()
 
-        all_healthy = all(v.get("healthy", False) for v in components.values())
+        missing = [name for name in self.REQUIRED_COMPONENTS if getattr(self, name) is None]
+        all_healthy = not missing and all(v.get("healthy", False) for v in components.values())
         return {
             "healthy": all_healthy,
             "components": components,
+            "missing_components": missing,
             "timestamp": datetime.now(tz=timezone.utc).isoformat(),
         }

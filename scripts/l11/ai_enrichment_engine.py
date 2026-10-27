@@ -46,17 +46,12 @@ class CircuitBreaker:
         self.last_failure_time: datetime | None = None
 
     def is_open(self) -> bool:
-        """Return True when circuit is open (API should not be called)."""
-        if self.failure_count < self.threshold:
-            return False
-        if self.last_failure_time is None:
-            return False
-        elapsed = (datetime.now(tz=timezone.utc) - self.last_failure_time).total_seconds()
-        if elapsed >= self.cooldown:
-            # Half-open: allow one attempt
-            self.failure_count = 0
-            return False
-        return True
+        """Return True when circuit is open (API should not be called).
+
+        Pure read: after the cooldown the breaker is half-open and allows a
+        trial call; a failed trial re-opens it, a success closes it.
+        """
+        return self.state == "open"
 
     def record_failure(self) -> None:
         """Record an API failure."""
@@ -75,12 +70,16 @@ class CircuitBreaker:
 
     @property
     def state(self) -> str:
-        """Return human-readable state."""
-        if self.failure_count == 0:
+        """Return the breaker phase: ``closed``, ``open`` or ``half-open``.
+
+        Derived from the failure count and cooldown; never mutates state.
+        """
+        if self.failure_count < self.threshold or self.last_failure_time is None:
             return "closed"
-        if self.is_open():
-            return "open"
-        return "half-open"
+        elapsed = (datetime.now(tz=timezone.utc) - self.last_failure_time).total_seconds()
+        if elapsed >= self.cooldown:
+            return "half-open"
+        return "open"
 
 
 class AIEnrichmentEngine:
@@ -127,33 +126,40 @@ class AIEnrichmentEngine:
     async def enrich_batch(self, findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Enrich a batch of findings with AI classification.
 
-        Returns the same list with ``ai_enrichment`` dict added.
-        Falls back to un-enriched findings on circuit-breaker open.
+        Returns the same findings with an ``ai_enrichment`` dict added.  On any
+        failure (missing key, open breaker, transport error, malformed
+        response) the finding is returned with ``ai_enrichment.enriched`` False.
         """
-        if self.circuit_breaker.is_open():
-            logger.warning(
-                "circuit_breaker_open",
-                state=self.circuit_breaker.state,
-            )
-            return findings
-
         if not self.api_key:
             logger.warning("ai_api_key_missing")
-            return findings
+            return [self._fallback(f, "api_key_missing") for f in findings]
 
         enriched: list[dict[str, Any]] = []
         for finding in findings:
-            enriched_finding = await self._enrich_single(finding)
-            enriched.append(enriched_finding)
+            # Consult the breaker before every call, not once per batch.
+            if self.circuit_breaker.is_open():
+                logger.warning("circuit_breaker_open", state=self.circuit_breaker.state)
+                enriched.append(self._fallback(finding, "circuit_breaker_open"))
+                continue
+            enriched.append(await self._enrich_single(finding))
 
         return enriched
+
+    @staticmethod
+    def _fallback(finding: dict[str, Any], reason: str) -> dict[str, Any]:
+        """Mark *finding* as not enriched (deterministic-only fallback)."""
+        finding["ai_enrichment"] = {"enriched": False, "reason": reason}
+        return finding
 
     # ── Internal ────────────────────────────
     async def _enrich_single(self, finding: dict[str, Any]) -> dict[str, Any]:
         """Call Perplexity API to classify one finding."""
         prompt = self._build_prompt(finding)
 
+        last_error = "no_attempt"
         for attempt in range(1, self.max_attempts + 1):
+            if self.circuit_breaker.is_open():
+                return self._fallback(finding, "circuit_breaker_open")
             try:
                 async with httpx.AsyncClient(timeout=30.0) as client:
                     resp = await client.post(
@@ -184,22 +190,27 @@ class AIEnrichmentEngine:
 
                 finding["ai_enrichment"] = {
                     **parsed,
+                    "enriched": True,
                     "model": self.model,
                     "enriched_at": datetime.now(tz=timezone.utc).isoformat(),
                 }
                 self.circuit_breaker.record_success()
                 return finding
 
-            except (httpx.HTTPStatusError, httpx.ReadTimeout, KeyError) as exc:
+            # httpx.HTTPError covers every transport error, timeout and status
+            # error; ValueError covers a non-JSON body (json.JSONDecodeError);
+            # KeyError/IndexError/TypeError cover a malformed response shape.
+            except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError) as exc:
+                last_error = f"{type(exc).__name__}: {exc}"
                 logger.warning(
                     "ai_enrichment_attempt_failed",
                     attempt=attempt,
-                    error=str(exc),
+                    error=last_error,
                 )
                 if attempt == self.max_attempts:
                     self.circuit_breaker.record_failure()
 
-        return finding  # Return un-enriched on exhaustion
+        return self._fallback(finding, last_error)
 
     def _build_prompt(self, finding: dict[str, Any]) -> str:
         """Build the enrichment prompt for one finding."""
