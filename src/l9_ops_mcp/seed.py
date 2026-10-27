@@ -13,6 +13,7 @@ import sys
 from datetime import datetime, timezone
 
 from .graphiti_client import get_graphiti
+from .trust_ladder import GLOBAL_DECISIONS
 
 
 def _find() -> pathlib.Path | None:
@@ -36,18 +37,18 @@ async def seed(path: pathlib.Path | None = None) -> None:
         return
     chunks = _chunk(target.read_text(encoding="utf-8"))
     g = await get_graphiti()
-    print(f"Seeding {len(chunks)} chunks -> global:decisions ...")
+    print(f"Seeding {len(chunks)} chunks -> {GLOBAL_DECISIONS} ...")
     for i, chunk in enumerate(chunks):
         await g.add_episode(
             name=f"canonical-law-{i:04d}",
             episode_body=chunk,
             source_description="CANONICAL_LAW.md",
-            group_id="global:decisions",
+            group_id=GLOBAL_DECISIONS,
             reference_time=datetime.now(timezone.utc),
         )
         if i % 5 == 0:
             print(f"  {i + 1}/{len(chunks)}")
-    print(f"Done: {len(chunks)} episodes written to global:decisions.")
+    print(f"Done: {len(chunks)} episodes written to {GLOBAL_DECISIONS}.")
 
 
 def main() -> None:

@@ -124,13 +124,14 @@ async def memory_ingest_episode(
     Low-quality or low-trust writes are quarantined, not silently admitted."""
     from .memory_ops import ingest_episode
     from .models import MemoryCandidate
+    from .trust_ladder import SESSION_CURRENT
 
     c = MemoryCandidate(
         body=body,
         source_agent_id=source_agent_id,
         session_id=session_id,
         origin_timestamp=datetime.now(timezone.utc),
-        group_ids=group_ids or ["session:current"],
+        group_ids=group_ids or [SESSION_CURRENT],
         semantic_score=semantic_score,
         trust_level=trust_level,  # type: ignore[arg-type]
     )

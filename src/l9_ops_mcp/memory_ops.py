@@ -5,6 +5,7 @@ from __future__ import annotations
 from . import admission
 from .graphiti_client import get_graphiti
 from .models import MemoryCandidate
+from .trust_ladder import SESSION_CURRENT, normalize_group_id
 
 
 async def _dedup(body: str) -> bool:
@@ -14,6 +15,7 @@ async def _dedup(body: str) -> bool:
 
 
 async def ingest_episode(c: MemoryCandidate) -> dict[str, object]:
+    target_group = normalize_group_id((c.group_ids or [SESSION_CURRENT])[0])
     ok, disp = await admission.evaluate(c, _dedup)
     if not ok:
         return {"admitted": False, "disposition": disp}
@@ -23,7 +25,7 @@ async def ingest_episode(c: MemoryCandidate) -> dict[str, object]:
         episode_body=c.body,
         source_description=f"L9/{c.source_agent_id}",
         reference_time=c.origin_timestamp,
-        group_id=(c.group_ids or ["session:current"])[0],
+        group_id=target_group,
     )
     return {
         "admitted": True,

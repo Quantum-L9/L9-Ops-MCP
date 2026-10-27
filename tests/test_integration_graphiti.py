@@ -31,7 +31,23 @@ async def test_ingest_admitted():
         body="Integration test: Graphiti is the L9 graph backend.",
         source_agent_id="test-agent",
         session_id="s-integration",
-        group_ids=["session:s-integration"],
+        group_ids=["session__s-integration"],
+        semantic_score=0.95,
+    )
+    result = await ingest_episode(c)
+    assert result["admitted"] is True
+
+
+@pytest.mark.asyncio
+async def test_ingest_default_group_accepted():
+    """RG-01 live: the default ingest group (session__current) is accepted by graphiti-core."""
+    from l9_ops_mcp.memory_ops import ingest_episode
+    from l9_ops_mcp.models import MemoryCandidate
+
+    c = MemoryCandidate(
+        body="Integration test: default ingest group is graphiti-valid.",
+        source_agent_id="test-agent",
+        session_id="s-integration",
         semantic_score=0.95,
     )
     result = await ingest_episode(c)
