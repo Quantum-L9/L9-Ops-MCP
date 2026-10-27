@@ -28,6 +28,7 @@ from .kernel_models import (
     KernelNotFoundError,
     KernelRequestInvalidError,
     KernelResolutionRequest,
+    KernelSchemaInvalidError,
 )
 from .kernel_registry import KernelRegistry
 from .kernel_resolver import KernelResolver
@@ -206,10 +207,14 @@ async def kernel_resolve(
     the stable error-code taxonomy.
 
     Every failure path returns the ``{status: 'error', code, message}``
-    envelope. Non-``KernelAuthorityError`` exceptions (bad input types,
-    NaN/Inf floats, IO errors on registry load) are caught and mapped to
-    ``KERNEL_REQUEST_INVALID`` or ``KERNEL_NOT_FOUND`` so the MCP boundary
-    never leaks a raw Python traceback to callers.
+    envelope. Caller faults (bad input types, NaN/Inf floats) map to
+    ``KERNEL_REQUEST_INVALID``. Repository-state faults while loading the
+    registry (missing, unreadable or malformed index / schema / kernel) are
+    mapped by ``kernel_registry`` to repository codes (``KERNEL_NOT_FOUND``,
+    ``KERNEL_INDEX_ENTRY_MISSING``, ``KERNEL_SCHEMA_INVALID``); any other
+    load-time fault is reported as ``KERNEL_NOT_FOUND`` (I/O) or
+    ``KERNEL_SCHEMA_INVALID`` (data), never as a caller fault, so the MCP
+    boundary never leaks a raw Python traceback to callers.
 
     This tool is normative authority. It does NOT read Graphiti, memory, or
     an LLM.
@@ -226,7 +231,25 @@ async def kernel_resolve(
             requested_kernel_ids=(),
             allow_experimental=bool(allow_experimental),
         )
+    except KernelAuthorityError as exc:
+        return exc.to_dict()
+    except (TypeError, ValueError) as exc:
+        return KernelRequestInvalidError(f"malformed kernel_resolve request: {exc}").to_dict()
+
+    try:
         resolver = _get_resolver()
+    except KernelAuthorityError as exc:
+        return exc.to_dict()
+    except OSError as exc:
+        # Repository state could not be read (missing or unreadable index,
+        # canonical kernel, or schema).
+        return KernelNotFoundError(f"kernel authority load failed: {exc}").to_dict()
+    except (TypeError, ValueError) as exc:
+        # Malformed repository data surfaced outside the registry's own
+        # mapping. This is a repository fault, not a caller fault.
+        return KernelSchemaInvalidError(f"kernel authority load failed: {exc}").to_dict()
+
+    try:
         resolution = resolver.resolve(request)
     except KernelAuthorityError as exc:
         return exc.to_dict()
@@ -234,11 +257,6 @@ async def kernel_resolve(
         # Malformed input types that reached the domain layer despite the
         # coercion guard. Map to the stable request-invalid envelope.
         return KernelRequestInvalidError(f"malformed kernel_resolve request: {exc}").to_dict()
-    except FileNotFoundError as exc:
-        # Registry load hit missing repository state (retrieval index,
-        # canonical kernel, or schema). Surface as KERNEL_NOT_FOUND rather
-        # than a raw OSError traceback.
-        return KernelNotFoundError(f"kernel authority load failed: {exc}").to_dict()
 
     payload = resolution.to_dict()
     payload["status"] = "ok"

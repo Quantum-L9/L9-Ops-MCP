@@ -35,8 +35,10 @@ from typing import Any
 
 import yaml
 from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError
 
 from .kernel_models import (
+    KernelAuthorityError,
     KernelDefinition,
     KernelDigestMismatchError,
     KernelDuplicateIdError,
@@ -119,9 +121,36 @@ def _resolve_within_repo(repo_root: Path, rel: str) -> Path:
     return joined
 
 
+def _read_repo_text(path: Path, rel: str, on_corrupt: type[KernelAuthorityError]) -> str:
+    """Read repository state, mapping I/O and decoding faults to repository codes.
+
+    A missing file is ``KERNEL_NOT_FOUND``; any other OS error (e.g. the path
+    is a directory or unreadable) or undecodable bytes is ``on_corrupt``.
+    """
+
+    try:
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise KernelNotFoundError(f"{rel} not found: {exc}") from exc
+    except (OSError, UnicodeDecodeError) as exc:
+        raise on_corrupt(f"{rel} unreadable: {type(exc).__name__}: {exc}") from exc
+
+
 def _load_canonical_schema(repo_root: Path) -> dict[str, Any]:
     schema_path = _resolve_within_repo(repo_root, CANONICAL_SCHEMA_PATH)
-    loaded: dict[str, Any] = json.loads(schema_path.read_text(encoding="utf-8"))
+    text = _read_repo_text(schema_path, CANONICAL_SCHEMA_PATH, KernelSchemaInvalidError)
+    try:
+        loaded = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise KernelSchemaInvalidError(f"{CANONICAL_SCHEMA_PATH} is not valid JSON: {exc}") from exc
+    if not isinstance(loaded, dict):
+        raise KernelSchemaInvalidError(f"{CANONICAL_SCHEMA_PATH} is not a JSON object")
+    try:
+        Draft202012Validator.check_schema(loaded)
+    except SchemaError as exc:
+        raise KernelSchemaInvalidError(
+            f"{CANONICAL_SCHEMA_PATH} is not a valid JSON Schema: {exc.message}"
+        ) from exc
     return loaded
 
 
@@ -140,7 +169,10 @@ def _parse_yaml_kernel(raw_text: str) -> dict[str, Any]:
     m_front = _L9_META_YAML_HEADER_RE.search(body)
     if m_front is not None and m_front.start() == 0:
         body = body[m_front.end() :]
-    doc = yaml.safe_load(body)
+    try:
+        doc = yaml.safe_load(body)
+    except yaml.YAMLError as exc:
+        raise KernelNotFoundError(f"YAML kernel failed to parse: {exc}") from exc
     if doc is None:
         return {}
     if not isinstance(doc, dict):
@@ -248,7 +280,13 @@ def _apply_mechanical_derivations(meta: dict[str, Any]) -> None:
 
 def _read_index(repo_root: Path) -> dict[str, dict[str, Any]]:
     index_path = _resolve_within_repo(repo_root, RETRIEVAL_INDEX_FILENAME)
-    doc = yaml.safe_load(index_path.read_text(encoding="utf-8"))
+    text = _read_repo_text(index_path, RETRIEVAL_INDEX_FILENAME, KernelIndexEntryMissingError)
+    try:
+        doc = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise KernelIndexEntryMissingError(
+            f"{RETRIEVAL_INDEX_FILENAME} is not valid YAML: {exc}"
+        ) from exc
     if not isinstance(doc, dict):
         raise KernelIndexEntryMissingError(f"{RETRIEVAL_INDEX_FILENAME} is not a mapping")
     files = doc.get("files")
@@ -317,14 +355,22 @@ class KernelRegistry:
             indexed_sha = files[rel].get("sha256")
             if not isinstance(indexed_sha, str):
                 raise KernelIndexEntryMissingError(f"index entry for {rel} has no sha256")
-            raw_bytes = abs_path.read_bytes()
+            try:
+                raw_bytes = abs_path.read_bytes()
+            except OSError as exc:
+                raise KernelNotFoundError(
+                    f"indexed canonical kernel unreadable: {rel}: {type(exc).__name__}: {exc}"
+                ) from exc
             verified_sha = sha256_bytes(raw_bytes)
             if verified_sha != indexed_sha:
                 raise KernelDigestMismatchError(
                     f"integrity failure for {rel}: "
                     f"indexed={indexed_sha[:12]} verified={verified_sha[:12]}"
                 )
-            text = raw_bytes.decode("utf-8")
+            try:
+                text = raw_bytes.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise KernelSchemaInvalidError(f"kernel at {rel} is not UTF-8: {exc}") from exc
             if rel.endswith(".md"):
                 meta = _parse_markdown_kernel(text, rel)
             else:
@@ -426,7 +472,13 @@ class KernelRegistry:
 
         for kernel in self._kernels.values():
             abs_path = _resolve_within_repo(self._repo_root, kernel.canonical_path)
-            verified = sha256_file(abs_path)
+            try:
+                verified = sha256_file(abs_path)
+            except OSError as exc:
+                raise KernelNotFoundError(
+                    f"registered kernel unreadable: {kernel.canonical_path}: {exc}",
+                    kernel_id=kernel.kernel_id,
+                ) from exc
             if verified != kernel.sha256:
                 raise KernelDigestMismatchError(
                     f"integrity drift for {kernel.canonical_path}: "
