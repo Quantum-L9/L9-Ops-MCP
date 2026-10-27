@@ -64,8 +64,10 @@ health:
 # --------------------------------------------------------------------------
 lint:
 	@echo "=== YAML Lint ==="
-	@find docs/kernels -name "*.yaml" -exec python3 -c "import yaml,sys; yaml.safe_load(open(sys.argv[1]))" {} \; && echo "All YAML valid"
-	@find skills -name "*.yaml" -exec python3 -c "import yaml,sys; yaml.safe_load(open(sys.argv[1]))" {} \; && echo "All skill YAML valid"
+	@rc=0; for f in $$(find docs/kernels skills -name '*.yaml' | sort); do \
+		python3 -c "import sys, yaml; list(yaml.safe_load_all(open(sys.argv[1])))" "$$f" >/dev/null 2>&1 || { echo "INVALID $$f"; rc=1; }; \
+	done; \
+	if [ $$rc -eq 0 ]; then echo "All YAML valid"; fi; exit $$rc
 
 # --------------------------------------------------------------------------
 # EVAL — Promptfoo eval suite
