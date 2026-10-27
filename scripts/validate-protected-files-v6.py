@@ -221,6 +221,60 @@ def _check_base_ref(base_ref: str) -> None:
         raise ChangeSetError(f"invalid base ref {base_ref!r}: must name a revision")
 
 
+def _first_match(filepath: str, patterns: list[str], category: str) -> dict | None:
+    """Return the violation record for the first pattern ``filepath`` matches."""
+    for pattern in patterns:
+        if file_matches_pattern(filepath, pattern):
+            return {
+                "file": filepath,
+                "matched_pattern": pattern,
+                "category": category,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+    return None
+
+
+def _find_violations(
+    changed_files: list[str],
+    protected_patterns: list[str],
+    meta_patterns: list[str],
+) -> tuple[list[dict], list[dict]]:
+    """Split changed files into protected and meta-protected violations."""
+    violations: list[dict] = []
+    meta_violations: list[dict] = []
+
+    for filepath in changed_files:
+        # Check protected paths
+        violation = _first_match(filepath, protected_patterns, "protected")
+        if violation is not None:
+            violations.append(violation)
+
+        # Check meta-protected (self-protecting files)
+        meta_violation = _first_match(filepath, meta_patterns, "meta_protected")
+        if meta_violation is not None:
+            meta_violations.append(meta_violation)
+
+    return violations, meta_violations
+
+
+def _print_violation_banner(all_violations: list[dict]) -> None:
+    """Print the blocking banner listing every unapproved violation."""
+    print("\n" + "=" * 70)
+    print("🛡️  PROTECTED FILES GATE — VIOLATION DETECTED")
+    print("=" * 70)
+    print(f"\n{len(all_violations)} protected file(s) modified without approval:\n")
+
+    for v in all_violations:
+        prefix = "🔴 META" if v["category"] == "meta_protected" else "🟡 PROTECTED"
+        print(f"  {prefix}: {v['file']}")
+        print(f"           Pattern: {v['matched_pattern']}")
+
+    print("\n── How to fix ──")
+    print("  Option A: Add PR label LCTO_APPROVED or IGOR_APPROVED")
+    print("  Option B: Include HIL_APPROVED or IGOR_APPROVED in commit message")
+    print("=" * 70 + "\n")
+
+
 def validate(dry_run: bool = False, base_ref: str = "origin/main") -> int:
     """Main validation logic. Returns exit code (0=pass, 1=fail)."""
     policy = load_policy()
@@ -239,39 +293,11 @@ def validate(dry_run: bool = False, base_ref: str = "origin/main") -> int:
         write_report([], [], True, "no_changes")
         return 0
 
-    protected_patterns = get_all_protected_paths(policy)
-    meta_patterns = get_meta_protected_files(policy)
-
-    violations: list[dict] = []
-    meta_violations: list[dict] = []
-
-    for filepath in changed_files:
-        # Check protected paths
-        for pattern in protected_patterns:
-            if file_matches_pattern(filepath, pattern):
-                violations.append(
-                    {
-                        "file": filepath,
-                        "matched_pattern": pattern,
-                        "category": "protected",
-                        "timestamp": datetime.now(UTC).isoformat(),
-                    }
-                )
-                break
-
-        # Check meta-protected (self-protecting files)
-        for pattern in meta_patterns:
-            if file_matches_pattern(filepath, pattern):
-                meta_violations.append(
-                    {
-                        "file": filepath,
-                        "matched_pattern": pattern,
-                        "category": "meta_protected",
-                        "timestamp": datetime.now(UTC).isoformat(),
-                    }
-                )
-                break
-
+    violations, meta_violations = _find_violations(
+        changed_files,
+        get_all_protected_paths(policy),
+        get_meta_protected_files(policy),
+    )
     all_violations = violations + meta_violations
 
     if not all_violations:
@@ -298,20 +324,7 @@ def validate(dry_run: bool = False, base_ref: str = "origin/main") -> int:
         meta_count=len(meta_violations),
     )
 
-    print("\n" + "=" * 70)
-    print("🛡️  PROTECTED FILES GATE — VIOLATION DETECTED")
-    print("=" * 70)
-    print(f"\n{len(all_violations)} protected file(s) modified without approval:\n")
-
-    for v in all_violations:
-        prefix = "🔴 META" if v["category"] == "meta_protected" else "🟡 PROTECTED"
-        print(f"  {prefix}: {v['file']}")
-        print(f"           Pattern: {v['matched_pattern']}")
-
-    print("\n── How to fix ──")
-    print("  Option A: Add PR label LCTO_APPROVED or IGOR_APPROVED")
-    print("  Option B: Include HIL_APPROVED or IGOR_APPROVED in commit message")
-    print("=" * 70 + "\n")
+    _print_violation_banner(all_violations)
 
     if dry_run:
         print("DRY RUN — would have blocked merge")

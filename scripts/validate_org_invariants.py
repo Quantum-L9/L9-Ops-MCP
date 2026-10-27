@@ -42,35 +42,52 @@ def check_owner_invariant(text: str) -> list[str]:
     return problems
 
 
-def main(root: Path = ROOT) -> int:
-    policy = root / "ORG_INVARIANTS.yaml"
-    if not policy.exists():
-        print(status_line("FAIL", "ORG_INVARIANTS.yaml", "missing"))
-        return 1
-    failures = 0
+def _report_owner_invariant(policy: Path) -> int:
+    """Print the owner-invariant verdict; return the number of FAIL lines."""
     problems = check_owner_invariant(read(policy))
     for problem in problems:
         print(status_line("FAIL", "ORG_INVARIANTS.yaml", problem))
-        failures += 1
     if not problems:
         print(status_line("PASS", "ORG_INVARIANTS.yaml", "Quantum-L9 owner invariant present"))
+    return len(problems)
+
+
+def _scan_file(path: Path, root: Path) -> int:
+    """Print a FAIL line per forbidden owner pattern in ``path``; return the count."""
+    body = read(path)
+    failures = 0
+    for pat in FORBIDDEN_PATTERNS:
+        if re.search(pat, body):
+            print(
+                status_line(
+                    "FAIL",
+                    str(path.relative_to(root)),
+                    f"forbidden repo owner pattern: {pat}",
+                )
+            )
+            failures += 1
+    return failures
+
+
+def _scan_forbidden_owners(root: Path) -> int:
+    failures = 0
     scan_roots = [root / "playbooks", root / "docs", root / "schemas"]
     for base in scan_roots:
         if not base.exists():
             continue
         for path in base.rglob("*"):
             if path.is_file() and path.suffix in {".md", ".yaml", ".yml", ".json"}:
-                body = read(path)
-                for pat in FORBIDDEN_PATTERNS:
-                    if re.search(pat, body):
-                        print(
-                            status_line(
-                                "FAIL",
-                                str(path.relative_to(root)),
-                                f"forbidden repo owner pattern: {pat}",
-                            )
-                        )
-                        failures += 1
+                failures += _scan_file(path, root)
+    return failures
+
+
+def main(root: Path = ROOT) -> int:
+    policy = root / "ORG_INVARIANTS.yaml"
+    if not policy.exists():
+        print(status_line("FAIL", "ORG_INVARIANTS.yaml", "missing"))
+        return 1
+    failures = _report_owner_invariant(policy)
+    failures += _scan_forbidden_owners(root)
     return 1 if failures else 0
 
 

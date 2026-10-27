@@ -29,6 +29,42 @@ def check_handoff_schema(schema: Path) -> str | None:
     return None
 
 
+def _check_entrypoint(pb: Path, root: Path) -> int:
+    """Print the entrypoint verdict (and steps/ warning); return the FAIL count."""
+    failures = 0
+    entry = pb / "PLAYBOOK.md"
+    alt = pb / "playbook.yaml"
+    if not entry.exists() and not alt.exists():
+        print(status_line("FAIL", _rel(pb, root), "missing PLAYBOOK.md or playbook.yaml"))
+        failures += 1
+    else:
+        print(
+            status_line("PASS", _rel(entry if entry.exists() else alt, root), "entrypoint exists")
+        )
+    if not (pb / "steps").exists() and entry.exists():
+        print(status_line("WARN", _rel(pb, root), "markdown playbook has no steps/ directory"))
+    return failures
+
+
+def _check_handoffs(pb: Path, root: Path) -> int:
+    """Print a verdict per handoff schema; return the FAIL count."""
+    handoffs = pb / "handoffs"
+    if not handoffs.is_dir():
+        return 0
+    failures = 0
+    schemas = sorted(
+        p for p in handoffs.rglob("*") if p.is_file() and p.suffix in {".yaml", ".yml"}
+    )
+    for schema in schemas:
+        reason = check_handoff_schema(schema)
+        if reason:
+            print(status_line("FAIL", _rel(schema, root), reason))
+            failures += 1
+        else:
+            print(status_line("PASS", _rel(schema, root), "handoff schema is structural"))
+    return failures
+
+
 def main(root: Path = ROOT) -> int:
     playbooks = root / "playbooks"
     if not playbooks.is_dir():
@@ -38,31 +74,8 @@ def main(root: Path = ROOT) -> int:
     found = 0
     for pb in sorted(p for p in playbooks.iterdir() if p.is_dir()):
         found += 1
-        entry = pb / "PLAYBOOK.md"
-        alt = pb / "playbook.yaml"
-        if not entry.exists() and not alt.exists():
-            print(status_line("FAIL", _rel(pb, root), "missing PLAYBOOK.md or playbook.yaml"))
-            failures += 1
-        else:
-            print(
-                status_line(
-                    "PASS", _rel(entry if entry.exists() else alt, root), "entrypoint exists"
-                )
-            )
-        if not (pb / "steps").exists() and entry.exists():
-            print(status_line("WARN", _rel(pb, root), "markdown playbook has no steps/ directory"))
-        handoffs = pb / "handoffs"
-        if handoffs.is_dir():
-            schemas = sorted(
-                p for p in handoffs.rglob("*") if p.is_file() and p.suffix in {".yaml", ".yml"}
-            )
-            for schema in schemas:
-                reason = check_handoff_schema(schema)
-                if reason:
-                    print(status_line("FAIL", _rel(schema, root), reason))
-                    failures += 1
-                else:
-                    print(status_line("PASS", _rel(schema, root), "handoff schema is structural"))
+        failures += _check_entrypoint(pb, root)
+        failures += _check_handoffs(pb, root)
     if found == 0:
         print(status_line("BLOCKED", "playbooks", "no playbook directories found"))
         return 1
