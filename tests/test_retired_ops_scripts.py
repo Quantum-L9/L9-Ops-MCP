@@ -36,6 +36,9 @@ RETIRED: tuple[tuple[str, str], ...] = (
     # D-16 A: logged secrets, wrote during "dry-run" preflight, targeted a
     # foreign repository layout (.github/scripts, tests_l11/).
     ("scripts/DEPLOY-v3.3.sh", "D-16"),
+    # D-14 A: patched another repository's context-extractor.py with an
+    # unanchored regex (SyntaxError / truncated function) and reported success.
+    ("scripts/wire_governance_sink.py", "D-14"),
 )
 
 
@@ -65,3 +68,10 @@ def test_retired_script_is_not_invoked(path: str, decision: str) -> None:
     this_file = Path(__file__).resolve().relative_to(REPO_ROOT).as_posix()
     hits = [p for p in _tracked_files_referencing(name) if p != this_file]
     assert hits == [], f"{name} ({decision}) still referenced by: {hits}"
+
+
+def test_install_and_preflight_do_not_depend_on_the_retired_governance_sink() -> None:
+    """D-14 A: nothing in this repository installs graphiti_sink.py any more."""
+    for script in ("scripts/install.sh", "scripts/preflight.sh"):
+        text = (REPO_ROOT / script).read_text(encoding="utf-8")
+        assert "graphiti_sink" not in text, f"{script} still wires or checks graphiti_sink"

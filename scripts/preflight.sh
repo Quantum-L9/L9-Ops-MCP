@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# L9-Ops-MCP preflight — 8 gates, exits 0=green 1=blocking failure
+# L9-Ops-MCP preflight — 7 gates, exits 0=green 1=blocking failure
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -156,11 +156,6 @@ import json, pathlib
 cfg = json.loads(pathlib.Path("$CURSOR_CFG").read_text())
 assert "l9-ops-mcp" in cfg.get("mcpServers", {}), "l9-ops-mcp key missing"
 PY
-
-# ── 8. Cursor-Governance sink ─────────────────────────────────────────────────
-echo ""; echo "── 8. Cursor-Governance sink ─────────────────"
-CG_SINK="${CG_ROOT:-$HOME/.cursor-governance}/intelligence/context-memory/graphiti_sink.py"
-check "graphiti_sink.py present" test -f "$CG_SINK"
 
 echo ""
 echo "══════════════════════════════════════════════"

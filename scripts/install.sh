@@ -58,8 +58,4 @@ else
     log "Claude Desktop config NOT written (see message above)."
 fi
 
-# ── 7. Wire Cursor-Governance sink ────────────────────────────────────────────
-log "Wiring Cursor-Governance graphiti_sink..."
-python scripts/wire_governance_sink.py || log "Governance sink skipped (CG_ROOT not found)."
-
 log "Install complete. Run: bash scripts/preflight.sh"
