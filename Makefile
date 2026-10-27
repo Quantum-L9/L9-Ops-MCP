@@ -10,7 +10,7 @@
 PYTHON ?= python3
 
 .PHONY: help setup validate health skill-audit playbook-audit wiring ci eval zip \
-        progressive-disclosure hardban-audit impact convergence command-parity \
+        progressive-disclosure hardban-audit convergence command-parity \
         mcp-dev preflight graph-export graph-verify graph-sync \
         pr-fix pr-fix-dry pr-fix-propose pr-fix-verify pr-fix-learn
 
@@ -20,8 +20,7 @@ help: ## Show available commands
 setup: ## Install declared package dependencies when pyproject is present
 	@if command -v uv >/dev/null 2>&1; then uv sync --locked || uv sync; else $(PYTHON) -m pip install -e ".[dev]"; fi
 
-validate: ## Run structural repo validation
-	$(PYTHON) scripts/validate_wiring.py --all
+validate: wiring ## Run structural repo validation (alias of wiring)
 
 health: ## Run library health checks
 	bash scripts/library_health.sh
@@ -32,17 +31,19 @@ skill-audit: ## Validate skill installability
 playbook-audit: ## Validate playbook schemas and wiring
 	$(PYTHON) scripts/validate_playbooks.py
 
-wiring: ## Validate AGENTS, workflows, Makefile, README, schemas, and pyproject entrypoints
-	$(PYTHON) scripts/validate_wiring.py --all
+wiring: ## Validate skills, playbooks, README/Makefile parity, org invariants, upload routing, and pyproject entrypoints
+	$(PYTHON) scripts/validate_skill_installability.py
+	$(PYTHON) scripts/validate_playbooks.py
+	$(PYTHON) scripts/validate_command_parity.py
+	$(PYTHON) scripts/validate_org_invariants.py
+	$(PYTHON) scripts/validate_upload_router.py
+	$(PYTHON) scripts/validate_pyproject_entrypoints.py
 
 progressive-disclosure: ## Enforce progressive disclosure rules
 	bash scripts/enforce_progressive_disclosure.sh
 
 hardban-audit: ## Audit duplicate hard bans and copied doctrine fragments
 	bash scripts/audit_hardban_duplication.sh
-
-impact: ## Analyze repo impact surface
-	$(PYTHON) scripts/impact_analysis.py --all
 
 convergence: ## Report convergence status
 	$(PYTHON) scripts/convergence_tracker.py
@@ -54,7 +55,6 @@ ci: ## Run complete local CI-equivalent proof gate
 	$(MAKE) health
 	$(MAKE) progressive-disclosure
 	$(MAKE) hardban-audit
-	$(MAKE) impact
 	$(MAKE) convergence
 	$(MAKE) wiring
 	@if command -v ruff >/dev/null 2>&1; then ruff check scripts src tests || true; fi

@@ -28,9 +28,3 @@ repos:
         entry: bash scripts/library_health.sh
         language: system
         pass_filenames: false
-
-      - id: l9-wiring-validation
-        name: Wiring validation
-        entry: python3 scripts/validate_wiring.py --all
-        language: system
-        pass_filenames: false
