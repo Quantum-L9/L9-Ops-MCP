@@ -3,14 +3,16 @@
 # REVISION v3.3 — Carries forward all v3.2 Gap A–D fixes + adds:
 #   NEW Job 7: Protected Files Gate (blocking)
 #   NEW Job 8: Drift Reconciliation (nightly)
-#   Merge Gate updated: 8 required checks (was 7)
+#   Merge Gate updated: 8 required checks (was 7); reduced to 5 by D-10 A (below)
 #
-# Gap A: --errors-only flag on ADR compliance check
-# Gap B: ci/run_ci_gates.sh --all umbrella script added
 # Gap C: Job names match existing ci.yml for branch protection
 # Gap D: Replaces ci.yml (this is the single source of truth)
-# +v3.2: DORA header injection via inject_dora_complete.py
-# +v3.3: Protected Files Gate + Drift Reconciliation + 8-check merge gate
+# +v3.2: DORA header report via inject_dora_complete.py --dry-run
+# +v3.3: Protected Files Gate + Drift Reconciliation
+# D-10 A: removed jobs that reported success without doing their work —
+#   ADR Compliance and CI Gates (every check was conditional on absent ci/
+#   scripts) and the AI Enrichment / Debt Graph Update / Nightly Maintenance
+#   placeholders (print-only). The merge gate now aggregates 5 jobs.
 #
 # DORA:
 #   component_id: l11-ci-workflow
@@ -53,10 +55,6 @@ on:
         description: "Directories to scan (space-separated)"
         required: false
         default: "core/ api/ agents/ memory/"
-      enable_ai:
-        description: "Enable AI enrichment"
-        type: boolean
-        default: true
 
 concurrency:
   group: l11-${{ github.ref }}
@@ -182,23 +180,19 @@ jobs:
           path: bandit-report.json
 
   # ════════════════════════════════════════════════════════════
-  # JOB 2: ADR Compliance
+  # DORA Header Report (report-only — NOT a check, not a merge-gate input)
   # ────────────────────────────────────────────────────────────
-  # Gap A: Uses --errors-only (not --strict) per existing ci.yml
-  # Gap C: Name matches BRANCH_PROTECTION_AND_CI.md exactly
-  # +NEW: Runs inject_dora_complete.py --dry-run first.
-  #       If missing DORA headers → auto-inject → commit → push.
+  # Runs inject_dora_complete.py --dry-run and publishes its report. The
+  # count of files missing headers is reported, not enforced (HEAD has many).
+  # The step fails only if the tool produces no report.
   # ════════════════════════════════════════════════════════════
-  adr-compliance:
-    name: "ADR Compliance"
+  dora-report:
+    name: "📄 DORA Header Report (report-only)"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -210,62 +204,20 @@ jobs:
           pip install --upgrade pip
           pip install -e '.[dev]'
 
-      # ── DORA header dry-run report (informational; does not auto-commit) ──
-      - name: Check DORA Headers (dry-run)
+      - name: DORA Header Report (report-only)
         id: dora_check
         run: |
-          if [ -f scripts/inject_dora_complete.py ]; then
-            python scripts/inject_dora_complete.py --repo . --dry-run --report dora_dryrun_report.json \
-              || echo '{"header_injected": 0}' > dora_dryrun_report.json
-          else
-            echo '{"header_injected": 0}' > dora_dryrun_report.json
+          rm -f dora_dryrun_report.json
+          status=0
+          python scripts/inject_dora_complete.py --repo . --dry-run \
+            --report dora_dryrun_report.json || status=$?
+          if [ ! -s dora_dryrun_report.json ]; then
+            echo "::error::inject_dora_complete.py produced no report (exit $status)"
+            exit 1
           fi
-          MISSING=$(python -c "import json; print(json.load(open('dora_dryrun_report.json')).get('header_injected', 0))")
+          MISSING=$(python -c "import json; print(json.load(open('dora_dryrun_report.json'))['header_injected'])")
           echo "missing_headers=$MISSING" >> "$GITHUB_OUTPUT"
-          echo "DORA dry-run: $MISSING file(s) missing headers (report only)."
-
-      # ── ADR sub-checks: run each only if its script is present ──
-      - name: ADR Compliance Check
-        run: |
-          if [ -f ci/check_adr_compliance.py ]; then
-            python ci/check_adr_compliance.py --errors-only
-          else
-            echo "ci/check_adr_compliance.py not present — skipping"
-          fi
-
-      - name: Import Validation
-        run: |
-          if [ -f ci/check_imports.py ]; then
-            python ci/check_imports.py
-          else
-            echo "ci/check_imports.py not present — skipping"
-          fi
-
-      - name: Memory Bypass Check
-        run: |
-          if [ -f ci/check_memory_bypass.py ]; then
-            python ci/check_memory_bypass.py
-          else
-            echo "ci/check_memory_bypass.py not present — skipping"
-          fi
-
-      - name: Credential Leak Check
-        run: |
-          if [ -f ci/check_credentials.py ]; then
-            python ci/check_credentials.py 2>/dev/null || true
-          else
-            echo "ci/check_credentials.py not present — skipping"
-          fi
-
-      - name: DORA Block Validation
-        run: |
-          if [ -f ci/validate_dora_blocks.py ]; then
-            python ci/validate_dora_blocks.py
-          elif [ -f ci/dora_compliance_check.py ]; then
-            python ci/dora_compliance_check.py
-          else
-            echo "DORA block validators not present — skipping"
-          fi
+          echo "DORA report (report-only, not a check): $MISSING file(s) missing headers; tool exit $status."
 
       - name: Upload DORA Report
         if: always()
@@ -274,41 +226,6 @@ jobs:
           name: l11-dora-report
           path: dora_dryrun_report.json
           if-no-files-found: ignore
-
-  # ════════════════════════════════════════════════════════════
-  # JOB 3: CI Gates
-  # ────────────────────────────────────────────────────────────
-  # Gap B: Calls ci/run_ci_gates.sh --all (umbrella script)
-  # Gap C: Name matches BRANCH_PROTECTION_AND_CI.md exactly
-  # ════════════════════════════════════════════════════════════
-  ci-gates:
-    name: "CI Gates"
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -e '.[dev]'
-
-      # ── Gap B: Run the umbrella script if present ──
-      - name: CI Gates (umbrella)
-        run: |
-          if [ -f ci/run_ci_gates.sh ]; then
-            bash ci/run_ci_gates.sh --all
-          else
-            echo "ci/run_ci_gates.sh not present — skipping umbrella gates"
-          fi
 
   # ════════════════════════════════════════════════════════════
   # JOB 4: Secrets Scan (Gitleaks)
@@ -463,7 +380,7 @@ jobs:
   # ════════════════════════════════════════════════════════════
   # MERGE GATE — blocks merge until ALL blocking jobs pass
   # ────────────────────────────────────────────────────────────
-  # v3.3: 8 required checks (added protected-files)
+  # D-10 A: ADR Compliance and CI Gates removed (they checked nothing).
   # ════════════════════════════════════════════════════════════
   merge-gate:
     name: "✅ Merge Gate"
@@ -471,19 +388,15 @@ jobs:
     if: always()
     needs:
       - lint-typecheck-test     # Job 1
-      - adr-compliance          # Job 2
-      - ci-gates                # Job 3
       - secrets-scan            # Job 4
       - test-suite              # Job 5
       - l11-tests               # Job 6
-      - protected-files         # Job 7  ← NEW in v3.3
+      - protected-files         # Job 7
     steps:
       - name: Check All Gates
         run: |
           echo "Gate Results:"
           echo "  Lint, typecheck, test-fast:  ${{ needs.lint-typecheck-test.result }}"
-          echo "  ADR Compliance:              ${{ needs.adr-compliance.result }}"
-          echo "  CI Gates:                    ${{ needs.ci-gates.result }}"
           echo "  Secrets Scan:                ${{ needs.secrets-scan.result }}"
           echo "  Tests + Coverage:            ${{ needs.test-suite.result }}"
           echo "  L11 Component Tests:         ${{ needs.l11-tests.result }}"
@@ -498,8 +411,6 @@ jobs:
 
           if [[ \
             "${{ needs.lint-typecheck-test.result }}" == "success" && \
-            "${{ needs.adr-compliance.result }}" == "success" && \
-            "${{ needs.ci-gates.result }}" == "success" && \
             "${{ needs.secrets-scan.result }}" == "success" && \
             "${{ needs.test-suite.result }}" == "success" && \
             "${{ needs.l11-tests.result }}" == "success" && \
@@ -510,130 +421,6 @@ jobs:
             echo "❌ One or more gates failed. Merge blocked."
             exit 1
           fi
-
-  # ════════════════════════════════════════════════════════════
-  # AI ENRICHMENT (non-blocking, post-merge / nightly / manual)
-  # ════════════════════════════════════════════════════════════
-  ai-enrichment:
-    name: "🤖 AI Enrichment"
-    runs-on: ubuntu-latest
-    needs: lint-typecheck-test
-    if: |
-      (github.event_name == 'schedule') ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'workflow_dispatch' && inputs.enable_ai)
-    timeout-minutes: 30
-    continue-on-error: true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Dependencies
-        run: pip install httpx structlog pyyaml
-
-      - name: Run AI Enrichment
-        env:
-          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-        run: |
-          python -c "
-          import asyncio
-          # In production: from scripts.l11.ai_enrichment_engine import AIEnrichmentEngine
-          print('AI enrichment: configure PERPLEXITY_API_KEY secret to enable')
-          "
-
-  # ════════════════════════════════════════════════════════════
-  # DEBT GRAPH UPDATE (non-blocking)
-  # ════════════════════════════════════════════════════════════
-  debt-graph-update:
-    name: "📊 Debt Graph Update"
-    runs-on: ubuntu-latest
-    needs: lint-typecheck-test
-    if: always()
-    timeout-minutes: 10
-    continue-on-error: true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Dependencies
-        run: pip install neo4j structlog pyyaml
-
-      - name: Update Debt Graph
-        env:
-          NEO4J_URI: ${{ secrets.NEO4J_URI }}
-          NEO4J_USER: ${{ secrets.NEO4J_USER }}
-          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
-        run: |
-          python -c "
-          import asyncio
-          from pathlib import Path
-          # In production: from scripts.l11.debt_graph_service import DebtGraphService
-          print('Debt graph update: configure Neo4j secrets to enable')
-          "
-
-  # ════════════════════════════════════════════════════════════
-  # NIGHTLY MAINTENANCE
-  # ════════════════════════════════════════════════════════════
-  nightly-maintenance:
-    name: "🌙 Nightly Maintenance"
-    runs-on: ubuntu-latest
-    if: github.event_name == 'schedule'
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Dependencies
-        run: pip install neo4j structlog pyyaml
-
-      - name: Apply Aging Policy
-        env:
-          NEO4J_URI: ${{ secrets.NEO4J_URI }}
-          NEO4J_USER: ${{ secrets.NEO4J_USER }}
-          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
-        run: |
-          python -c "
-          import asyncio
-          # In production: DebtGraphService.apply_aging_policy()
-          print('Aging policy: configure Neo4j secrets to enable')
-          "
-
-      - name: Detect Regressions
-        env:
-          NEO4J_URI: ${{ secrets.NEO4J_URI }}
-          NEO4J_USER: ${{ secrets.NEO4J_USER }}
-          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
-        run: |
-          python -c "
-          import asyncio
-          # In production: DebtGraphService.detect_regressions()
-          print('Regression detection: configure Neo4j secrets to enable')
-          "
-
-      - name: Post Slack Summary
-        if: always()
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          curl -X POST "$SLACK_WEBHOOK_URL" \
-            -H 'Content-Type: application/json' \
-            -d '{"text":"L11 Nightly Maintenance Complete. Check Grafana: l11-debt"}' \
-            || echo "Slack notification skipped (webhook not configured)"
 
   # ════════════════════════════════════════════════════════════
   # DRIFT RECONCILIATION (nightly)  ← NEW in v3.3
@@ -691,7 +478,7 @@ jobs:
           fi
 
           # Check 5: L11 modules exist
-          for module in orchestrator deterministic_engine ai_enrichment_engine debt_graph_service risk_scorer auto_fix_engine; do
+          for module in orchestrator deterministic_engine ai_enrichment_engine debt_graph_service risk_scorer; do
             if [ ! -f "scripts/l11/${module}.py" ]; then
               DRIFT_COUNT=$((DRIFT_COUNT + 1))
               DRIFT_ISSUES="${DRIFT_ISSUES}- WARN: scripts/l11/${module}.py missing\n"

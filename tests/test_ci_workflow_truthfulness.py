@@ -335,3 +335,61 @@ def test_merge_gate_needs_existing_jobs() -> None:
     script = jobs["merge-gate"]["steps"][0]["run"]
     for need in needs:
         assert f"needs.{need}.result" in script, need
+
+
+# ── F-039 / D-10 A: no job reports success for work it does not perform ─
+
+PLACEHOLDER_JOBS = ("ai-enrichment", "debt-graph-update", "nightly-maintenance")
+ABSENT_CHECK_JOBS = ("adr-compliance", "ci-gates")
+SCRIPT_REF = re.compile(r"(?<![\w$/.-])((?:ci|scripts)/[\w./-]+\.(?:py|sh))")
+
+
+@pytest.mark.parametrize("job", PLACEHOLDER_JOBS + ABSENT_CHECK_JOBS)
+def test_vacuous_job_removed(job: str) -> None:
+    jobs = _workflow()["jobs"]
+    assert job not in jobs
+    assert job not in jobs["merge-gate"]["needs"]
+
+
+def test_every_referenced_script_exists() -> None:
+    missing = []
+    for job_id, job in _workflow()["jobs"].items():
+        for step in job.get("steps", []):
+            for ref in SCRIPT_REF.findall(step.get("run", "")):
+                if not (REPO_ROOT / ref).is_file():
+                    missing.append(f"{job_id}/{step.get('name')}: {ref}")
+    assert missing == []
+
+
+def test_no_step_or_job_swallows_failure() -> None:
+    for job_id, job in _workflow()["jobs"].items():
+        assert "continue-on-error" not in job, job_id
+        for step in job.get("steps", []):
+            assert "continue-on-error" not in step, f"{job_id}/{step.get('name')}"
+            assert "|| true" not in step.get("run", ""), f"{job_id}/{step.get('name')}"
+
+
+def test_dora_report_step_fails_when_no_report_is_produced(tmp_path: Path) -> None:
+    work = tmp_path / "work"
+    (work / "scripts").mkdir(parents=True)
+    (work / "scripts" / "inject_dora_complete.py").write_text("import sys\nsys.exit(2)\n")
+    runner = Runner(tmp_path, work)
+    proc = runner.run("dora-report", "DORA Header Report (report-only)")
+    assert proc.returncode != 0, proc.stdout + proc.stderr
+    assert not (work / "dora_dryrun_report.json").exists()
+
+
+def test_dora_report_step_reports_tool_count(tmp_path: Path) -> None:
+    work = tmp_path / "work"
+    (work / "scripts").mkdir(parents=True)
+    (work / "scripts" / "inject_dora_complete.py").write_text(
+        "import json, sys\n"
+        "path = sys.argv[sys.argv.index('--report') + 1]\n"
+        "json.dump({'header_injected': 3}, open(path, 'w'))\n"
+        "sys.exit(1)\n"
+    )
+    runner = Runner(tmp_path, work)
+    proc = runner.run("dora-report", "DORA Header Report (report-only)")
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "3 file(s) missing headers" in proc.stdout
+    assert runner.ctx["steps.dora_check.outputs.missing_headers"] == "3"
