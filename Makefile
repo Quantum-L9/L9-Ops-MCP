@@ -8,6 +8,9 @@
 
 .DEFAULT_GOAL := help
 PYTHON ?= python3
+GRAPH_INDEX ?= AGENT_RETRIEVAL_INDEX.yaml
+GRAPH_OUT ?= dist/graph
+GRAPH_SEED := $(GRAPH_OUT)/graph-seed.jsonl
 
 .PHONY: help setup validate health skill-audit playbook-audit wiring ci eval zip \
         progressive-disclosure hardban-audit convergence command-parity \
@@ -72,14 +75,14 @@ mcp-dev: ## Run MCP server locally
 preflight: ## Run runtime preflight when present
 	@if [ -x scripts/preflight.sh ]; then bash scripts/preflight.sh; else echo "BLOCKED: scripts/preflight.sh missing or not executable"; exit 1; fi
 
-graph-export: ## Export artifact metadata to graph seed
-	$(PYTHON) scripts/export_graph_seed.py --index ./out/meta/retrieval-index.json --manifest ./out/meta/artifact-manifest.json --out ./out/graph/graph-seed.jsonl
+graph-export: ## Export AGENT_RETRIEVAL_INDEX.yaml to a graph seed (GRAPH_OUT, default dist/graph)
+	$(PYTHON) scripts/export_graph_seed.py --index $(GRAPH_INDEX) --repo-root . --out $(GRAPH_SEED)
 
-graph-verify: ## Verify graph seed schema
-	$(PYTHON) scripts/verify_graph.py --seed ./out/graph/graph-seed.jsonl --schema schemas/graph-seed.schema.json
+graph-verify: graph-export ## Verify the graph seed against schemas/graph-seed.schema.json
+	$(PYTHON) scripts/verify_graph.py --seed $(GRAPH_SEED) --schema schemas/graph-seed.schema.json
 
-graph-sync: ## Sync graph seed to Graphiti
-	$(PYTHON) scripts/sync_graph.py --seed ./out/graph/graph-seed.jsonl
+graph-sync: ## Export, verify and ingest the graph seed into the local JSONL report sink (no live Graphiti)
+	$(PYTHON) scripts/sync_graph.py --index $(GRAPH_INDEX) --repo-root . --seed $(GRAPH_SEED) --report $(GRAPH_OUT)/ingest-report.json
 
 pr-fix: ## Run PR repair workflow
 	$(PYTHON) -m pr_repair.cli run --mode repair_and_verify

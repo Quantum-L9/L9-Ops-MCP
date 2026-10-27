@@ -3,10 +3,12 @@
   "additionalProperties": false,
   "oneOf": [
     {
+      "not": {
+        "required": [
+          "edge"
+        ]
+      },
       "properties": {
-        "artifact": {
-          "$ref": "artifact-node.schema.json"
-        },
         "record_type": {
           "const": "artifact_node"
         }
@@ -17,10 +19,12 @@
       ]
     },
     {
+      "not": {
+        "required": [
+          "artifact"
+        ]
+      },
       "properties": {
-        "edge": {
-          "$ref": "artifact-edge.schema.json"
-        },
         "record_type": {
           "const": "artifact_edge"
         }
@@ -30,6 +34,23 @@
         "edge"
       ]
     }
+  ],
+  "properties": {
+    "artifact": {
+      "$ref": "artifact-node.schema.json"
+    },
+    "edge": {
+      "$ref": "artifact-edge.schema.json"
+    },
+    "record_type": {
+      "enum": [
+        "artifact_node",
+        "artifact_edge"
+      ]
+    }
+  },
+  "required": [
+    "record_type"
   ],
   "title": "L9 Graph Seed JSONL Record",
   "type": "object"

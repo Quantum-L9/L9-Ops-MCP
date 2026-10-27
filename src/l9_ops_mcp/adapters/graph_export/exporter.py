@@ -3,6 +3,10 @@
 Converts V2 metadata/retrieval indexes into graph-seed JSONL records that can be
 stored in Graphiti/Neo4j or used as a deterministic graph projection of the
 canonical context repository.
+
+Accepted index inputs: the repository's ``AGENT_RETRIEVAL_INDEX.yaml`` (a
+``files`` map of ``path -> {role, sha256, tags, retrieval}``), or a JSON/YAML
+list / ``artifacts``-style object of artifact items.
 """
 
 from __future__ import annotations
@@ -15,9 +19,21 @@ import json
 import re
 import time
 
+import yaml
+
 
 class GraphExportError(ValueError):
     """Raised when an index or graph-seed record is invalid."""
+
+
+# Closed vocabularies; kept in lockstep with schemas/artifact-node.schema.json
+# and schemas/artifact-edge.schema.json (tests/test_export.py enforces it).
+AUTHORITIES = frozenset({"canonical_repo", "metadata_index", "unknown"})
+SHARING_SCOPES = frozenset({"shared", "private", "restricted", "unknown"})
+RELATIONS = frozenset(
+    {"depends_on", "activates_on", "implements", "governs", "validates", "routes_to", "references"}
+)
+ACTIVATION_SIGNAL_PREFIX = "activation_signal."
 
 
 @dataclass(frozen=True)
@@ -48,6 +64,14 @@ class ArtifactNode:
             raise GraphExportError(f"{self.id}: artifact_type is required")
         if not self.source_path:
             raise GraphExportError(f"{self.id}: source_path is required")
+        if not self.namespace:
+            raise GraphExportError(f"{self.id}: namespace is required")
+        if self.authority not in AUTHORITIES:
+            raise GraphExportError(f"{self.id}: authority {self.authority!r} is not allowed")
+        if self.sharing_scope not in SHARING_SCOPES:
+            raise GraphExportError(
+                f"{self.id}: sharing_scope {self.sharing_scope!r} is not allowed"
+            )
         if self.callable and self.mcp_primitive in {"none", ""}:
             raise GraphExportError(f"{self.id}: callable artifacts require an mcp_primitive")
         if self.token_cost_estimate is not None and self.token_cost_estimate < 0:
@@ -74,8 +98,14 @@ class ArtifactEdge:
             raise GraphExportError("edge source_id and target_id are required")
         if self.source_id == self.target_id:
             raise GraphExportError(f"{self.source_id}: self edges are not allowed")
-        if not self.relation:
-            raise GraphExportError(f"{self.source_id}->{self.target_id}: relation is required")
+        if self.relation not in RELATIONS:
+            raise GraphExportError(
+                f"{self.source_id}->{self.target_id}: relation {self.relation!r} is not allowed"
+            )
+        if not self.evidence or not self.provenance:
+            raise GraphExportError(
+                f"{self.source_id}->{self.target_id}: evidence and provenance are required"
+            )
         if not (0 <= self.confidence <= 1):
             raise GraphExportError(f"{self.source_id}->{self.target_id}: confidence must be 0..1")
 
@@ -121,15 +151,39 @@ def _file_hash(repo_root: Path, source_path: str) -> str | None:
     return hashlib.sha256(candidate.read_bytes()).hexdigest()
 
 
+def _items_from_files_map(files: dict[str, Any]) -> list[dict[str, Any]]:
+    """Map AGENT_RETRIEVAL_INDEX.yaml ``files`` entries to exporter index items."""
+    items: list[dict[str, Any]] = []
+    for source_path, entry in files.items():
+        meta = entry if isinstance(entry, dict) else {}
+        item: dict[str, Any] = {"source_path": str(source_path)}
+        if meta.get("role"):
+            item["artifact_type"] = meta["role"]
+        if meta.get("sha256"):
+            item["content_hash"] = meta["sha256"]
+        if meta.get("tags"):
+            item["tags"] = meta["tags"]
+        items.append(item)
+    return items
+
+
 def _load_index(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         raise GraphExportError(f"index file not found: {path}")
     text = path.read_text(encoding="utf-8")
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise GraphExportError(f"invalid JSON index: {path}: {exc}") from exc
+    if path.suffix.lower() in {".yaml", ".yml"}:
+        try:
+            data = yaml.safe_load(text)
+        except yaml.YAMLError as exc:
+            raise GraphExportError(f"invalid YAML index: {path}: {exc}") from exc
+    else:
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise GraphExportError(f"invalid JSON index: {path}: {exc}") from exc
     if isinstance(data, dict):
+        if isinstance(data.get("files"), dict):
+            return _items_from_files_map(data["files"])
         for key in ("artifacts", "items", "records", "documents", "resources"):
             if isinstance(data.get(key), list):
                 return [dict(x) for x in data[key] if isinstance(x, dict)]
@@ -137,7 +191,9 @@ def _load_index(path: Path) -> list[dict[str, Any]]:
             return [data]
     if isinstance(data, list):
         return [dict(x) for x in data if isinstance(x, dict)]
-    raise GraphExportError("index must be a list or object containing artifacts/items/records")
+    raise GraphExportError(
+        "index must be a list or object containing files/artifacts/items/records"
+    )
 
 
 def node_from_index_item(
@@ -187,9 +243,9 @@ def edges_from_node(node: ArtifactNode) -> list[ArtifactEdge]:
     for dep in node.dependencies:
         edges.append(ArtifactEdge(node.id, dep, "depends_on", "dependencies"))
     for signal in node.activation_signals:
-        signal_id = "activation_signal." + re.sub(r"[^A-Za-z0-9_.-]+", "_", signal.lower()).strip(
-            "_"
-        )
+        signal_id = ACTIVATION_SIGNAL_PREFIX + re.sub(
+            r"[^A-Za-z0-9_.-]+", "_", signal.lower()
+        ).strip("_")
         if signal_id != node.id:
             edges.append(
                 ArtifactEdge(
@@ -252,13 +308,44 @@ def read_jsonl(path: Path) -> list[dict[str, Any]]:
     return records
 
 
-def verify_graph_seed(path: Path) -> dict[str, Any]:
+def _seed_schema_validator(schema_path: Path) -> Any:
+    """Build a Draft 2020-12 validator resolving sibling ``$ref`` schema files."""
+    from jsonschema import Draft202012Validator
+    from referencing import Registry, Resource
+
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    registry: Registry[Any] = Registry()
+    for sibling in sorted(schema_path.parent.glob("*.json")):
+        try:
+            contents = json.loads(sibling.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if isinstance(contents, dict) and "$schema" in contents:
+            registry = registry.with_resource(sibling.name, Resource.from_contents(contents))
+    return Draft202012Validator(schema, registry=registry)
+
+
+def verify_graph_seed(path: Path, schema_path: Path | None = None) -> dict[str, Any]:
+    """Verify a graph seed; fails on invalid, duplicate, dangling or empty content.
+
+    When ``schema_path`` is given, every record is also validated against that
+    JSON Schema (``schemas/graph-seed.schema.json`` in this repository).
+    """
     records = read_jsonl(path)
     node_ids: set[str] = set()
     edges: list[dict[str, Any]] = []
+    edge_keys: set[tuple[str, str, str]] = set()
     failures: list[str] = []
 
+    validator = _seed_schema_validator(schema_path) if schema_path is not None else None
+
     for idx, record in enumerate(records, start=1):
+        if validator is not None:
+            for error in validator.iter_errors(record):
+                failures.append(f"record {idx}: schema: {error.message}")
+        if not isinstance(record, dict):
+            failures.append(f"record {idx}: record is not an object")
+            continue
         if record.get("record_type") == "artifact_node":
             artifact = record.get("artifact") or {}
             try:
@@ -281,9 +368,12 @@ def verify_graph_seed(path: Path) -> dict[str, Any]:
                     version=artifact.get("version"),
                 )
                 node.validate()
-                node_ids.add(node.id)
             except Exception as exc:  # noqa: BLE001 - validation must collect evidence
                 failures.append(f"record {idx}: {exc}")
+                continue
+            if node.id in node_ids:
+                failures.append(f"record {idx}: duplicate node id {node.id!r}")
+            node_ids.add(node.id)
         elif record.get("record_type") == "artifact_edge":
             edge = record.get("edge") or {}
             try:
@@ -296,18 +386,33 @@ def verify_graph_seed(path: Path) -> dict[str, Any]:
                     provenance=str(edge.get("provenance", "metadata_index")),
                 )
                 candidate.validate()
-                edges.append(edge)
             except Exception as exc:  # noqa: BLE001
                 failures.append(f"record {idx}: {exc}")
+                continue
+            key = (candidate.source_id, candidate.target_id, candidate.relation)
+            if key in edge_keys:
+                failures.append(f"record {idx}: duplicate edge {key[0]}-[{key[2]}]->{key[1]}")
+            edge_keys.add(key)
+            edges.append(edge)
         else:
             failures.append(f"record {idx}: unsupported record_type {record.get('record_type')!r}")
 
-    dangling_edges = [
-        f"{edge.get('source_id')}->{edge.get('target_id')}"
-        for edge in edges
-        if edge.get("source_id") not in node_ids
-        and not str(edge.get("source_id", "")).startswith("activation_signal.")
-    ]
+    if not records:
+        failures.append("seed is empty: no records")
+    elif not node_ids:
+        failures.append("seed has no artifact nodes")
+
+    dangling_edges: list[str] = []
+    for edge in edges:
+        source = str(edge.get("source_id", ""))
+        target = str(edge.get("target_id", ""))
+        target_ok = target in node_ids or (
+            edge.get("relation") == "activates_on" and target.startswith(ACTIVATION_SIGNAL_PREFIX)
+        )
+        if source not in node_ids or not target_ok:
+            dangling_edges.append(f"{source}->{target}")
+    for dangling in dangling_edges:
+        failures.append(f"dangling edge {dangling}: endpoint is not an exported node")
 
     status = "pass" if not failures else "fail"
     return {
