@@ -23,6 +23,7 @@ DORA:
 
 from __future__ import annotations
 
+import ast
 import json
 import subprocess
 from pathlib import Path
@@ -54,6 +55,77 @@ def engine_error(tool: str, message: str, file: str = "") -> dict[str, Any]:
 def _describe(result: subprocess.CompletedProcess[str]) -> str:
     detail = (result.stderr or result.stdout or "").strip()
     return f"exit {result.returncode}: {detail[:400]}" if detail else f"exit {result.returncode}"
+
+
+def _is_stdlib_logging(module: str | None) -> bool:
+    return module is not None and (module == "logging" or module.startswith("logging."))
+
+
+def _adr_finding(
+    rule: str, message: str, file_str: str, line: int, severity: str
+) -> dict[str, Any]:
+    return {
+        "tool": "adr_checker",
+        "rule": rule,
+        "message": message,
+        "file": file_str,
+        "line": line,
+        "severity": severity,
+    }
+
+
+def _adr_0019_findings(tree: ast.AST, lines: list[str], file_str: str) -> list[dict[str, Any]]:
+    """ADR-0019: stdlib logging imports/``getLogger`` calls (P0) and ``print()`` (P2)."""
+    found: list[tuple[int, str, str]] = []
+    logging_names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if _is_stdlib_logging(alias.name):
+                    logging_names.add(alias.asname or alias.name.split(".")[0])
+                    found.append((node.lineno, "P0", f"stdlib logging in {file_str}"))
+        elif isinstance(node, ast.ImportFrom):
+            if node.level == 0 and _is_stdlib_logging(node.module):
+                found.append((node.lineno, "P0", f"stdlib logging in {file_str}"))
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if (
+            isinstance(func, ast.Attribute)
+            and func.attr == "getLogger"
+            and isinstance(func.value, ast.Name)
+            and func.value.id in logging_names
+        ):
+            found.append((node.lineno, "P0", f"stdlib logging in {file_str}"))
+        elif isinstance(func, ast.Name) and func.id == "print":
+            source_line = lines[node.lineno - 1] if node.lineno <= len(lines) else ""
+            if "# noqa" not in source_line:
+                found.append((node.lineno, "P2", f"print() statement in {file_str}"))
+    return [
+        _adr_finding("ADR-0019", message, file_str, line, severity)
+        for line, severity, message in sorted(found, key=lambda item: item[0])
+    ]
+
+
+def _adr_0083_findings(tree: ast.AST, file_str: str) -> list[dict[str, Any]]:
+    """ADR-0083: ``datetime.now()`` called with no timezone argument (P1)."""
+    lines: list[int] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or node.args or node.keywords:
+            continue
+        func = node.func
+        if not (isinstance(func, ast.Attribute) and func.attr == "now"):
+            continue
+        owner = func.value
+        if (isinstance(owner, ast.Name) and owner.id == "datetime") or (
+            isinstance(owner, ast.Attribute) and owner.attr == "datetime"
+        ):
+            lines.append(node.lineno)
+    return [
+        _adr_finding("ADR-0083", f"Naive datetime.now() in {file_str}", file_str, line, "P1")
+        for line in sorted(lines)
+    ]
 
 
 class DeterministicEngine:
@@ -287,39 +359,27 @@ class DeterministicEngine:
         return expanded
 
     def _check_adr_compliance(self, files: list[str]) -> list[dict[str, Any]]:
-        """Check ADR compliance (ADR-0019 structlog, ADR-0014 DORA, etc.)."""
+        """Check ADR compliance (ADR-0019 structlog, ADR-0014 DORA, ADR-0083 UTC).
+
+        ADR-0019 and ADR-0083 are decided from the syntax tree, so module names
+        that merely start with ``logging`` and text inside strings or comments
+        are not violations.  A file that cannot be parsed is reported as an
+        ``engine_error`` finding, never skipped.
+        """
         findings: list[dict[str, Any]] = []
         for file_str in self._expand_python_files(files):
             path = Path(file_str)
             if not path.exists() or path.suffix != ".py":
                 continue
-            content = path.read_text(encoding="utf-8")
-
-            # ADR-0019: No stdlib logging
-            for i, line in enumerate(content.splitlines(), start=1):
-                stripped = line.strip()
-                if stripped.startswith("import logging") or "logging.getLogger" in stripped:
-                    findings.append(
-                        {
-                            "tool": "adr_checker",
-                            "rule": "ADR-0019",
-                            "message": f"stdlib logging in {file_str}",
-                            "file": file_str,
-                            "line": i,
-                            "severity": "P0",
-                        }
-                    )
-                if stripped.startswith("print(") and "# noqa" not in stripped:
-                    findings.append(
-                        {
-                            "tool": "adr_checker",
-                            "rule": "ADR-0019",
-                            "message": f"print() statement in {file_str}",
-                            "file": file_str,
-                            "line": i,
-                            "severity": "P2",
-                        }
-                    )
+            try:
+                content = path.read_text(encoding="utf-8")
+                tree = ast.parse(content, filename=file_str)
+            except (SyntaxError, ValueError) as exc:  # UnicodeDecodeError is a ValueError
+                findings.append(
+                    engine_error("adr_checker", f"cannot parse {file_str}: {exc}", file_str)
+                )
+                continue
+            findings.extend(_adr_0019_findings(tree, content.splitlines(), file_str))
 
             # ADR-0014: DORA metadata block required
             if "def " in content and "DORA:" not in content and "dora_meta" not in content:
@@ -334,19 +394,7 @@ class DeterministicEngine:
                     }
                 )
 
-            # ADR-0083: Naive datetime
-            for i, line in enumerate(content.splitlines(), start=1):
-                if "datetime.now()" in line and "timezone" not in line and "tz=" not in line:
-                    findings.append(
-                        {
-                            "tool": "adr_checker",
-                            "rule": "ADR-0083",
-                            "message": f"Naive datetime.now() in {file_str}",
-                            "file": file_str,
-                            "line": i,
-                            "severity": "P1",
-                        }
-                    )
+            findings.extend(_adr_0083_findings(tree, file_str))
 
         logger.debug("adr_compliance_completed", findings_count=len(findings))
         return findings

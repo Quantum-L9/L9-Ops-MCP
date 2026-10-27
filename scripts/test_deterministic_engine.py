@@ -251,3 +251,70 @@ class TestShippedConfig:
         if block.get("enabled"):
             missing = [s for s in block.get("scripts", []) if not (REPO_ROOT / s).exists()]
             assert missing == []
+
+
+# ─────────────────────────────────────────────
+# WU-25 regression (RG-29): ADR checks from syntax, not text
+# ─────────────────────────────────────────────
+DORA_HEADER = '"""Module.\n\nDORA:\n    component_id: test\n"""\n'
+
+
+def _adr(sample_config, tmp_path, source: str, name: str = "mod.py") -> list[dict]:
+    target = tmp_path / name
+    target.write_text(DORA_HEADER + source)
+    return DeterministicEngine(sample_config)._check_adr_compliance([str(target)])
+
+
+class TestADRPrecision:
+    @pytest.mark.parametrize(
+        "source",
+        [
+            pytest.param("import logging_helpers\n", id="prefix-module"),
+            pytest.param("import logging_helpers as lh\nlh.setup()\n", id="prefix-alias"),
+            pytest.param('HINT = "use logging.getLogger never"\n', id="string-literal"),
+            pytest.param("# logging.getLogger is banned\nx = 1\n", id="comment"),
+            pytest.param("import structlog\nlog = structlog.getLogger()\n", id="structlog-alias"),
+        ],
+    )
+    def test_no_false_adr_0019(self, sample_config, tmp_path, source):
+        """subaudit_A r8: these inputs are not stdlib logging."""
+        assert [f for f in _adr(sample_config, tmp_path, source) if f["rule"] == "ADR-0019"] == []
+
+    def test_import_logging_still_flagged_p0(self, sample_config, tmp_path):
+        findings = _adr(sample_config, tmp_path, "import logging\n")
+        assert [(f["rule"], f["severity"], f["line"]) for f in findings] == [("ADR-0019", "P0", 6)]
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "from logging import getLogger\n",
+            "import logging.handlers\n",
+            "import logging as stdlog\n",
+        ],
+    )
+    def test_other_stdlib_logging_imports_flagged(self, sample_config, tmp_path, source):
+        findings = _adr(sample_config, tmp_path, source)
+        assert any(f["rule"] == "ADR-0019" and f["severity"] == "P0" for f in findings)
+
+    def test_naive_datetime_mentioned_in_string_not_flagged(self, sample_config, tmp_path):
+        source = 'MSG = "never call datetime.now() bare"\n'
+        assert [f for f in _adr(sample_config, tmp_path, source) if f["rule"] == "ADR-0083"] == []
+
+    def test_aware_datetime_not_flagged_naive_flagged(self, sample_config, tmp_path):
+        source = (
+            "from datetime import datetime, timezone\n"
+            "a = datetime.now(tz=timezone.utc)\n"
+            "b = datetime.now(timezone.utc)\n"
+            "c = datetime.now()  # timezone handled elsewhere\n"
+        )
+        findings = [f for f in _adr(sample_config, tmp_path, source) if f["rule"] == "ADR-0083"]
+        assert [(f["line"], f["severity"]) for f in findings] == [(9, "P1")]
+
+    def test_unparseable_file_is_reported(self, sample_config, tmp_path):
+        findings = _adr(sample_config, tmp_path, "def broken(:\n")
+        assert [f["rule"] for f in findings] == [ENGINE_ERROR_RULE]
+        assert findings[0]["tool"] == "adr_checker"
+
+    def test_engine_self_scan_is_clean(self, sample_config):
+        engine_src = REPO_ROOT / "scripts" / "l11" / "deterministic_engine.py"
+        assert DeterministicEngine(sample_config)._check_adr_compliance([str(engine_src)]) == []
