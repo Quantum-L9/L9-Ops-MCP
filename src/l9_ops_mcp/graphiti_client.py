@@ -5,12 +5,15 @@ Resolves U-H2 / U-M2 from context_budget_kernel + memory_admission_kernel.
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
 from functools import lru_cache
+from typing import Any, Literal
 
 from graphiti_core import Graphiti
 from graphiti_core.cross_encoder.openai_reranker_client import OpenAIRerankerClient
 from graphiti_core.embedder.openai import OpenAIEmbedder, OpenAIEmbedderConfig
 from graphiti_core.llm_client import LLMConfig, OpenAIClient
+from graphiti_core.search.search_config_recipes import EDGE_HYBRID_SEARCH_RRF
 
 OPENAI_KEY_ENV = "L9_OPENAI_API_KEY"
 _UPSTREAM_OPENAI_KEY_ENV = "OPENAI_API_KEY"
@@ -74,3 +77,41 @@ async def get_graphiti() -> Graphiti:
 
 async def close() -> None:
     await _client().close()
+
+
+RelevanceSignal = Literal["rrf", "ordinal"]
+
+
+@dataclass(frozen=True)
+class ScoredEdges:
+    """Edges in relevance order with one score per edge and the signal used."""
+
+    edges: list[Any]
+    scores: list[float]
+    signal: RelevanceSignal
+
+
+async def search_edges(
+    g: Graphiti,
+    query: str,
+    group_ids: list[str] | None,
+    limit: int,
+) -> ScoredEdges:
+    """Hybrid edge search returning real relevance scores.
+
+    ``Graphiti.search()`` returns bare ``EntityEdge`` objects (which carry no
+    score) and mutates the shared ``EDGE_HYBRID_SEARCH_RRF`` recipe's limit.
+    This uses ``Graphiti.search_()`` with a private copy of the same RRF recipe
+    and takes the reciprocal-rank-fusion scores from
+    ``SearchResults.edge_reranker_scores`` (deterministic; no LLM call). If the
+    scores are unavailable or misaligned, it falls back explicitly to an
+    ordinal score derived from rank (``signal="ordinal"``).
+    """
+    config = EDGE_HYBRID_SEARCH_RRF.model_copy(update={"limit": limit})
+    results = await g.search_(query=query, config=config, group_ids=group_ids)
+    edges = list(results.edges)
+    scores = [float(x) for x in results.edge_reranker_scores]
+    if edges and len(scores) == len(edges):
+        return ScoredEdges(edges=edges, scores=scores, signal="rrf")
+    n = len(edges)
+    return ScoredEdges(edges=edges, scores=[(n - i) / n for i in range(n)], signal="ordinal")

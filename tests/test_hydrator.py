@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -19,6 +20,10 @@ class _FakeGraph:
     async def search(self, **kwargs: Any) -> list[Any]:
         self.search_calls.append(kwargs)
         return list(self._results)
+
+    async def search_(self, **kwargs: Any) -> SimpleNamespace:
+        self.search_calls.append(kwargs)
+        return SimpleNamespace(edges=list(self._results), edge_reranker_scores=[])
 
 
 class _Edge:

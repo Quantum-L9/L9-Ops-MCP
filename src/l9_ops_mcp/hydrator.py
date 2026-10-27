@@ -5,7 +5,7 @@ from __future__ import annotations
 import tiktoken
 
 from . import budget, trust_ladder
-from .graphiti_client import get_graphiti
+from .graphiti_client import get_graphiti, search_edges
 from .models import ContextFact, ContextSlice, RuntimePayload, TrustLevel
 
 _enc = tiktoken.get_encoding("cl100k_base")
@@ -36,19 +36,21 @@ async def hydrate(
         )
     g = await get_graphiti()
     group_ids = None if scopes == ["*"] else scopes
-    results = await g.search(query=task_type, group_ids=group_ids, num_results=50)
+    found = await search_edges(g, task_type, group_ids, 50)
     facts = [
         ContextFact(
-            uuid=str(getattr(r, "uuid", "")),
-            fact=r.fact,
-            valid_at=getattr(r, "valid_at", None),
-            invalid_at=getattr(r, "invalid_at", None),
-            group_id=(getattr(r, "group_ids", None) or [""])[0],
-            score=float(getattr(r, "score", 0) or 0),
-            token_estimate=_tok(r.fact),
+            uuid=str(e.uuid),
+            fact=e.fact,
+            valid_at=e.valid_at,
+            invalid_at=e.invalid_at,
+            group_id=e.group_id,
+            score=score,
+            token_estimate=_tok(e.fact),
         )
-        for r in results
+        for e, score in zip(found.edges, found.scores, strict=True)
     ]
+    # Most relevant first, so tier 1 (load-bearing) receives the best facts.
+    facts.sort(key=lambda f: f.score, reverse=True)
     sl = budget.allocate(facts, token_budget)
     return RuntimePayload(
         agent_id=agent_id,
@@ -56,4 +58,5 @@ async def hydrate(
         allowed_scopes=scopes,
         context_slice=sl,
         budget_remaining_tokens=token_budget - sl.token_count,
+        relevance_signal=found.signal,
     )

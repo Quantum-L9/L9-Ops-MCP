@@ -61,6 +61,10 @@ async def test_hydrate_returns_bounded_readonly():
     p = await hydrate("integration test", "test-agent", 4000, "L2", "s-integration")
     assert p.readonly is True
     assert 0 <= p.budget_remaining_tokens <= 4000
+    # RG-01/RG-04 live: every fact comes from an encoded L2 group and carries it.
+    for tier in (p.context_slice.tier1_load_bearing, p.context_slice.tier2_examples):
+        for fact in tier:
+            assert fact.group_id in p.allowed_scopes
 
 
 @pytest.mark.asyncio

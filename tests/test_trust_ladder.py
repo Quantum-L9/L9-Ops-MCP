@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 from graphiti_core.errors import GroupIdValidationError
 from graphiti_core.helpers import validate_group_ids
+from graphiti_core.search.search_config import SearchResults
 
 from l9_ops_mcp.trust_ladder import allowed_scopes, normalize_group_id
 
@@ -88,6 +89,10 @@ class _RecordingGraph:
 
     async def search(self, **kwargs: Any) -> list[Any]:
         return []
+
+    async def search_(self, **kwargs: Any) -> SearchResults:
+        validate_group_ids(kwargs.get("group_ids"))  # what graphiti-core enforces on read
+        return SearchResults()
 
     async def add_episode(self, **kwargs: Any) -> None:
         validate_group_ids([kwargs["group_id"]])  # what graphiti-core enforces on write

@@ -35,6 +35,9 @@ class RuntimePayload(BaseModel):
     allowed_scopes: list[str]
     context_slice: ContextSlice
     budget_remaining_tokens: int
+    # Which signal ContextFact.score carries: "rrf" (Graphiti reciprocal-rank
+    # fusion score), "ordinal" (explicit rank fallback) or "none" (no search).
+    relevance_signal: Literal["rrf", "ordinal", "none"] = "none"
     readonly: Literal[True] = True  # handoff_packets_are_views invariant
 
 
