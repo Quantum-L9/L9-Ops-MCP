@@ -15,10 +15,10 @@ Fail-closed CI gate that blocks PR merges modifying protected files
 without explicit approval (label or commit message token).
 
 Usage (CI):
-    PR_LABELS="LCTO_APPROVED,bug" python .github/scripts/validate-protected-files-v6.py
+    PR_LABELS="LCTO_APPROVED,bug" python scripts/validate-protected-files-v6.py
 
 Usage (local dry-run):
-    python .github/scripts/validate-protected-files-v6.py --dry-run
+    python scripts/validate-protected-files-v6.py --dry-run [--base-ref origin/develop]
 
 DORA:
     component_id: PFV-OPS-001
@@ -101,26 +101,30 @@ def load_policy() -> dict:
         sys.exit(1)
 
 
+class ChangeSetError(RuntimeError):
+    """The PR change set could not be computed; the gate must fail closed."""
+
+
 def get_changed_files(base_ref: str = "origin/main") -> list[str]:
-    """Get changed files in PR via git diff."""
+    """Return every path changed by the PR (``base_ref...HEAD``).
+
+    Fail-closed: if git cannot compute the change set (missing/unfetched base
+    ref, no merge base, git unavailable) this raises ``ChangeSetError`` instead
+    of returning an empty list. Rename detection is disabled so that both the
+    old and the new path of a renamed file are reported, and no diff filter is
+    applied so deletions and type changes are reported too.
+    """
+    cmd = ["git", "diff", "--name-only", "--no-renames", "-z", f"{base_ref}...HEAD"]
     try:
-        result = subprocess.run(
-            ["git", "diff", "--name-only", "--diff-filter=ACMRD", f"{base_ref}...HEAD"],
-            capture_output=True,
-            text=True,
-            timeout=30,
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError) as e:
+        raise ChangeSetError(f"git diff {base_ref}...HEAD could not run: {e}") from e
+    if result.returncode != 0:
+        detail = result.stderr.strip() or "no stderr"
+        raise ChangeSetError(
+            f"git diff {base_ref}...HEAD failed (exit {result.returncode}): {detail}"
         )
-        if result.returncode != 0:
-            result = subprocess.run(
-                ["git", "diff", "--name-only", "--diff-filter=ACMRD", base_ref, "HEAD"],
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-        return [f.strip() for f in result.stdout.strip().split("\n") if f.strip()]
-    except Exception as e:
-        logger.error("git_diff_failed", error=str(e))
-        return []
+    return [f for f in result.stdout.split("\0") if f]
 
 
 def get_all_protected_paths(policy: dict) -> list[str]:
@@ -159,8 +163,13 @@ def get_approval_signals(policy: dict) -> tuple[list[str], list[str]]:
     return labels, tokens
 
 
-def check_approval(policy: dict) -> bool:
-    """Check if PR has approval signal (label or commit message token)."""
+def check_approval(policy: dict, base_ref: str = "origin/main") -> bool:
+    """Check if PR has approval signal (label or commit message token).
+
+    Commit tokens are read only from commits reachable from HEAD and not from
+    ``base_ref`` (``base_ref..HEAD``), i.e. the PR's own commits. If the log
+    cannot be read, no commit approval is granted (fail closed).
+    """
     labels_allowed, tokens_allowed = get_approval_signals(policy)
 
     # Check PR labels (from GitHub Actions env)
@@ -171,29 +180,44 @@ def check_approval(policy: dict) -> bool:
             logger.info("approval_found", signal_type="pr_label", signal=label)
             return True
 
-    # Check commit messages
+    # Check commit messages of the PR's own commits only
     try:
         result = subprocess.run(
-            ["git", "log", "--format=%s", "origin/main...HEAD"],
+            ["git", "log", "--format=%s", f"{base_ref}..HEAD"],
             capture_output=True,
             text=True,
             timeout=10,
         )
-        for line in result.stdout.strip().split("\n"):
-            for token in tokens_allowed:
-                if token in line:
-                    logger.info("approval_found", signal_type="commit_msg", signal=token)
-                    return True
-    except Exception:
-        pass
+    except (OSError, subprocess.SubprocessError) as e:
+        logger.error("git_log_failed", error=str(e), action="no_commit_approval")
+        return False
+    if result.returncode != 0:
+        logger.error(
+            "git_log_failed",
+            error=result.stderr.strip(),
+            action="no_commit_approval",
+        )
+        return False
+    for line in result.stdout.strip().split("\n"):
+        for token in tokens_allowed:
+            if token in line:
+                logger.info("approval_found", signal_type="commit_msg", signal=token)
+                return True
 
     return False
 
 
-def validate(dry_run: bool = False) -> int:
+def validate(dry_run: bool = False, base_ref: str = "origin/main") -> int:
     """Main validation logic. Returns exit code (0=pass, 1=fail)."""
     policy = load_policy()
-    changed_files = get_changed_files()
+    try:
+        changed_files = get_changed_files(base_ref)
+    except ChangeSetError as e:
+        # Fail closed even in dry-run: without a change set there is no verdict.
+        logger.error("change_set_unavailable", error=str(e), action="fail_closed")
+        print(f"PROTECTED FILES GATE — cannot compute change set: {e}", file=sys.stderr)
+        write_report([], [], False, "change_set_unavailable", error=str(e))
+        return 1
 
     if not changed_files:
         logger.info("no_changed_files")
@@ -241,7 +265,7 @@ def validate(dry_run: bool = False) -> int:
         return 0
 
     # Check for approval
-    has_approval = check_approval(policy)
+    has_approval = check_approval(policy, base_ref)
 
     if has_approval:
         logger.info(
@@ -288,9 +312,10 @@ def write_report(
     violations: list,
     passed: bool,
     reason: str,
+    error: str | None = None,
 ) -> None:
     """Write JSON audit report."""
-    report = {
+    report: dict = {
         "gate": "protected_files_v6",
         "timestamp": datetime.now(UTC).isoformat(),
         "passed": passed,
@@ -302,6 +327,8 @@ def write_report(
         "actor": os.environ.get("GITHUB_ACTOR", "local"),
         "pr_labels": os.environ.get("PR_LABELS", ""),
     }
+    if error is not None:
+        report["error"] = error
     try:
         with open(REPORT_PATH, "w") as f:
             json.dump(report, f, indent=2)
@@ -313,8 +340,13 @@ def write_report(
 def main() -> None:
     parser = argparse.ArgumentParser(description="L9 Protected Files Validator v6")
     parser.add_argument("--dry-run", action="store_true", help="Report only, do not fail")
+    parser.add_argument(
+        "--base-ref",
+        default="origin/main",
+        help="PR base revision (CI passes github.event.pull_request.base.sha)",
+    )
     args = parser.parse_args()
-    sys.exit(validate(dry_run=args.dry_run))
+    sys.exit(validate(dry_run=args.dry_run, base_ref=args.base_ref))
 
 
 if __name__ == "__main__":
