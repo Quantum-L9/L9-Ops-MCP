@@ -27,7 +27,7 @@ import ast
 import json
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeGuard
 
 import structlog
 
@@ -74,8 +74,10 @@ def _adr_finding(
     }
 
 
-def _adr_0019_findings(tree: ast.AST, lines: list[str], file_str: str) -> list[dict[str, Any]]:
-    """ADR-0019: stdlib logging imports/``getLogger`` calls (P0) and ``print()`` (P2)."""
+def _logging_import_hits(
+    tree: ast.AST, file_str: str
+) -> tuple[list[tuple[int, str, str]], set[str]]:
+    """Stdlib logging imports (P0), plus the names ``import`` bound them to."""
     found: list[tuple[int, str, str]] = []
     logging_names: set[str] = set()
     for node in ast.walk(tree):
@@ -84,44 +86,70 @@ def _adr_0019_findings(tree: ast.AST, lines: list[str], file_str: str) -> list[d
                 if _is_stdlib_logging(alias.name):
                     logging_names.add(alias.asname or alias.name.split(".")[0])
                     found.append((node.lineno, "P0", f"stdlib logging in {file_str}"))
-        elif isinstance(node, ast.ImportFrom):
-            if node.level == 0 and _is_stdlib_logging(node.module):
-                found.append((node.lineno, "P0", f"stdlib logging in {file_str}"))
+        elif (
+            isinstance(node, ast.ImportFrom) and node.level == 0 and _is_stdlib_logging(node.module)
+        ):
+            found.append((node.lineno, "P0", f"stdlib logging in {file_str}"))
+    return found, logging_names
+
+
+def _is_stdlib_getlogger(func: ast.expr, logging_names: set[str]) -> bool:
+    """``<logging name>.getLogger`` where the name was bound by a logging import."""
+    return (
+        isinstance(func, ast.Attribute)
+        and func.attr == "getLogger"
+        and isinstance(func.value, ast.Name)
+        and func.value.id in logging_names
+    )
+
+
+def _call_hit(
+    node: ast.Call, logging_names: set[str], lines: list[str], file_str: str
+) -> tuple[int, str, str] | None:
+    """ADR-0019 hit for one call: stdlib ``getLogger`` (P0) or un-noqa'd ``print()`` (P2)."""
+    func = node.func
+    if _is_stdlib_getlogger(func, logging_names):
+        return (node.lineno, "P0", f"stdlib logging in {file_str}")
+    if isinstance(func, ast.Name) and func.id == "print":
+        source_line = lines[node.lineno - 1] if node.lineno <= len(lines) else ""
+        if "# noqa" not in source_line:
+            return (node.lineno, "P2", f"print() statement in {file_str}")
+    return None
+
+
+def _adr_0019_findings(tree: ast.AST, lines: list[str], file_str: str) -> list[dict[str, Any]]:
+    """ADR-0019: stdlib logging imports/``getLogger`` calls (P0) and ``print()`` (P2)."""
+    found, logging_names = _logging_import_hits(tree, file_str)
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
             continue
-        func = node.func
-        if (
-            isinstance(func, ast.Attribute)
-            and func.attr == "getLogger"
-            and isinstance(func.value, ast.Name)
-            and func.value.id in logging_names
-        ):
-            found.append((node.lineno, "P0", f"stdlib logging in {file_str}"))
-        elif isinstance(func, ast.Name) and func.id == "print":
-            source_line = lines[node.lineno - 1] if node.lineno <= len(lines) else ""
-            if "# noqa" not in source_line:
-                found.append((node.lineno, "P2", f"print() statement in {file_str}"))
+        hit = _call_hit(node, logging_names, lines, file_str)
+        if hit is not None:
+            found.append(hit)
     return [
         _adr_finding("ADR-0019", message, file_str, line, severity)
         for line, severity, message in sorted(found, key=lambda item: item[0])
     ]
 
 
+def _is_datetime_owner(owner: ast.expr) -> bool:
+    """``datetime`` or ``<module>.datetime`` as the receiver of ``.now``."""
+    return (isinstance(owner, ast.Name) and owner.id == "datetime") or (
+        isinstance(owner, ast.Attribute) and owner.attr == "datetime"
+    )
+
+
+def _is_naive_now_call(node: ast.AST) -> TypeGuard[ast.Call]:
+    """A ``datetime.now()`` call with no arguments at all (so no timezone)."""
+    if not isinstance(node, ast.Call) or node.args or node.keywords:
+        return False
+    func = node.func
+    return isinstance(func, ast.Attribute) and func.attr == "now" and _is_datetime_owner(func.value)
+
+
 def _adr_0083_findings(tree: ast.AST, file_str: str) -> list[dict[str, Any]]:
     """ADR-0083: ``datetime.now()`` called with no timezone argument (P1)."""
-    lines: list[int] = []
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Call) or node.args or node.keywords:
-            continue
-        func = node.func
-        if not (isinstance(func, ast.Attribute) and func.attr == "now"):
-            continue
-        owner = func.value
-        if (isinstance(owner, ast.Name) and owner.id == "datetime") or (
-            isinstance(owner, ast.Attribute) and owner.attr == "datetime"
-        ):
-            lines.append(node.lineno)
+    lines: list[int] = [node.lineno for node in ast.walk(tree) if _is_naive_now_call(node)]
     return [
         _adr_finding("ADR-0083", f"Naive datetime.now() in {file_str}", file_str, line, "P1")
         for line in sorted(lines)
@@ -399,14 +427,40 @@ class DeterministicEngine:
         logger.debug("adr_compliance_completed", findings_count=len(findings))
         return findings
 
+    def _max_cyclomatic(self) -> Any:
+        """Configured ``max_cyclomatic`` of the complexity engine (default 15)."""
+        for entry in self.config.get("engines", []):
+            if isinstance(entry, dict) and entry.get("name") == "complexity_threshold":
+                return entry.get("max_cyclomatic", 15)
+        return 15
+
+    @staticmethod
+    def _complexity_file_findings(file_path: str, blocks: Any, max_cc: Any) -> list[dict[str, Any]]:
+        """Findings for one file of ``radon cc -j`` output."""
+        if not isinstance(blocks, list):
+            # radon reports a file it could not analyse as {"error": "..."}
+            detail = blocks.get("error", blocks) if isinstance(blocks, dict) else blocks
+            return [engine_error("radon", f"cannot analyse: {detail}", file_path)]
+        findings: list[dict[str, Any]] = []
+        for block in blocks:
+            cc = block.get("complexity", 0)
+            if cc > max_cc:
+                findings.append(
+                    {
+                        "tool": "radon",
+                        "rule": "complexity",
+                        "message": f"{block.get('name', '?')} CC={cc} > {max_cc}",
+                        "file": file_path,
+                        "line": block.get("lineno", 0),
+                        "severity": "P2",
+                    }
+                )
+        return findings
+
     def _check_complexity(self, files: list[str]) -> list[dict[str, Any]]:
         """Check cyclomatic complexity using radon."""
         findings: list[dict[str, Any]] = []
-        max_cc = 15
-        for entry in self.config.get("engines", []):
-            if isinstance(entry, dict) and entry.get("name") == "complexity_threshold":
-                max_cc = entry.get("max_cyclomatic", 15)
-                break
+        max_cc = self._max_cyclomatic()
         result = self._run(["radon", "cc", "-j", *files])
         if result.returncode != 0:
             return [engine_error("radon", _describe(result))]
@@ -415,24 +469,7 @@ class DeterministicEngine:
         except json.JSONDecodeError:
             return [engine_error("radon", f"unparseable output: {_describe(result)}")]
         for file_path, blocks in raw.items():
-            if not isinstance(blocks, list):
-                # radon reports a file it could not analyse as {"error": "..."}
-                detail = blocks.get("error", blocks) if isinstance(blocks, dict) else blocks
-                findings.append(engine_error("radon", f"cannot analyse: {detail}", file_path))
-                continue
-            for block in blocks:
-                cc = block.get("complexity", 0)
-                if cc > max_cc:
-                    findings.append(
-                        {
-                            "tool": "radon",
-                            "rule": "complexity",
-                            "message": f"{block.get('name', '?')} CC={cc} > {max_cc}",
-                            "file": file_path,
-                            "line": block.get("lineno", 0),
-                            "severity": "P2",
-                        }
-                    )
+            findings.extend(self._complexity_file_findings(file_path, blocks, max_cc))
         logger.debug("complexity_completed", findings_count=len(findings))
         return findings
 

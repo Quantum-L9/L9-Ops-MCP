@@ -200,16 +200,34 @@ class DoraCompleteInjector:
             msg = f"unreadable: {exc}"
             raise FileCheckError(msg) from exc
 
+    @staticmethod
+    def _yaml_status(content: str) -> FileStatus:
+        """DORA status of a YAML file, decided from its comment markers."""
+        return FileStatus(
+            missing_header=not ("# DORA META" in content or "# component_name:" in content),
+            missing_footer=not ("# DORA FOOTER" in content or "# tags:" in content),
+            missing_trace=False,  # YAML files carry no runtime trace block
+        )
+
+    @staticmethod
+    def _module_assigned_names(tree: ast.Module) -> set[str]:
+        """Names bound by real module-level assignments, never strings or comments."""
+        assigned: set[str] = set()
+        for node in tree.body:
+            targets: list[ast.expr] = []
+            if isinstance(node, ast.Assign):
+                targets = list(node.targets)
+            elif isinstance(node, ast.AnnAssign):
+                targets = [node.target]
+            assigned.update(target.id for target in targets if isinstance(target, ast.Name))
+        return assigned
+
     def check_file(self, file_path: Path) -> FileStatus:
         """Observe which DORA blocks ``file_path`` lacks. Never writes."""
         content = self._read_text(file_path)
 
         if file_path.suffix in YAML_SUFFIXES:
-            return FileStatus(
-                missing_header=not ("# DORA META" in content or "# component_name:" in content),
-                missing_footer=not ("# DORA FOOTER" in content or "# tags:" in content),
-                missing_trace=False,  # YAML files carry no runtime trace block
-            )
+            return self._yaml_status(content)
 
         try:
             tree = ast.parse(content, filename=str(file_path))
@@ -218,16 +236,7 @@ class DoraCompleteInjector:
             raise FileCheckError(msg) from exc
 
         # Only real module-level assignments count, never strings or comments.
-        assigned: set[str] = set()
-        for node in tree.body:
-            targets: list[ast.expr] = []
-            if isinstance(node, ast.Assign):
-                targets = list(node.targets)
-            elif isinstance(node, ast.AnnAssign):
-                targets = [node.target]
-            for target in targets:
-                if isinstance(target, ast.Name):
-                    assigned.add(target.id)
+        assigned = self._module_assigned_names(tree)
 
         return FileStatus(
             missing_header="__dora_meta__" not in assigned,

@@ -182,37 +182,69 @@ class DebtGraphService:
             return 0
 
         if self._driver is not None:
-            async with self._driver.session() as session:
-                result = await session.run(
-                    """
-                    MATCH (f:Finding)
-                    WHERE f.status IN ['open', 'regressed']
-                      AND NOT f.hash IN $hashes
-                      AND NOT f.tool IN $skip_tools
-                      AND any(p IN $prefixes WHERE f.file = p OR f.file STARTS WITH p + '/')
-                    SET f.status = 'fixed', f.fixed_at = datetime($now)
-                    RETURN count(f) AS cnt
-                    """,
-                    {
-                        "hashes": hashes,
-                        "skip_tools": skip_tools,
-                        "prefixes": prefixes,
-                        "now": now,
-                    },
-                )
-                rec = await result.single()
-                return int(rec["cnt"]) if rec else 0
+            return await self._mark_absent_fixed_neo4j(
+                self._driver, hashes, skip_tools, prefixes, now
+            )
+        return self._mark_absent_fixed_json(hashes, skip_tools, prefixes, now)
 
+    @staticmethod
+    async def _mark_absent_fixed_neo4j(
+        driver: Any,
+        hashes: list[str],
+        skip_tools: list[str],
+        prefixes: list[str],
+        now: str,
+    ) -> int:
+        """Neo4j branch of :meth:`_mark_absent_fixed`; skipped tools stay live."""
+        async with driver.session() as session:
+            result = await session.run(
+                """
+                MATCH (f:Finding)
+                WHERE f.status IN ['open', 'regressed']
+                  AND NOT f.hash IN $hashes
+                  AND NOT f.tool IN $skip_tools
+                  AND any(p IN $prefixes WHERE f.file = p OR f.file STARTS WITH p + '/')
+                SET f.status = 'fixed', f.fixed_at = datetime($now)
+                RETURN count(f) AS cnt
+                """,
+                {
+                    "hashes": hashes,
+                    "skip_tools": skip_tools,
+                    "prefixes": prefixes,
+                    "now": now,
+                },
+            )
+            rec = await result.single()
+            return int(rec["cnt"]) if rec else 0
+
+    @staticmethod
+    def _is_absent_live(
+        rec: dict[str, Any],
+        present: set[str],
+        skip_tools: list[str],
+        prefixes: list[str],
+    ) -> bool:
+        """Live, in scope, absent from the scan, and not from a tool that failed."""
+        return (
+            rec.get("status") in LIVE_STATUSES
+            and rec.get("hash") not in present
+            and str(rec.get("tool", "")) not in skip_tools
+            and in_scope(str(rec.get("file") or ""), prefixes)
+        )
+
+    def _mark_absent_fixed_json(
+        self,
+        hashes: list[str],
+        skip_tools: list[str],
+        prefixes: list[str],
+        now: str,
+    ) -> int:
+        """JSON-fallback branch of :meth:`_mark_absent_fixed`; skipped tools stay live."""
         records = self._load_json()
         present = set(hashes)
         fixed = 0
         for rec in records:
-            if (
-                rec.get("status") in LIVE_STATUSES
-                and rec.get("hash") not in present
-                and str(rec.get("tool", "")) not in skip_tools
-                and in_scope(str(rec.get("file") or ""), prefixes)
-            ):
+            if self._is_absent_live(rec, present, skip_tools, prefixes):
                 rec["status"] = "fixed"
                 rec["fixed_at"] = now
                 fixed += 1

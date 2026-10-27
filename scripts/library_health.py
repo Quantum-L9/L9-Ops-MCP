@@ -41,6 +41,19 @@ def _as_date(value):
     return None
 
 
+def _staleness_issues(meta, filepath, stale_days, today):
+    """INVALID/STALE issue for the last_tested (or created) date, if any."""
+    raw = meta.get("last_tested") or meta.get("created")
+    if not raw:
+        return []
+    tested = _as_date(raw)
+    if tested is None:
+        return [f"INVALID last_tested: {filepath} ({raw!r})"]
+    if today - tested > timedelta(days=stale_days):
+        return [f"STALE: {filepath} (last_tested: {tested.isoformat()})"]
+    return []
+
+
 def check_file(filepath, stale_days, today=None):
     today = today or date.today()
     try:
@@ -50,14 +63,7 @@ def check_file(filepath, stale_days, today=None):
     if not isinstance(meta, dict):
         return [f"MISSING metadata: {filepath}"]
 
-    issues = []
-    raw = meta.get("last_tested") or meta.get("created")
-    if raw:
-        tested = _as_date(raw)
-        if tested is None:
-            issues.append(f"INVALID last_tested: {filepath} ({raw!r})")
-        elif today - tested > timedelta(days=stale_days):
-            issues.append(f"STALE: {filepath} (last_tested: {tested.isoformat()})")
+    issues = _staleness_issues(meta, filepath, stale_days, today)
 
     if not meta.get("retrieval_keys"):
         issues.append(f"MISSING retrieval_keys: {filepath}")
