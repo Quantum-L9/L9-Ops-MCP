@@ -58,7 +58,8 @@ python -m l9_ops_mcp.seed || seed_status=$?
 case "$seed_status" in
     0) ;;
     2) log "seed skipped (CANONICAL_LAW.md not found — set CG_ROOT)" ;;
-    *) log "seed failed (exit $seed_status) — see output above" ;;
+    *) echo "ERROR: seed failed (exit $seed_status) — see output above" >&2
+       exit "$seed_status" ;;
 esac
 
 # ── 5. Cursor MCP config ──────────────────────────────────────────────────────

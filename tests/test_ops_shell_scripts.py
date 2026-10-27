@@ -222,11 +222,19 @@ def test_install_reports_seed_outcome_by_exit_code(
     env = _env(tmp_path, bindir, STUB_HEALTH="healthy", STUB_SEED_RC=seed_rc)
 
     proc = _bash(repo / "scripts" / "install.sh", repo, env)
+    output = proc.stdout + proc.stderr
 
-    assert proc.returncode == 0, proc.stdout + proc.stderr
-    assert expected in proc.stdout
+    assert expected in output
     other = "seed failed" if seed_rc == "2" else "seed skipped"
-    assert other not in proc.stdout
+    assert other not in output
+    if seed_rc == "2":
+        # Missing input is a documented skip: the install still completes.
+        assert proc.returncode == 0, output
+        assert "Install complete" in proc.stdout
+    else:
+        # A rejected chunk or failed write is a failed install (PR #38 review).
+        assert proc.returncode == int(seed_rc), output
+        assert "Install complete" not in proc.stdout
 
 
 def test_preflight_group_ids_pass_graphiti_validation() -> None:
