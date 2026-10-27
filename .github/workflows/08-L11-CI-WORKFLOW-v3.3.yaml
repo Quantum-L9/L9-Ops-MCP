@@ -512,11 +512,8 @@ jobs:
           ${{ steps.drift.outputs.drift_issues }}
 
           ### Resolution
-          Run locally:
-          \`\`\`bash
-          MODE=reconcile ./DEPLOY.sh
-          MODE=reconcile WRITE=true ./DEPLOY.sh  # auto-fix
-          \`\`\`
+          Restore each listed artifact in a pull request (DEPLOY.sh was
+          retired under D-16 A; there is no automated reconcile).
 
           _Opened automatically by L11 Drift Reconciliation job._" \
             --label "governance,l11,drift"
