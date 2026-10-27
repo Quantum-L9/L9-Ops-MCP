@@ -25,7 +25,14 @@ def allocate(facts: list[ContextFact], token_budget: int) -> ContextSlice:
     mid = max(1, len(facts) // 2)
     t1, u1 = _fill(facts[:mid] or facts, t1b)
     t2, u2 = _fill(facts[mid:], t2b)
-    t3, u3 = _fill([f for f in facts if f.invalid_at is None][:20], t3b)
+    # Tier 3 draws only from facts not already injected in tiers 1/2, so each
+    # fact appears once and token_count counts distinct context.
+    taken_ids = {id(f) for f in t1 + t2}
+    taken_uuids = {f.uuid for f in t1 + t2 if f.uuid}
+    remaining = [
+        f for f in facts if id(f) not in taken_ids and not (f.uuid and f.uuid in taken_uuids)
+    ]
+    t3, u3 = _fill([f for f in remaining if f.invalid_at is None][:20], t3b)
     return ContextSlice(
         tier1_load_bearing=t1,
         tier2_examples=t2,

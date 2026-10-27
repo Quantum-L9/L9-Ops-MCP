@@ -17,6 +17,7 @@ Two planes are exposed:
 from __future__ import annotations
 
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -27,6 +28,7 @@ from .kernel_models import (
     KernelNotFoundError,
     KernelRequestInvalidError,
     KernelResolutionRequest,
+    KernelSchemaInvalidError,
 )
 from .kernel_registry import KernelRegistry
 from .kernel_resolver import KernelResolver
@@ -43,7 +45,7 @@ mcp = FastMCP(
         "L9-Ops-MCP exposes two planes. "
         "Governed memory (advisory / historical): use memory_get_budget_slice "
         "to read context, memory_ingest_episode to write, memory_query_context "
-        "for search, memory_invalidate_fact to expire stale facts. "
+        "for trust-scoped search, memory_invalidate_fact to expire stale facts. "
         "Canonical kernel authority (normative): use kernel_resolve to obtain "
         "a deterministic kernel-authority resolution for a declared execution "
         "profile. Kernel resolution never consults Graphiti or an LLM."
@@ -101,9 +103,13 @@ async def memory_get_budget_slice(
 ) -> dict[str, object]:
     """Return a budget-bounded, read-only RuntimePayload for the given task.
     This is the ONLY way to inject graph context into an agent context window."""
+    from .trust_ladder import validate_trust_level
+
+    level = validate_trust_level(trust_level)  # raises before any graph access
+
     from .hydrator import hydrate
 
-    payload = await hydrate(task_type, agent_id, token_budget, trust_level, session_id)  # type: ignore[arg-type]
+    payload = await hydrate(task_type, agent_id, token_budget, level, session_id)
     return payload.model_dump(mode="json")
 
 
@@ -115,20 +121,28 @@ async def memory_ingest_episode(
     group_ids: list[str] | None = None,
     semantic_score: float = 1.0,
     trust_level: str = "L2",
+    external_sharing: bool = False,
+    consent: str = "deny",
 ) -> dict[str, object]:
-    """Write a durable memory episode through the 5-criteria admission gate.
-    Low-quality or low-trust writes are quarantined, not silently admitted."""
+    """Write a durable memory episode through the 5-criteria admission gate
+    (relevance, trust, consent, deduplication, provenance).
+    Low-quality writes are quarantined; low-trust writes and external-sharing
+    writes without consent="granted" are blocked; duplicates are merged into the
+    existing fact (provenance appended, no new episode)."""
     from .memory_ops import ingest_episode
     from .models import MemoryCandidate
+    from .trust_ladder import SESSION_CURRENT
 
     c = MemoryCandidate(
         body=body,
         source_agent_id=source_agent_id,
         session_id=session_id,
         origin_timestamp=datetime.now(timezone.utc),
-        group_ids=group_ids or ["session:current"],
+        group_ids=group_ids or [SESSION_CURRENT],
         semantic_score=semantic_score,
         trust_level=trust_level,  # type: ignore[arg-type]
+        external_sharing=external_sharing,
+        consent=consent,  # type: ignore[arg-type]
     )
     return await ingest_episode(c)
 
@@ -136,42 +150,57 @@ async def memory_ingest_episode(
 @mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_query_context(
     query: str,
+    agent_id: str,
+    trust_level: str,
     group_ids: list[str] | None = None,
     limit: int = 10,
 ) -> dict[str, object]:
-    """Read-only graph search across sessions, agents, playbooks, decisions."""
-    from .graphiti_client import get_graphiti
+    """Read-only graph search, scoped by the trust ladder exactly like
+    memory_get_budget_slice: L0 returns nothing, unknown trust levels are
+    rejected, and group_ids may only narrow the caller's allowed scopes."""
+    from .hydrator import query as scoped_query
 
-    g = await get_graphiti()
-    hits = await g.search(query=query, group_ids=group_ids, num_results=limit)
-    return {
-        "facts": [
-            {
-                "fact": h.fact,
-                "uuid": str(getattr(h, "uuid", "")),
-                "valid_at": str(getattr(h, "valid_at", None)),
-            }
-            for h in hits
-        ]
-    }
+    facts = await scoped_query(query, agent_id, trust_level, limit=limit, group_ids=group_ids)
+    return {"facts": facts}
+
+
+# Facts are RELATES_TO relationships between Entity nodes (graphiti-core
+# EntityEdge); a node pattern such as (n {uuid: $uuid}) can never match one.
+# invalid_at / expired_at follow graphiti's own invalidation semantics and are
+# stored as datetimes; read paths exclude edges with invalid_at set.
+_INVALIDATE_EDGE_CYPHER = """
+MATCH (:Entity)-[e:RELATES_TO {uuid: $uuid}]->(:Entity)
+SET e.invalid_at = $ts,
+    e.expired_at = coalesce(e.expired_at, $ts),
+    e.invalid_reason = $reason
+RETURN e.uuid AS uuid
+"""
 
 
 @mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_invalidate_fact(entity_uuid: str, reason: str) -> dict[str, object]:
-    """Mark a graph fact as invalid (temporal expiry). Does not delete the node."""
+    """Mark a graph fact (RELATES_TO edge, by uuid) as invalid. Does not delete it.
+
+    Returns ``{invalidated, reason, ts}`` when the edge was updated and
+    ``{status: 'not_found', invalidated: None, uuid}`` when no fact edge has
+    that uuid. Driver errors surface as tool errors."""
     from .graphiti_client import get_graphiti
 
     g = await get_graphiti()
-    await g.driver.execute_query(
-        "MATCH (n {uuid: $uuid}) SET n.invalid_at = $ts, n.invalid_reason = $reason",
+    now = datetime.now(timezone.utc)
+    records, _, _ = await g.driver.execute_query(
+        _INVALIDATE_EDGE_CYPHER,
         uuid=entity_uuid,
-        ts=datetime.now(timezone.utc).isoformat(),
+        ts=now,
         reason=reason,
     )
+    if not records:
+        return {"status": "not_found", "invalidated": None, "uuid": entity_uuid}
     return {
+        "status": "invalidated",
         "invalidated": entity_uuid,
         "reason": reason,
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": now.isoformat(),
     }
 
 
@@ -200,10 +229,14 @@ async def kernel_resolve(
     the stable error-code taxonomy.
 
     Every failure path returns the ``{status: 'error', code, message}``
-    envelope. Non-``KernelAuthorityError`` exceptions (bad input types,
-    NaN/Inf floats, IO errors on registry load) are caught and mapped to
-    ``KERNEL_REQUEST_INVALID`` or ``KERNEL_NOT_FOUND`` so the MCP boundary
-    never leaks a raw Python traceback to callers.
+    envelope. Caller faults (bad input types, NaN/Inf floats) map to
+    ``KERNEL_REQUEST_INVALID``. Repository-state faults while loading the
+    registry (missing, unreadable or malformed index / schema / kernel) are
+    mapped by ``kernel_registry`` to repository codes (``KERNEL_NOT_FOUND``,
+    ``KERNEL_INDEX_ENTRY_MISSING``, ``KERNEL_SCHEMA_INVALID``); any other
+    load-time fault is reported as ``KERNEL_NOT_FOUND`` (I/O) or
+    ``KERNEL_SCHEMA_INVALID`` (data), never as a caller fault, so the MCP
+    boundary never leaks a raw Python traceback to callers.
 
     This tool is normative authority. It does NOT read Graphiti, memory, or
     an LLM.
@@ -220,7 +253,25 @@ async def kernel_resolve(
             requested_kernel_ids=(),
             allow_experimental=bool(allow_experimental),
         )
+    except KernelAuthorityError as exc:
+        return exc.to_dict()
+    except (TypeError, ValueError) as exc:
+        return KernelRequestInvalidError(f"malformed kernel_resolve request: {exc}").to_dict()
+
+    try:
         resolver = _get_resolver()
+    except KernelAuthorityError as exc:
+        return exc.to_dict()
+    except OSError as exc:
+        # Repository state could not be read (missing or unreadable index,
+        # canonical kernel, or schema).
+        return KernelNotFoundError(f"kernel authority load failed: {exc}").to_dict()
+    except (TypeError, ValueError) as exc:
+        # Malformed repository data surfaced outside the registry's own
+        # mapping. This is a repository fault, not a caller fault.
+        return KernelSchemaInvalidError(f"kernel authority load failed: {exc}").to_dict()
+
+    try:
         resolution = resolver.resolve(request)
     except KernelAuthorityError as exc:
         return exc.to_dict()
@@ -228,11 +279,6 @@ async def kernel_resolve(
         # Malformed input types that reached the domain layer despite the
         # coercion guard. Map to the stable request-invalid envelope.
         return KernelRequestInvalidError(f"malformed kernel_resolve request: {exc}").to_dict()
-    except FileNotFoundError as exc:
-        # Registry load hit missing repository state (retrieval index,
-        # canonical kernel, or schema). Surface as KERNEL_NOT_FOUND rather
-        # than a raw OSError traceback.
-        return KernelNotFoundError(f"kernel authority load failed: {exc}").to_dict()
 
     payload = resolution.to_dict()
     payload["status"] = "ok"
@@ -267,12 +313,38 @@ def _coerce_max_overload_weight(value: object) -> float:
     return coerced
 
 
+_LOOPBACK_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
+def _configure_http(host: str, port: int) -> None:
+    """Apply streamable-HTTP settings to the module-level FastMCP instance.
+
+    mcp 1.x ``FastMCP.run()`` accepts only ``transport`` (and ``mount_path``);
+    host, port and path live in ``FastMCP.settings`` and are read when
+    ``run_streamable_http_async`` builds the app, so setting them here takes
+    effect. DNS-rebinding protection mirrors the FastMCP constructor: enabled
+    for loopback hosts, left as constructed otherwise (the constructor's
+    loopback default would reject every non-loopback Host header).
+    """
+    settings = mcp.settings
+    settings.host = host
+    settings.port = port
+    settings.streamable_http_path = "/mcp"
+    if host not in _LOOPBACK_HOSTS:
+        settings.transport_security = None
+
+
 def main() -> None:
     transport = os.getenv("L9_MCP_TRANSPORT", "stdio")
     if transport == "http":
         host = os.getenv("L9_MCP_HTTP_HOST", "127.0.0.1")
-        port = int(os.getenv("L9_MCP_HTTP_PORT", "7010"))
-        mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")
+        raw_port = os.getenv("L9_MCP_HTTP_PORT", "7010")
+        try:
+            port = int(raw_port)
+        except ValueError:
+            sys.exit(f"L9_MCP_HTTP_PORT must be an integer port, got {raw_port!r}")
+        _configure_http(host, port)
+        mcp.run(transport="streamable-http")
     else:
         mcp.run(transport="stdio")
 
