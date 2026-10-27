@@ -21,10 +21,11 @@ DORA:
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import structlog
 
@@ -36,12 +37,22 @@ logger = structlog.get_logger(__name__)
 # ─────────────────────────────────────────────
 @dataclass
 class Finding:
-    """Single debt finding from any detection engine."""
+    """Single debt finding from any detection engine.
+
+    The canonical wire shape is the producer contract of
+    ``DeterministicEngine.scan`` (``scripts/l11/deterministic_engine.py``):
+    a mapping with ``tool``, ``rule``, ``message``, ``file``, ``line`` and
+    ``severity``.  ``RiskScorer`` and ``DebtGraphService`` read those same keys,
+    so :meth:`to_dict` must emit them unchanged.
+    """
+
+    REQUIRED_KEYS: ClassVar[tuple[str, ...]] = ("tool", "message", "severity")
 
     tool: str
     message: str
     severity: str
-    file_path: str = ""
+    rule: str = ""
+    file: str = ""
     line: int = 0
     risk_score: float = 0.0
     owner: str | None = None
@@ -49,13 +60,41 @@ class Finding:
     ai_enrichment: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=lambda: datetime.now(tz=timezone.utc))
 
+    @classmethod
+    def from_dict(cls, raw: Mapping[str, Any]) -> Finding:
+        """Build a Finding from a producer dict.
+
+        Raises:
+            ValueError: If *raw* is not a mapping or lacks a required key.
+        """
+        if not isinstance(raw, Mapping):
+            msg = f"producer finding must be a mapping, got {type(raw).__name__}"
+            raise ValueError(msg)
+        missing = [k for k in cls.REQUIRED_KEYS if not isinstance(raw.get(k), str)]
+        if missing:
+            msg = f"producer finding missing required string keys: {', '.join(missing)}"
+            raise ValueError(msg)
+        line = raw.get("line", 0)
+        enrichment = raw.get("ai_enrichment")
+        return cls(
+            tool=raw["tool"],
+            message=raw["message"],
+            severity=raw["severity"],
+            rule=str(raw.get("rule") or ""),
+            file=str(raw.get("file") or ""),
+            line=line if isinstance(line, int) else 0,
+            owner=raw.get("owner"),
+            ai_enrichment=dict(enrichment) if isinstance(enrichment, Mapping) else {},
+        )
+
     def to_dict(self) -> dict[str, Any]:
-        """Serialize finding for JSON/Neo4j storage."""
+        """Serialize finding for scoring and JSON/Neo4j storage (producer keys)."""
         return {
             "tool": self.tool,
+            "rule": self.rule,
             "message": self.message,
             "severity": self.severity,
-            "file_path": self.file_path,
+            "file": self.file,
             "line": self.line,
             "risk_score": self.risk_score,
             "owner": self.owner,
@@ -63,6 +102,39 @@ class Finding:
             "ai_enrichment": self.ai_enrichment,
             "created_at": self.created_at.isoformat(),
         }
+
+
+def findings_from_producer(raw_findings: Any) -> list[Finding]:
+    """Convert producer output into Findings.
+
+    A malformed entry does not abort the scan: it becomes a failing
+    ``malformed_finding`` Finding so the scan cannot pass on bad input.
+    """
+    if not isinstance(raw_findings, list):
+        logger.error("malformed_producer_findings", type=type(raw_findings).__name__)
+        return [
+            Finding(
+                tool="l11_orchestrator",
+                rule="malformed_finding",
+                message=(f"producer findings must be a list, got {type(raw_findings).__name__}"),
+                severity="P1",
+            )
+        ]
+    findings: list[Finding] = []
+    for index, raw in enumerate(raw_findings):
+        try:
+            findings.append(Finding.from_dict(raw))
+        except ValueError as exc:
+            logger.error("malformed_producer_finding", index=index, error=str(exc))
+            findings.append(
+                Finding(
+                    tool="l11_orchestrator",
+                    rule="malformed_finding",
+                    message=f"finding #{index} rejected: {exc}",
+                    severity="P1",
+                )
+            )
+    return findings
 
 
 @dataclass
@@ -163,7 +235,8 @@ class L11Orchestrator:
 
         # Phase 1
         det_result = await self.deterministic_engine.scan(changed_files)
-        findings: list[Finding] = det_result["findings"]
+        findings = findings_from_producer(det_result.get("findings"))
+        passed = bool(det_result.get("passed")) and not findings
 
         # Phase 2
         for f in findings:
@@ -196,7 +269,7 @@ class L11Orchestrator:
         )
 
         return ScanResult(
-            passed=det_result["passed"],
+            passed=passed,
             findings=findings,
             should_block_merge=should_block,
             enrichment_queued=enrichment_queued,
@@ -220,7 +293,8 @@ class L11Orchestrator:
         logger.info("nightly_scan_started", scope=scope)
 
         det_result = await self.deterministic_engine.scan(scope)
-        findings: list[Finding] = det_result["findings"]
+        findings = findings_from_producer(det_result.get("findings"))
+        passed = bool(det_result.get("passed")) and not findings
 
         for f in findings:
             f.risk_score = self.risk_scorer.calculate(f.to_dict())
@@ -248,7 +322,7 @@ class L11Orchestrator:
         )
 
         return ScanResult(
-            passed=det_result["passed"],
+            passed=passed,
             findings=findings,
             regressions=regressions,
             duration_ms=duration_ms,
