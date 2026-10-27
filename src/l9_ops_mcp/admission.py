@@ -53,53 +53,92 @@ async def evaluate(
     candidate: MemoryCandidate,
     dedup_check: Callable[[str], Awaitable[bool]],
 ) -> tuple[bool, str]:
-    ts = datetime.now(timezone.utc).isoformat()
-    base = {
-        "session": candidate.session_id,
-        "agent": candidate.source_agent_id,
-        "ts": ts,
-    }
+    base = decision_base(candidate)
 
     if candidate.semantic_score < THRESHOLD:
-        qf = _quarantine_path(candidate)
-        # Log the decision before the write so a write failure cannot drop it.
-        _log(
-            {
-                **base,
-                "criterion": "relevance",
-                "disposition": "quarantine",
-                "score": candidate.semantic_score,
-                "quarantine_file": qf.name,
-            }
-        )
-        try:
-            QUARANTINE.mkdir(parents=True, exist_ok=True)
-            qf.write_text(candidate.model_dump_json(indent=2))
-        except OSError as exc:
-            _log(
-                {
-                    **base,
-                    "criterion": "relevance",
-                    "disposition": "quarantine_write_failed",
-                    "error": f"{type(exc).__name__}: {exc}",
-                    "candidate": candidate.model_dump(mode="json"),
-                }
-            )
-            msg = f"quarantine write failed for session {candidate.session_id!r}: {exc}"
-            raise QuarantineWriteError(msg) from exc
+        quarantine(candidate, "relevance", base, score=candidate.semantic_score)
         return False, "quarantine:relevance"
 
     if not _ge(candidate.trust_level, MIN_TRUST):
         _log({**base, "criterion": "trust", "disposition": "block_with_escalation"})
         return False, "block:trust"
 
+    if candidate.external_sharing and candidate.consent != "granted":
+        _log({**base, "criterion": "consent", "disposition": "block"})
+        return False, "block:consent"
+
+    provenance_ok = all(
+        [candidate.source_agent_id, candidate.session_id, candidate.origin_timestamp]
+    )
+
     if await dedup_check(candidate.body):
+        # A merge writes the candidate's provenance onto the existing fact, so
+        # it needs the same provenance stamp an admitted write does.
+        if not provenance_ok:
+            _log({**base, "criterion": "provenance", "disposition": "block"})
+            return False, "block:provenance"
         _log({**base, "criterion": "deduplication", "disposition": "merge"})
         return False, "merge:dedup"
 
-    if not all([candidate.source_agent_id, candidate.session_id, candidate.origin_timestamp]):
+    if not provenance_ok:
         _log({**base, "criterion": "provenance", "disposition": "block"})
         return False, "block:provenance"
 
     _log({**base, "criterion": "all", "disposition": "admit", "score": candidate.semantic_score})
     return True, "admit"
+
+
+def decision_base(candidate: MemoryCandidate) -> dict[str, object]:
+    return {
+        "session": candidate.session_id,
+        "agent": candidate.source_agent_id,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def log_decision(
+    candidate: MemoryCandidate, criterion: str, disposition: str, **extra: object
+) -> None:
+    """Record a post-gate decision (e.g. a completed merge) in the admission log."""
+    _log({**decision_base(candidate), "criterion": criterion, "disposition": disposition, **extra})
+
+
+def quarantine(
+    candidate: MemoryCandidate,
+    criterion: str,
+    base: dict[str, object] | None = None,
+    **extra: object,
+) -> Path:
+    """Retain a candidate in memory_quarantine/ with a logged rationale.
+
+    The decision is logged before the write so a write failure cannot drop it;
+    a write failure is logged with the error and the full candidate, then
+    raised as :class:`QuarantineWriteError`.
+    """
+    base = base if base is not None else decision_base(candidate)
+    qf = _quarantine_path(candidate)
+    _log(
+        {
+            **base,
+            "criterion": criterion,
+            "disposition": "quarantine",
+            **extra,
+            "quarantine_file": qf.name,
+        }
+    )
+    try:
+        QUARANTINE.mkdir(parents=True, exist_ok=True)
+        qf.write_text(candidate.model_dump_json(indent=2))
+    except OSError as exc:
+        _log(
+            {
+                **base,
+                "criterion": criterion,
+                "disposition": "quarantine_write_failed",
+                "error": f"{type(exc).__name__}: {exc}",
+                "candidate": candidate.model_dump(mode="json"),
+            }
+        )
+        msg = f"quarantine write failed for session {candidate.session_id!r}: {exc}"
+        raise QuarantineWriteError(msg) from exc
+    return qf

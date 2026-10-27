@@ -36,11 +36,22 @@ def _edge(fact: str, group_id: str = "g", uuid: str | None = None) -> EntityEdge
     return EntityEdge(**kwargs)
 
 
+class _FakeDriver:
+    def __init__(self, edges: list[EntityEdge]) -> None:
+        self.edges = edges
+
+    async def execute_query(self, query: str, **kwargs: Any):
+        if any(e.uuid == kwargs.get("uuid") for e in self.edges):
+            return [{"uuid": kwargs["uuid"]}], None, ["uuid"]
+        return [], None, []
+
+
 class _FakeGraph:
     """Implements the graphiti-core 0.31 surface the service uses."""
 
     def __init__(self, edges: list[EntityEdge], scores: list[float] | None = None) -> None:
         self.edges = edges
+        self.driver = _FakeDriver(edges)
         self.scores = scores if scores is not None else []
         self.calls: list[dict[str, Any]] = []
         self.episodes: list[dict[str, Any]] = []

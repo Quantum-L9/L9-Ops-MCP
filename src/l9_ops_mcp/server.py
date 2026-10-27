@@ -121,9 +121,14 @@ async def memory_ingest_episode(
     group_ids: list[str] | None = None,
     semantic_score: float = 1.0,
     trust_level: str = "L2",
+    external_sharing: bool = False,
+    consent: str = "deny",
 ) -> dict[str, object]:
-    """Write a durable memory episode through the 5-criteria admission gate.
-    Low-quality or low-trust writes are quarantined, not silently admitted."""
+    """Write a durable memory episode through the 5-criteria admission gate
+    (relevance, trust, consent, deduplication, provenance).
+    Low-quality writes are quarantined; low-trust writes and external-sharing
+    writes without consent="granted" are blocked; duplicates are merged into the
+    existing fact (provenance appended, no new episode)."""
     from .memory_ops import ingest_episode
     from .models import MemoryCandidate
     from .trust_ladder import SESSION_CURRENT
@@ -136,6 +141,8 @@ async def memory_ingest_episode(
         group_ids=group_ids or [SESSION_CURRENT],
         semantic_score=semantic_score,
         trust_level=trust_level,  # type: ignore[arg-type]
+        external_sharing=external_sharing,
+        consent=consent,  # type: ignore[arg-type]
     )
     return await ingest_episode(c)
 
