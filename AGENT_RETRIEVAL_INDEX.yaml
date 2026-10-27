@@ -1305,13 +1305,13 @@ files:
   scripts/l11/orchestrator.py:
     retrieval: on_demand
     role: script
-    sha256: 5bb4c49a920dd246ff0a05a9a67f14814cacc7b07dd4e811ed0e99772824f2f3
+    sha256: 2439d16e1654295e839aa6bf9bb87201719a8571cb5fb4b2499be50c8e5fbe8e
     tags:
     - general
   scripts/l11/pipeline_config.yaml:
     retrieval: on_demand
     role: script
-    sha256: 17f85f04e8cb4a1913dc52d01a3e96a74e0e416b999151e33024009ddbb31632
+    sha256: 55feb9493285470fd506149a0c1a1300c4b65f58af23d369e8cf084f1a3fbb25
     tags:
     - general
   scripts/l11/risk_scorer.py:
@@ -1371,7 +1371,7 @@ files:
   scripts/test_orchestrator.py:
     retrieval: on_demand
     role: script
-    sha256: 902782b504eeacb6a1bba532f9bf37b5bc7187d1e04b04eb2217f50fcc5778b8
+    sha256: 255274f36f653c4e73a3a8cacc2b084188f8ef30fde000776979cecd4fe0a1e5
     tags:
     - general
   scripts/test_risk_scorer.py:
@@ -1383,7 +1383,7 @@ files:
   scripts/validate-protected-files-v6.py:
     retrieval: on_demand
     role: script
-    sha256: 1849366e847839f30b8859a6ca383dd82a4f17396ccc654d8e53b301427d961e
+    sha256: 3ab18f1df6352ce6f6d800a740f95911f9066463857b91d83774f676a37fa39d
     tags:
     - general
   scripts/validate_headers.py:

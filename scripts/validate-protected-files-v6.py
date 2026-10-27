@@ -114,7 +114,15 @@ def get_changed_files(base_ref: str = "origin/main") -> list[str]:
     old and the new path of a renamed file are reported, and no diff filter is
     applied so deletions and type changes are reported too.
     """
-    cmd = ["git", "diff", "--name-only", "--no-renames", "-z", f"{base_ref}...HEAD"]
+    cmd = [
+        "git",
+        "diff",
+        "--name-only",
+        "--no-renames",
+        "-z",
+        "--end-of-options",
+        f"{base_ref}...HEAD",
+    ]
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
     except (OSError, subprocess.SubprocessError) as e:
@@ -183,7 +191,7 @@ def check_approval(policy: dict, base_ref: str = "origin/main") -> bool:
     # Check commit messages of the PR's own commits only
     try:
         result = subprocess.run(
-            ["git", "log", "--format=%s", f"{base_ref}..HEAD"],
+            ["git", "log", "--format=%s", "--end-of-options", f"{base_ref}..HEAD"],
             capture_output=True,
             text=True,
             timeout=10,

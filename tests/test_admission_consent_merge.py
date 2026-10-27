@@ -18,7 +18,6 @@ from graphiti_core.search.search_config import SearchResults
 import l9_ops_mcp.admission as adm
 import l9_ops_mcp.memory_ops as memory_ops
 import l9_ops_mcp.server as server
-from l9_ops_mcp.admission import evaluate
 from l9_ops_mcp.models import MemoryCandidate
 
 NOW = datetime(2026, 1, 1, tzinfo=timezone.utc)
@@ -64,7 +63,7 @@ def test_consent_defaults_to_deny_for_external_sharing() -> None:
 
 def test_external_sharing_without_consent_is_blocked_and_logged(paths) -> None:
     log, _ = paths
-    ok, disp = asyncio.run(evaluate(_candidate(external_sharing=True), _no_dup))
+    ok, disp = asyncio.run(adm.evaluate(_candidate(external_sharing=True), _no_dup))
     assert (ok, disp) == (False, "block:consent")
     last = _lines(log)[-1]
     assert last["criterion"] == "consent"
@@ -72,12 +71,14 @@ def test_external_sharing_without_consent_is_blocked_and_logged(paths) -> None:
 
 
 def test_external_sharing_with_explicit_consent_is_admitted(paths) -> None:
-    ok, disp = asyncio.run(evaluate(_candidate(external_sharing=True, consent="granted"), _no_dup))
+    ok, disp = asyncio.run(
+        adm.evaluate(_candidate(external_sharing=True, consent="granted"), _no_dup)
+    )
     assert (ok, disp) == (True, "admit")
 
 
 def test_internal_write_needs_no_consent(paths) -> None:
-    ok, disp = asyncio.run(evaluate(_candidate(), _no_dup))
+    ok, disp = asyncio.run(adm.evaluate(_candidate(), _no_dup))
     assert (ok, disp) == (True, "admit")
 
 
@@ -89,9 +90,9 @@ def test_criteria_order_trust_before_consent_before_dedup(paths) -> None:
         return True
 
     low_trust = _candidate(trust_level="L1", external_sharing=True)
-    assert asyncio.run(evaluate(low_trust, dup)) == (False, "block:trust")
+    assert asyncio.run(adm.evaluate(low_trust, dup)) == (False, "block:trust")
     no_consent = _candidate(external_sharing=True)
-    assert asyncio.run(evaluate(no_consent, dup)) == (False, "block:consent")
+    assert asyncio.run(adm.evaluate(no_consent, dup)) == (False, "block:consent")
     assert calls == []  # consent is decided before the deduplication graph check
 
 
