@@ -42,14 +42,20 @@ log "Seeding global:decisions from CANONICAL_LAW.md..."
 python -m l9_ops_mcp.seed || log "seed skipped (CANONICAL_LAW.md not found — set CG_ROOT)"
 
 # ── 5. Cursor MCP config ──────────────────────────────────────────────────────
+# The writers refuse (exit 1, reason on stderr) rather than overwrite a config
+# they cannot parse; install continues so the user can merge the entry by hand.
 log "Writing ~/.cursor/mcp.json..."
-python scripts/write_cursor_config.py
+if python scripts/write_cursor_config.py; then
+    log "Cursor MCP config written."
+else
+    log "Cursor MCP config NOT written (see message above); add the l9-ops-mcp entry manually."
+fi
 
 # ── 6. Claude Desktop config (optional) ──────────────────────────────────────
-if python scripts/write_claude_config.py 2>/dev/null; then
+if python scripts/write_claude_config.py; then
     log "Claude Desktop config written."
 else
-    log "Claude Desktop config skipped (not installed or unsupported platform)."
+    log "Claude Desktop config NOT written (see message above)."
 fi
 
 # ── 7. Wire Cursor-Governance sink ────────────────────────────────────────────
