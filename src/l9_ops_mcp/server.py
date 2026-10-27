@@ -163,22 +163,43 @@ async def memory_query_context(
     }
 
 
+# Facts are RELATES_TO relationships between Entity nodes (graphiti-core
+# EntityEdge); a node pattern such as (n {uuid: $uuid}) can never match one.
+# invalid_at / expired_at follow graphiti's own invalidation semantics and are
+# stored as datetimes; read paths exclude edges with invalid_at set.
+_INVALIDATE_EDGE_CYPHER = """
+MATCH (:Entity)-[e:RELATES_TO {uuid: $uuid}]->(:Entity)
+SET e.invalid_at = $ts,
+    e.expired_at = coalesce(e.expired_at, $ts),
+    e.invalid_reason = $reason
+RETURN e.uuid AS uuid
+"""
+
+
 @mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_invalidate_fact(entity_uuid: str, reason: str) -> dict[str, object]:
-    """Mark a graph fact as invalid (temporal expiry). Does not delete the node."""
+    """Mark a graph fact (RELATES_TO edge, by uuid) as invalid. Does not delete it.
+
+    Returns ``{invalidated, reason, ts}`` when the edge was updated and
+    ``{status: 'not_found', invalidated: None, uuid}`` when no fact edge has
+    that uuid. Driver errors surface as tool errors."""
     from .graphiti_client import get_graphiti
 
     g = await get_graphiti()
-    await g.driver.execute_query(
-        "MATCH (n {uuid: $uuid}) SET n.invalid_at = $ts, n.invalid_reason = $reason",
+    now = datetime.now(timezone.utc)
+    records, _, _ = await g.driver.execute_query(
+        _INVALIDATE_EDGE_CYPHER,
         uuid=entity_uuid,
-        ts=datetime.now(timezone.utc).isoformat(),
+        ts=now,
         reason=reason,
     )
+    if not records:
+        return {"status": "not_found", "invalidated": None, "uuid": entity_uuid}
     return {
+        "status": "invalidated",
         "invalidated": entity_uuid,
         "reason": reason,
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": now.isoformat(),
     }
 
 

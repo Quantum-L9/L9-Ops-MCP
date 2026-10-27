@@ -14,6 +14,7 @@ from graphiti_core.cross_encoder.openai_reranker_client import OpenAIRerankerCli
 from graphiti_core.embedder.openai import OpenAIEmbedder, OpenAIEmbedderConfig
 from graphiti_core.llm_client import LLMConfig, OpenAIClient
 from graphiti_core.search.search_config_recipes import EDGE_HYBRID_SEARCH_RRF
+from graphiti_core.search.search_filters import ComparisonOperator, DateFilter, SearchFilters
 
 OPENAI_KEY_ENV = "L9_OPENAI_API_KEY"
 _UPSTREAM_OPENAI_KEY_ENV = "OPENAI_API_KEY"
@@ -82,6 +83,16 @@ async def close() -> None:
 RelevanceSignal = Literal["rrf", "ordinal"]
 
 
+def valid_facts_filter() -> SearchFilters:
+    """SearchFilters that exclude invalidated fact edges (``invalid_at IS NULL``).
+
+    U-03: graphiti-core 0.31.2 search does not exclude edges whose invalid_at
+    is set unless ``SearchFilters.invalid_at`` is supplied, so every read path
+    passes this filter explicitly.
+    """
+    return SearchFilters(invalid_at=[[DateFilter(comparison_operator=ComparisonOperator.is_null)]])
+
+
 @dataclass(frozen=True)
 class ScoredEdges:
     """Edges in relevance order with one score per edge and the signal used."""
@@ -105,13 +116,24 @@ async def search_edges(
     and takes the reciprocal-rank-fusion scores from
     ``SearchResults.edge_reranker_scores`` (deterministic; no LLM call). If the
     scores are unavailable or misaligned, it falls back explicitly to an
-    ordinal score derived from rank (``signal="ordinal"``).
+    ordinal score derived from rank (``signal="ordinal"``). Invalidated edges
+    (``invalid_at`` set) are excluded.
     """
     config = EDGE_HYBRID_SEARCH_RRF.model_copy(update={"limit": limit})
-    results = await g.search_(query=query, config=config, group_ids=group_ids)
-    edges = list(results.edges)
-    scores = [float(x) for x in results.edge_reranker_scores]
-    if edges and len(scores) == len(edges):
-        return ScoredEdges(edges=edges, scores=scores, signal="rrf")
+    results = await g.search_(
+        query=query,
+        config=config,
+        group_ids=group_ids,
+        search_filter=valid_facts_filter(),
+    )
+    raw_edges = list(results.edges)
+    raw_scores = [float(x) for x in results.edge_reranker_scores]
+    aligned = bool(raw_edges) and len(raw_scores) == len(raw_edges)
+    # Defence in depth: never serve an invalidated edge even if a backend
+    # ignores the filter.
+    keep = [i for i, e in enumerate(raw_edges) if getattr(e, "invalid_at", None) is None]
+    edges = [raw_edges[i] for i in keep]
+    if aligned:
+        return ScoredEdges(edges=edges, scores=[raw_scores[i] for i in keep], signal="rrf")
     n = len(edges)
     return ScoredEdges(edges=edges, scores=[(n - i) / n for i in range(n)], signal="ordinal")

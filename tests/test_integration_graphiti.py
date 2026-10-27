@@ -81,3 +81,40 @@ async def test_low_score_quarantined():
     result = await ingest_episode(c)
     assert result["admitted"] is False
     assert "quarantine" in result["disposition"]
+
+
+@pytest.mark.asyncio
+async def test_invalidate_round_trip():
+    """RG-06 live: ingest -> hydrate -> invalidate edge -> hydrate no longer serves it."""
+    from l9_ops_mcp.hydrator import hydrate
+    from l9_ops_mcp.memory_ops import ingest_episode
+    from l9_ops_mcp.models import MemoryCandidate
+    from l9_ops_mcp.server import memory_invalidate_fact
+
+    c = MemoryCandidate(
+        body="Integration round trip: the L9 invalidation probe uses Neo4j relationships.",
+        source_agent_id="test-agent",
+        session_id="s-invalidate",
+        group_ids=["session__s-invalidate"],
+        semantic_score=0.95,
+    )
+    await ingest_episode(c)
+    before = await hydrate("L9 invalidation probe", "test-agent", 4000, "L5", "s-invalidate")
+    facts = before.context_slice.tier1_load_bearing + before.context_slice.tier2_examples
+    assert facts, "graphiti extracted no fact edges from the ingested episode"
+    target = facts[0].uuid
+
+    result = await memory_invalidate_fact(target, "integration round trip")
+    assert result["invalidated"] == target
+
+    missing = await memory_invalidate_fact("00000000-0000-0000-0000-000000000000", "x")
+    assert missing["status"] == "not_found"
+
+    after = await hydrate("L9 invalidation probe", "test-agent", 4000, "L5", "s-invalidate")
+    served = {
+        f.uuid
+        for f in after.context_slice.tier1_load_bearing
+        + after.context_slice.tier2_examples
+        + after.context_slice.tier3_stakes
+    }
+    assert target not in served
