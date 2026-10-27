@@ -11,6 +11,7 @@ refused the (mode 100644) script, ``eval`` pointed at an absent root
 from __future__ import annotations
 
 import importlib.util
+import os
 import re
 import shutil
 import subprocess
@@ -26,10 +27,31 @@ MAKEFILE = ROOT / "Makefile"
 pytestmark = pytest.mark.skipif(shutil.which("make") is None, reason="GNU make not installed")
 
 
+_INHERITED_MAKE_VARS = {
+    "MAKEFLAGS",
+    "MFLAGS",
+    "MAKELEVEL",
+    "PYTHON",
+    "RUFF",
+    "MYPY",
+    "LINT_PATHS",
+    "TEST_PATHS",
+    "CI_STEPS",
+    "PREFLIGHT_SCRIPT",
+    "EVAL_CONFIG",
+    "GRAPH_INDEX",
+    "GRAPH_OUT",
+}
+
+
 def _make(*args: str, timeout: int = 600) -> subprocess.CompletedProcess[str]:
+    # Isolate from an enclosing make (e.g. this suite running under `make ci`):
+    # its command-line variables reach us through MAKEFLAGS and the environment.
+    env = {k: v for k, v in os.environ.items() if k not in _INHERITED_MAKE_VARS}
     return subprocess.run(
         ["make", "--no-print-directory", *args, f"PYTHON={sys.executable}"],
         cwd=ROOT,
+        env=env,
         capture_output=True,
         text=True,
         timeout=timeout,
