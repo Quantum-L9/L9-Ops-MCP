@@ -161,9 +161,13 @@ def test_legacy_colon_group_input_is_encoded_on_ingest(tmp_path, monkeypatch) ->
 
 
 def test_seed_group_is_valid(tmp_path, monkeypatch) -> None:
+    import l9_ops_mcp.admission as adm
+    import l9_ops_mcp.memory_ops as memory_ops
     import l9_ops_mcp.seed as seed
 
-    g = _patch_graph(monkeypatch, seed)
+    monkeypatch.setattr(adm, "LOG", tmp_path / "log.jsonl")
+    monkeypatch.setattr(adm, "QUARANTINE", tmp_path / "q")
+    g = _patch_graph(monkeypatch, memory_ops)
     law = tmp_path / "CANONICAL_LAW.md"
     law.write_text("# Section one\n" + "x" * 80 + "\n", encoding="utf-8")
     try:
