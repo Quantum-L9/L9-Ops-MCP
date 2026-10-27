@@ -226,25 +226,9 @@ ownership:
 # ─────────────────────────────────────────────
 # REMEDIATION
 # ─────────────────────────────────────────────
-remediation:
-  auto_fix:
-    enabled: true
-    supported_categories:
-      - linting_errors
-      - import_sorting
-      - docstring_missing
-      - type_hint_missing
-      - structlog_migration
-    safety:
-      require_passing_tests: true
-      shadow_diff_validation: true
-      rollback_on_failure: true
-      require_approval: true
-    codemod_framework:
-      enabled: true
-      supported_languages:
-        - python
-        - typescript
+# The auto-fix engine was retired (decision D-08 A): it was never wired into
+# the orchestrator, ignored its safety settings and could destroy uncommitted
+# work.  No remediation engine is configured.
 
 # ─────────────────────────────────────────────
 # SCALING
@@ -312,4 +296,3 @@ notifications:
       - "debt:p1"
       - "debt:p2"
       - "debt:p3"
-      - "auto-fix"
