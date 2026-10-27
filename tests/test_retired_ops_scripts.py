@@ -33,6 +33,9 @@ EXECUTABLE_SURFACES: tuple[str, ...] = (
 RETIRED: tuple[tuple[str, str], ...] = (
     # D-17 A: unguarded, non-idempotent ruleset POST to repos/cryptoxdog/L9.
     ("scripts/DEPLOY_ADDITIONS.sh", "D-17"),
+    # D-16 A: logged secrets, wrote during "dry-run" preflight, targeted a
+    # foreign repository layout (.github/scripts, tests_l11/).
+    ("scripts/DEPLOY-v3.3.sh", "D-16"),
 )
 
 
