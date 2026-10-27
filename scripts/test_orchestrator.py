@@ -300,3 +300,30 @@ class TestDefaultConstruction:
         health = await mock_engines.health_check()
         assert health["healthy"] is False
         assert health["missing_components"] == ["risk_scorer"]
+
+
+# ─────────────────────────────────────────────
+# WU-27 cross-component: nightly scan drives the debt lifecycle
+# ─────────────────────────────────────────────
+class TestNightlyLifecycle:
+    async def test_nightly_scan_marks_fixed_then_regressed(
+        self, real_pipeline_config, tmp_path, monkeypatch
+    ):
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "core").mkdir()
+        target = tmp_path / "core" / "a.py"
+        orch = L11Orchestrator(_write_config(real_pipeline_config, tmp_path))
+        debt_file = tmp_path / "debt.json"
+
+        target.write_text("import logging\n")
+        await orch.run_nightly_scan(scope=["core/a.py"])
+        assert json.loads(debt_file.read_text())[0]["status"] == "open"
+
+        target.write_text("import structlog\n")
+        await orch.run_nightly_scan(scope=["core/a.py"])
+        assert json.loads(debt_file.read_text())[0]["status"] == "fixed"
+
+        target.write_text("import logging\n")
+        result = await orch.run_nightly_scan(scope=["core/a.py"])
+        assert json.loads(debt_file.read_text())[0]["status"] == "regressed"
+        assert [r["file"] for r in result.regressions] == ["core/a.py"]

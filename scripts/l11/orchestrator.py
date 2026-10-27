@@ -245,12 +245,12 @@ class L11Orchestrator:
             ValueError: If a required engine cannot be built from config.
         """
         self.config = load_config(config_path)
-        self.deterministic_engine = deterministic_engine
+        self.deterministic_engine: Any = deterministic_engine
         if self.deterministic_engine is None:
             self.deterministic_engine = self._build(
                 "deterministic_engine", _build_deterministic_engine
             )
-        self.risk_scorer = risk_scorer
+        self.risk_scorer: Any = risk_scorer
         if self.risk_scorer is None:
             self.risk_scorer = self._build("risk_scorer", _build_risk_scorer)
         self.debt_graph = debt_graph
@@ -354,8 +354,10 @@ class L11Orchestrator:
         for f in findings:
             f.risk_score = self.risk_scorer.calculate(f.to_dict())
 
+        # A nightly scan is a complete scan of *scope*: it drives the
+        # open -> fixed -> regressed lifecycle.  PR scans only upsert.
         if self.debt_graph is not None:
-            await self.debt_graph.upsert_findings([f.to_dict() for f in findings])
+            await self.debt_graph.upsert_findings([f.to_dict() for f in findings], scope=scope)
 
         sched_cfg = self.config["execution"]["triggers"]["schedule"]
         if sched_cfg.get("ai_enrichment") and self.ai_engine is not None:
