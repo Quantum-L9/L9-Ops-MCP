@@ -158,7 +158,7 @@ def load_config(config_path: Path) -> dict[str, Any]:
     """Load pipeline YAML configuration.
 
     Args:
-        config_path: Path to 01-L11-PIPELINE-CONFIG.yaml
+        config_path: Path to the pipeline YAML (``scripts/l11/pipeline_config.yaml``).
 
     Returns:
         Parsed configuration dictionary.

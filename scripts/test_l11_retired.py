@@ -57,3 +57,14 @@ class TestAutoFixRetired:
     def test_pipeline_config_has_no_auto_fix_block(self):
         cfg = yaml.safe_load(PIPELINE_CONFIG.read_text())
         assert "auto_fix" not in cfg.get("remediation", {})
+
+
+class TestNumberedShimsRetired:
+    """RG-38 (D-09 A): the legacy numbered L11 shims are absent, not silent no-ops."""
+
+    def test_numbered_shim_files_are_gone(self):
+        shims = sorted(p.name for p in (REPO_ROOT / "scripts").glob("0[2-7]-L11-*.py"))
+        assert shims == []
+
+    def test_no_python_source_references_numbered_shims(self):
+        assert _referencing(r"0[2-7][-_]L11[-_]") == []
