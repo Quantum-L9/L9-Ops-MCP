@@ -441,3 +441,24 @@ class TestNightlyWithApiDown:
         orch = L11Orchestrator(_write_config(cfg, tmp_path))
         result = await orch.run_nightly_scan(scope=["core/a.py"])
         assert result.findings[0].ai_enrichment["enriched"] is False
+
+
+# ─────────────────────────────────────────────
+# WU-24 cross-component: an unrunnable check fails the PR scan
+# ─────────────────────────────────────────────
+class TestPrScanReflectsEngineFailure:
+    async def test_missing_tool_binary_fails_pr_scan(
+        self, real_pipeline_config, tmp_path, monkeypatch
+    ):
+        from scripts.l11 import deterministic_engine as de
+
+        def no_binary(cmd, **kwargs):
+            raise FileNotFoundError(cmd[0])
+
+        monkeypatch.setattr(de.subprocess, "run", no_binary)
+        cfg = copy.deepcopy(real_pipeline_config)
+        cfg["detection"]["deterministic_layer"]["engines"] = [{"name": "ruff", "enabled": True}]
+        orch = L11Orchestrator(_write_config(cfg, tmp_path))
+        result = await orch.run_pr_scan(pr_number=5, changed_files=["core/a.py"])
+        assert result.passed is False
+        assert [(f.tool, f.rule) for f in result.findings] == [("ruff", de.ENGINE_ERROR_RULE)]

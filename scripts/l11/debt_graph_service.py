@@ -30,11 +30,12 @@ from typing import Any
 
 import structlog
 
+# A tool that reported ENGINE_ERROR_RULE (a check that could not run) cannot
+# vouch that its earlier findings are gone, so they are never marked fixed.
+from scripts.l11.deterministic_engine import ENGINE_ERROR_RULE
+
 logger = structlog.get_logger(__name__)
 
-#: Rule a producer uses for a check that could not run.  Such a tool cannot
-#: vouch that its earlier findings are gone, so they are never marked fixed.
-ENGINE_ERROR_RULE = "engine_error"
 
 #: Statuses counted as live debt (stats) and eligible to become ``fixed``.
 LIVE_STATUSES = ("open", "regressed")

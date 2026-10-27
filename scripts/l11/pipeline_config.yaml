@@ -81,28 +81,14 @@ detection:
         enabled: true
         min_coverage_percent: 80.0
 
-    # ── L9 Existing CI Scripts (NEW — bridges L11 to L9) ──
+    # ── L9 Existing CI Scripts ──
+    # Disabled (decision D-07 A): the ci/ scripts this block listed belong to
+    # another repository layout and none exist here.  The deterministic engine
+    # fails closed on a configured script that is missing, so enabling this
+    # block requires every listed script to exist in this repository.
     l9_ci_scripts:
-      enabled: true
-      scripts:
-        - ci/check_adr_compliance.py
-        - ci/lint_forbidden_imports.py
-        - ci/check_protected_files.py
-        - ci/check_dependency_patterns.py
-        - ci/check_tool_wiring.py
-        - ci/check_substrate_api.py
-        - ci/check_global_state.py
-        - ci/check_imports.py
-        - ci/check_memory_bypass.py
-        - ci/check_no_deprecated_services.py
-        - ci/validate_dora_blocks.py
-        - ci/check_packet_type_naming.py
-        - ci/check_report_naming.py
-        - ci/check_tool_naming.py
-        - ci/check_schema_deprecation.py
-        - ci/validate_codegen.py
-        - ci/validate_spec_v25.py
-        - ci/check_definition_of_done.py
+      enabled: false
+      scripts: []
 
     # ── Test Suite (NEW — pytest + coverage) ──
     test_suite:
