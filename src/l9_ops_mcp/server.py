@@ -45,7 +45,7 @@ mcp = FastMCP(
         "L9-Ops-MCP exposes two planes. "
         "Governed memory (advisory / historical): use memory_get_budget_slice "
         "to read context, memory_ingest_episode to write, memory_query_context "
-        "for search, memory_invalidate_fact to expire stale facts. "
+        "for trust-scoped search, memory_invalidate_fact to expire stale facts. "
         "Canonical kernel authority (normative): use kernel_resolve to obtain "
         "a deterministic kernel-authority resolution for a declared execution "
         "profile. Kernel resolution never consults Graphiti or an LLM."
@@ -143,24 +143,18 @@ async def memory_ingest_episode(
 @mcp.tool()  # type: ignore[untyped-decorator]
 async def memory_query_context(
     query: str,
+    agent_id: str,
+    trust_level: str,
     group_ids: list[str] | None = None,
     limit: int = 10,
 ) -> dict[str, object]:
-    """Read-only graph search across sessions, agents, playbooks, decisions."""
-    from .graphiti_client import get_graphiti
+    """Read-only graph search, scoped by the trust ladder exactly like
+    memory_get_budget_slice: L0 returns nothing, unknown trust levels are
+    rejected, and group_ids may only narrow the caller's allowed scopes."""
+    from .hydrator import query as scoped_query
 
-    g = await get_graphiti()
-    hits = await g.search(query=query, group_ids=group_ids, num_results=limit)
-    return {
-        "facts": [
-            {
-                "fact": h.fact,
-                "uuid": str(getattr(h, "uuid", "")),
-                "valid_at": str(getattr(h, "valid_at", None)),
-            }
-            for h in hits
-        ]
-    }
+    facts = await scoped_query(query, agent_id, trust_level, limit=limit, group_ids=group_ids)
+    return {"facts": facts}
 
 
 # Facts are RELATES_TO relationships between Entity nodes (graphiti-core
