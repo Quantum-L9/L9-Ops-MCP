@@ -14,7 +14,8 @@ Scope (mechanical only):
 1. **Refresh sha256** for every indexed file whose on-disk bytes differ from
    the recorded hash. All other metadata (``retrieval``, ``role``, ``tags``)
    is preserved verbatim.
-2. **Remove entries** for indexed files that no longer exist on disk.
+2. **Remove entries** for indexed non-canonical files that no longer exist
+   on disk.
 3. **Refresh the index's own sha256** entry so the index is self-consistent.
 
 Non-goals (deliberately not touched):
@@ -30,7 +31,10 @@ Non-goals (deliberately not touched):
 Safety
 ------
 
-The script fails closed if a canonical kernel entry drifts. Canonical
+The script fails closed if a canonical kernel entry drifts or its file is
+deleted (a deletion is reported like drift and the entry is kept). Entries
+that name a directory or other non-regular file are reported and left
+untouched; they make the run exit non-zero but do not crash it. Canonical
 kernels have their integrity contract enforced by the kernel authority
 plane (contract §15, §5.3); silently refreshing them would defeat that
 contract. If you need to update a canonical kernel's hash, do it by
@@ -82,6 +86,8 @@ class RefreshReport:
     drift: list[DriftEntry]
     canonical_drift: list[DriftEntry]
     deleted: list[str]
+    canonical_deleted: list[str]
+    non_file: list[str]
     total_entries: int
 
 
@@ -101,6 +107,8 @@ def analyze(index: dict[str, Any]) -> RefreshReport:
     drift: list[DriftEntry] = []
     canonical_drift: list[DriftEntry] = []
     deleted: list[str] = []
+    canonical_deleted: list[str] = []
+    non_file: list[str] = []
     for rel, meta in files.items():
         # The index cannot record a stable hash of itself (writing the hash
         # changes the file). Skip drift analysis on the self-entry.
@@ -108,7 +116,13 @@ def analyze(index: dict[str, Any]) -> RefreshReport:
             continue
         path = REPO_ROOT / rel
         if not path.exists():
-            deleted.append(rel)
+            if _is_canonical_kernel(rel, meta):
+                canonical_deleted.append(rel)
+            else:
+                deleted.append(rel)
+            continue
+        if not path.is_file():
+            non_file.append(rel)
             continue
         indexed = meta.get("sha256") if isinstance(meta, dict) else None
         if not isinstance(indexed, str):
@@ -125,6 +139,8 @@ def analyze(index: dict[str, Any]) -> RefreshReport:
         drift=sorted(drift, key=lambda d: d.path),
         canonical_drift=sorted(canonical_drift, key=lambda d: d.path),
         deleted=sorted(deleted),
+        canonical_deleted=sorted(canonical_deleted),
+        non_file=sorted(non_file),
         total_entries=len(files),
     )
 
@@ -159,12 +175,19 @@ def format_report(report: RefreshReport) -> str:
         f"  non-canonical drift:   {len(report.drift)}",
         f"  canonical-kernel drift: {len(report.canonical_drift)}  (FATAL if > 0)",
         f"  deleted-file entries:  {len(report.deleted)}",
+        f"  canonical-kernel deletions: {len(report.canonical_deleted)}  (FATAL if > 0)",
+        f"  non-file entries:      {len(report.non_file)}",
     ]
     if report.canonical_drift:
         lines.append("")
         lines.append("CANONICAL KERNEL DRIFT — refusing to auto-refresh:")
         for e in report.canonical_drift:
             lines.append(f"  {e.path}  indexed={e.indexed_sha[:12]} actual={e.actual_sha[:12]}")
+    if report.canonical_deleted:
+        lines.append("")
+        lines.append("CANONICAL KERNEL DELETED — refusing to remove index entry:")
+        for rel in report.canonical_deleted:
+            lines.append(f"  {rel}")
     if report.drift:
         lines.append("")
         lines.append("Non-canonical drift (will refresh on --apply):")
@@ -174,6 +197,11 @@ def format_report(report: RefreshReport) -> str:
         lines.append("")
         lines.append("Deleted-file entries (will remove on --apply):")
         for rel in report.deleted:
+            lines.append(f"  {rel}")
+    if report.non_file:
+        lines.append("")
+        lines.append("Non-file entries (not a regular file; left untouched, fix by hand):")
+        for rel in report.non_file:
             lines.append(f"  {rel}")
     return "\n".join(lines)
 
@@ -196,21 +224,25 @@ def main(argv: list[str] | None = None) -> int:
     report = analyze(index)
     print(format_report(report))
 
-    if report.canonical_drift:
+    if report.canonical_drift or report.canonical_deleted:
         print(
-            "\nFATAL: canonical kernel drift detected. "
-            "The kernel authority plane refuses to silently refresh canonical "
-            "kernel hashes (contract §5.3). Fix the artifact intentionally.",
+            "\nFATAL: canonical kernel drift or deletion detected. "
+            "The kernel authority plane refuses to silently refresh or remove "
+            "canonical kernel entries (contract §5.3). Fix the artifact intentionally.",
             file=sys.stderr,
         )
         return 2
 
     has_changes = bool(report.drift or report.deleted)
+    unresolved = bool(report.non_file)
 
     if args.check:
-        return 1 if has_changes else 0
+        return 1 if has_changes or unresolved else 0
 
     if not has_changes:
+        if unresolved:
+            print("\nnon-file entries need manual repair.")
+            return 1
         print("\nno drift found; index is clean.")
         return 0
 
@@ -221,6 +253,9 @@ def main(argv: list[str] | None = None) -> int:
     apply_refresh(index, report)
     write_index(index)
     print(f"\nrefreshed {len(report.drift)} entries, removed {len(report.deleted)} entries.")
+    if unresolved:
+        print("non-file entries left untouched; they need manual repair.")
+        return 1
     return 0
 
 
