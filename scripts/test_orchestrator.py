@@ -403,3 +403,41 @@ class TestAsyncEnrichment:
         assert result.should_block_merge is True
         assert result.enrichment_completed is False
         assert result.enrichment_error == "RuntimeError: enrichment backend down"
+
+
+# ─────────────────────────────────────────────
+# WU-23 cross-component: nightly scan completes with the AI API down
+# ─────────────────────────────────────────────
+class TestNightlyWithApiDown:
+    async def test_nightly_completes_and_marks_not_enriched(
+        self, real_pipeline_config, tmp_path, monkeypatch
+    ):
+        import httpx
+
+        from scripts.l11 import ai_enrichment_engine as ai_module
+
+        real_client = httpx.AsyncClient
+
+        def refuse(request):
+            msg = "api down"
+            raise httpx.ConnectError(msg, request=request)
+
+        def factory(*args, **kwargs):
+            kwargs["transport"] = httpx.MockTransport(refuse)
+            return real_client(*args, **kwargs)
+
+        monkeypatch.setattr(ai_module.httpx, "AsyncClient", factory)
+        monkeypatch.setenv("PERPLEXITY_API_KEY", "test-key")
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "core").mkdir()
+        (tmp_path / "core" / "a.py").write_text("import logging\n")
+
+        cfg = copy.deepcopy(real_pipeline_config)
+        cfg["execution"]["triggers"]["schedule"]["ai_enrichment"] = True
+        cfg["detection"]["ai_layer"] = {
+            "circuit_breaker": {"failure_threshold": 1, "cooldown_seconds": 300},
+            "retry_policy": {"max_attempts": 1},
+        }
+        orch = L11Orchestrator(_write_config(cfg, tmp_path))
+        result = await orch.run_nightly_scan(scope=["core/a.py"])
+        assert result.findings[0].ai_enrichment["enriched"] is False
