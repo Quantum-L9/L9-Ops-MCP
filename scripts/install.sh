@@ -40,12 +40,7 @@ log "Neo4j is up."
 
 # ── 2. Python deps ────────────────────────────────────────────────────────────
 log "Installing Python package + Graphiti deps..."
-pip install -e ".[dev]" \
-    "graphiti-core>=0.3.17" \
-    "neo4j>=5.20.0" \
-    "mcp[cli]>=1.2.0" \
-    "tiktoken>=0.7.0" \
-    "httpx>=0.27.0"
+pip install -e ".[dev]"
 
 # ── 3. Graphiti indices ───────────────────────────────────────────────────────
 log "Building Graphiti indices & constraints..."
@@ -58,7 +53,13 @@ PY
 
 # ── 4. Seed global:decisions ──────────────────────────────────────────────────
 log "Seeding global:decisions from CANONICAL_LAW.md..."
-python -m l9_ops_mcp.seed || log "seed skipped (CANONICAL_LAW.md not found — set CG_ROOT)"
+seed_status=0
+python -m l9_ops_mcp.seed || seed_status=$?
+case "$seed_status" in
+    0) ;;
+    2) log "seed skipped (CANONICAL_LAW.md not found — set CG_ROOT)" ;;
+    *) log "seed failed (exit $seed_status) — see output above" ;;
+esac
 
 # ── 5. Cursor MCP config ──────────────────────────────────────────────────────
 # The writers refuse (exit 1, reason on stderr) rather than overwrite a config

@@ -49,6 +49,7 @@ STUB_PYTHON = """#!/usr/bin/env bash
 echo "python $* | L9_NEO4J_PASS=${L9_NEO4J_PASS:-<unset>}" >> "$STUB_LOG"
 case "$*" in
   *write_cursor_config.py*) exit "${STUB_CURSOR_WRITER_RC:-0}" ;;
+  *l9_ops_mcp.seed*) exit "${STUB_SEED_RC:-0}" ;;
 esac
 cat > /dev/null 2>&1 || true
 exit 0
@@ -202,3 +203,40 @@ def test_library_health_clean_tree_exits_zero(tmp_path: Path) -> None:
 
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "FAIL:" not in proc.stdout
+
+
+@pytest.mark.parametrize(
+    ("seed_rc", "expected"),
+    [
+        ("2", "seed skipped (CANONICAL_LAW.md not found"),
+        ("1", "seed failed (exit 1)"),
+    ],
+)
+def test_install_reports_seed_outcome_by_exit_code(
+    tmp_path: Path, seed_rc: str, expected: str
+) -> None:
+    """A rejected or failed seed is not reported as a missing CANONICAL_LAW.md (WU-11)."""
+    repo = _repo_copy(tmp_path, "install.sh")
+    (tmp_path / "home").mkdir()
+    bindir = _stub_bin(tmp_path)
+    env = _env(tmp_path, bindir, STUB_HEALTH="healthy", STUB_SEED_RC=seed_rc)
+
+    proc = _bash(repo / "scripts" / "install.sh", repo, env)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert expected in proc.stdout
+    other = "seed failed" if seed_rc == "2" else "seed skipped"
+    assert other not in proc.stdout
+
+
+def test_preflight_group_ids_pass_graphiti_validation() -> None:
+    """Every group_id literal preflight.sh sends must be accepted by graphiti-core (WU-01)."""
+    import re
+
+    from graphiti_core.helpers import validate_group_id
+
+    text = (REPO_ROOT / "scripts" / "preflight.sh").read_text(encoding="utf-8")
+    group_ids = re.findall(r'group_ids?=\[?"([^"]+)"', text)
+    assert group_ids, "preflight.sh no longer sends a group_id literal"
+    for group_id in group_ids:
+        validate_group_id(group_id)

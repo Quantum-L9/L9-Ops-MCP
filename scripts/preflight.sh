@@ -68,7 +68,7 @@ async def t():
         name="preflight-test",
         episode_body="preflight smoke test for L9",
         source_description="preflight.sh",
-        group_id="session:preflight",
+        group_id="session__preflight",
         reference_time=datetime.now(timezone.utc),
     )
 asyncio.run(t())
