@@ -101,9 +101,13 @@ async def memory_get_budget_slice(
 ) -> dict[str, object]:
     """Return a budget-bounded, read-only RuntimePayload for the given task.
     This is the ONLY way to inject graph context into an agent context window."""
+    from .trust_ladder import validate_trust_level
+
+    level = validate_trust_level(trust_level)  # raises before any graph access
+
     from .hydrator import hydrate
 
-    payload = await hydrate(task_type, agent_id, token_budget, trust_level, session_id)  # type: ignore[arg-type]
+    payload = await hydrate(task_type, agent_id, token_budget, level, session_id)
     return payload.model_dump(mode="json")
 
 

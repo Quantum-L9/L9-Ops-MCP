@@ -6,7 +6,7 @@ import tiktoken
 
 from . import budget, trust_ladder
 from .graphiti_client import get_graphiti
-from .models import ContextFact, RuntimePayload, TrustLevel
+from .models import ContextFact, ContextSlice, RuntimePayload, TrustLevel
 
 _enc = tiktoken.get_encoding("cl100k_base")
 
@@ -22,7 +22,18 @@ async def hydrate(
     trust_level: TrustLevel,
     session_id: str,
 ) -> RuntimePayload:
+    trust_level = trust_ladder.validate_trust_level(trust_level)
     scopes = trust_ladder.allowed_scopes(agent_id, trust_level)
+    if not scopes:
+        # An empty scope list means "no groups". Graphiti treats an empty
+        # group_ids list as "no filter" (all groups), so never forward it.
+        return RuntimePayload(
+            agent_id=agent_id,
+            trust_level=trust_level,
+            allowed_scopes=[],
+            context_slice=ContextSlice(),
+            budget_remaining_tokens=token_budget,
+        )
     g = await get_graphiti()
     group_ids = None if scopes == ["*"] else scopes
     results = await g.search(query=task_type, group_ids=group_ids, num_results=50)
