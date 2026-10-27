@@ -3,7 +3,13 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-[ -f .env ] && source .env || true
+# Export every .env assignment so the Python checks below see it.
+if [ -f .env ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . ./.env
+    set +a
+fi
 
 PASS=0; FAIL=0
 
