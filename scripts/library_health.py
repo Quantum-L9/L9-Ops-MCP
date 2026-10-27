@@ -11,66 +11,66 @@
 """
 library_health.py — L9 Pack library health check.
 Detects: stale last_tested dates, missing retrieval_keys, missing tier markers,
-eval coverage gaps, oversized kernels, and deprecated status.
+missing production_ready, and files whose metadata is absent or unparseable.
+Scans docs/kernels, skills and docs/profiles under --root (default: the
+repository root, independent of the working directory).
+Exits 1 when issues are found or when no files were scanned.
 """
 
-import os
-import sys
-import yaml
 import argparse
-from datetime import datetime, timedelta
+import sys
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+from validate_helpers import ROOT, MetadataError, load_metadata
+
+SEARCH_DIRS = ("docs/kernels", "skills", "docs/profiles")
 
 
-def check_file(filepath, stale_days):
-    issues = []
-    with open(filepath) as f:
-        content = f.read()
-
-    meta = None
-    if content.startswith("---"):
-        parts = content.split("---", 2)
-        if len(parts) >= 3:
-            try:
-                meta = yaml.safe_load(parts[1])
-            except Exception:
-                pass
-    if meta is None:
+def _as_date(value):
+    """Coerce a YAML date/datetime/ISO string to a date; None when not a date."""
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
         try:
-            meta = yaml.safe_load(open(filepath))
-        except Exception:
-            pass
+            return datetime.strptime(value.strip(), "%Y-%m-%d").date()
+        except ValueError:
+            return None
+    return None
 
-    if not meta or not isinstance(meta, dict):
-        return issues
 
-    # Check stale last_tested
-    last_tested = meta.get("last_tested") or meta.get("created")
-    if last_tested:
-        if isinstance(last_tested, str):
-            try:
-                dt = datetime.strptime(last_tested, "%Y-%m-%d")
-                if datetime.now() - dt > timedelta(days=stale_days):
-                    issues.append(f"STALE: {filepath} (last_tested: {last_tested})")
-            except Exception:
-                pass
+def check_file(filepath, stale_days, today=None):
+    today = today or date.today()
+    try:
+        meta = load_metadata(Path(filepath))
+    except (MetadataError, UnicodeDecodeError) as exc:
+        return [f"UNPARSEABLE metadata: {filepath} ({exc})"]
+    if not isinstance(meta, dict):
+        return [f"MISSING metadata: {filepath}"]
 
-    # Check retrieval_keys
+    issues = []
+    raw = meta.get("last_tested") or meta.get("created")
+    if raw:
+        tested = _as_date(raw)
+        if tested is None:
+            issues.append(f"INVALID last_tested: {filepath} ({raw!r})")
+        elif today - tested > timedelta(days=stale_days):
+            issues.append(f"STALE: {filepath} (last_tested: {tested.isoformat()})")
+
     if not meta.get("retrieval_keys"):
         issues.append(f"MISSING retrieval_keys: {filepath}")
-
-    # Check ring
     if not meta.get("ring"):
         issues.append(f"MISSING ring: {filepath}")
-
-    # Check production_ready
     if meta.get("production_ready") is None:
         issues.append(f"MISSING production_ready: {filepath}")
-
     return issues
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--root", default=str(ROOT), help="library root (default: repository)")
     parser.add_argument("--stale-days", type=int, default=90)
     parser.add_argument("--check-eval-coverage", action="store_true")
     parser.add_argument("--check-tier-markers", action="store_true")
@@ -78,16 +78,21 @@ def main():
     parser.add_argument("--report", default="health_report.md")
     args = parser.parse_args()
 
+    root = Path(args.root)
     all_issues = []
-
-    for search_dir in ["docs/kernels", "skills", "docs/profiles"]:
-        if not os.path.exists(search_dir):
+    scanned = 0
+    for search_dir in SEARCH_DIRS:
+        base = root / search_dir
+        if not base.is_dir():
             continue
-        for root, dirs, files in os.walk(search_dir):
-            for fname in files:
-                if fname.endswith((".yaml", ".md")):
-                    path = os.path.join(root, fname)
-                    all_issues.extend(check_file(path, args.stale_days))
+        for path in sorted(base.rglob("*")):
+            if path.is_file() and path.suffix in (".yaml", ".md"):
+                scanned += 1
+                all_issues.extend(check_file(path, args.stale_days))
+
+    print(f"  scanned {scanned} files under {root}")
+    if scanned == 0:
+        all_issues.append(f"NO INPUT: none of {', '.join(SEARCH_DIRS)} has files under {root}")
 
     with open(args.report, "w") as f:
         f.write("# Library Health Report\n")
@@ -101,10 +106,10 @@ def main():
 
     if all_issues:
         print(f"  {len(all_issues)} issues found — see {args.report}")
-        sys.exit(1)
-    else:
-        print("  Library health: OK")
+        return 1
+    print("  Library health: OK")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

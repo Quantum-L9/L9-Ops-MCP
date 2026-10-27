@@ -13,9 +13,6 @@
         "context budgeting",
         "hydrator"
       ],
-      "dependencies": [
-        "memory_admission_kernel.v1"
-      ],
       "token_cost_estimate": 1200
     },
     {
@@ -31,7 +28,7 @@
         "execution planning"
       ],
       "dependencies": [
-        "execution_plan_kernel.v1"
+        "context_budget_kernel.v1"
       ]
     }
   ]

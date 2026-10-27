@@ -19,8 +19,14 @@ from l9_ops_mcp.adapters.graph_export import verify_graph_seed  # noqa: E402
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", required=True, type=Path)
+    parser.add_argument(
+        "--schema",
+        type=Path,
+        default=None,
+        help="JSON Schema every record must satisfy (e.g. schemas/graph-seed.schema.json)",
+    )
     args = parser.parse_args()
-    report = verify_graph_seed(args.seed)
+    report = verify_graph_seed(args.seed, args.schema)
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if report["status"] == "pass" else 1
 

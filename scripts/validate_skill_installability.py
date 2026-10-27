@@ -3,24 +3,38 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from validate_helpers import ROOT, read, rel, status_line, python_syntax_ok
+from validate_helpers import (
+    ROOT,
+    MetadataError,
+    parse_frontmatter,
+    read,
+    rel,
+    status_line,
+    python_syntax_ok,
+)
 
-REQUIRED_FRONTMATTER = ("name:", "description:")
+REQUIRED_FRONTMATTER = ("name", "description")
 
 
 def check_skill(skill_dir: Path) -> list[str]:
     out: list[str] = []
     skill_md = skill_dir / "SKILL.md"
     body = read(skill_md)
-    if not body.startswith("---"):
-        out.append(status_line("FAIL", rel(skill_md), "missing YAML frontmatter"))
+    try:
+        meta = parse_frontmatter(body) if body.startswith("---") else None
+    except MetadataError as exc:
+        meta = None
+        out.append(status_line("FAIL", rel(skill_md), f"invalid YAML frontmatter: {exc}"))
+    else:
+        if meta is None:
+            out.append(status_line("FAIL", rel(skill_md), "missing YAML frontmatter"))
+        elif not isinstance(meta, dict):
+            out.append(status_line("FAIL", rel(skill_md), "frontmatter is not a mapping"))
+    fields = meta if isinstance(meta, dict) else {}
     for key in REQUIRED_FRONTMATTER:
-        if (
-            key not in body.split("---", 2)[1]
-            if body.startswith("---") and body.count("---") >= 2
-            else True
-        ):
-            out.append(status_line("FAIL", rel(skill_md), f"missing frontmatter {key}"))
+        value = fields.get(key)
+        if not isinstance(value, str) or not value.strip():
+            out.append(status_line("FAIL", rel(skill_md), f"missing frontmatter {key}:"))
     if "Use when" not in body and "use when" not in body.lower():
         out.append(
             status_line(
