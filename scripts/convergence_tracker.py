@@ -177,7 +177,11 @@ def _find_kernel(kernel_id: str) -> Path:
     if len(matches) > 1:
         msg = f"kernel '{kernel_id}' declared by several files: {[str(m) for m in matches]}"
         raise TrackerError(msg)
-    return matches[0]
+    target = matches[0]
+    if not target.resolve().is_relative_to(KERNEL_DIR.resolve()):
+        msg = f"kernel '{kernel_id}' resolves outside {KERNEL_DIR}: {target.resolve()}"
+        raise TrackerError(msg)
+    return target
 
 
 def _footer_bounds(lines: list[str]) -> tuple[int, int]:

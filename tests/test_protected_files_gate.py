@@ -226,3 +226,20 @@ def test_empty_change_set_passes(repo: Repo) -> None:
     code, report = repo.run_gate()
     assert code == 0, report
     assert report["reason"] == "no_changes"
+
+
+# ── Sonar pythonsecurity:S8705: a base ref git would read as an option ─
+
+
+def test_option_like_base_ref_is_rejected_and_never_reaches_git(repo: Repo) -> None:
+    repo.git("switch", "-q", "-c", "feature")
+    repo.write("Makefile", "all:\n\t@echo changed\n")
+    repo.commit("edit protected file", "Makefile")
+    _publish_main(repo)
+    sink = repo.root.parent / "injected.txt"
+
+    code, report = repo.run_gate(f"--base-ref=--output={sink}")
+
+    assert code == 1, report
+    assert report["passed"] is False
+    assert not sink.exists()

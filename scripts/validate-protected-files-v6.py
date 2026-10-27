@@ -207,10 +207,17 @@ def check_approval(policy: dict, base_ref: str = "origin/main") -> bool:
     return False
 
 
+def _check_base_ref(base_ref: str) -> None:
+    """Reject a base ref git would parse as an option (e.g. ``--output=<path>``)."""
+    if not base_ref or base_ref.startswith("-"):
+        raise ChangeSetError(f"invalid base ref {base_ref!r}: must name a revision")
+
+
 def validate(dry_run: bool = False, base_ref: str = "origin/main") -> int:
     """Main validation logic. Returns exit code (0=pass, 1=fail)."""
     policy = load_policy()
     try:
+        _check_base_ref(base_ref)
         changed_files = get_changed_files(base_ref)
     except ChangeSetError as e:
         # Fail closed even in dry-run: without a change set there is no verdict.

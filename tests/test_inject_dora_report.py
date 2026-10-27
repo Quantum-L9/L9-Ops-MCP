@@ -209,3 +209,17 @@ def test_no_files_found_exits_non_zero(tmp_path: Path) -> None:
     )
 
     assert proc.returncode != 0
+
+
+def test_report_path_outside_working_directory_is_refused(tmp_path: Path) -> None:
+    """Sonar pythonsecurity:S8707: --report cannot write outside the working directory."""
+    work = tmp_path / "work"
+    repo = work / "repo"
+    _build_tree(repo, FIXTURE_FILES)
+    escaped = tmp_path / "escaped.json"
+
+    proc = _run("--repo", str(repo), "--dry-run", "--report", "../escaped.json", cwd=work)
+
+    assert proc.returncode == 1
+    assert "inside the working directory" in proc.stderr
+    assert not escaped.exists()

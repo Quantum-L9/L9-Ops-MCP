@@ -162,3 +162,19 @@ def test_update_unknown_kernel_exits_non_zero_and_writes_nothing(tmp_path: Path)
 
     assert proc.returncode != 0
     assert path.read_text(encoding="utf-8") == DECOY
+
+
+def test_update_refuses_a_kernel_that_resolves_outside_docs_kernels(tmp_path: Path) -> None:
+    """Sonar pythonsecurity:S2083: a symlink in docs/kernels must not redirect the write."""
+    outside = tmp_path / "outside.yaml"
+    outside.write_text(TARGET, encoding="utf-8")
+    root = _tree(tmp_path / "lib")
+    link = root / "docs" / "kernels" / "R5" / "target.yaml"
+    link.parent.mkdir(parents=True)
+    link.symlink_to(outside)
+
+    proc = _run(root, "--update-kernel", "target_kernel.v1", "--pass-rate", "0.92")
+
+    assert proc.returncode != 0
+    assert "outside" in proc.stdout + proc.stderr
+    assert outside.read_text(encoding="utf-8") == TARGET

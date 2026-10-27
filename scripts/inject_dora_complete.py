@@ -357,6 +357,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    report_path = Path(args.report).resolve()
+    if not report_path.is_relative_to(Path.cwd().resolve()):
+        print(
+            f"error: --report must stay inside the working directory: {args.report}",
+            file=sys.stderr,
+        )
+        return 1
+
     injector = DoraCompleteInjector(args.repo)
     if not injector.repo_path.is_dir():
         print(f"error: --repo is not a directory: {args.repo}", file=sys.stderr)
@@ -369,7 +377,7 @@ def main(argv: list[str] | None = None) -> int:
 
     results = injector.process_all_files()
     try:
-        injector.generate_report(results, args.report)
+        injector.generate_report(results, str(report_path))
     except OSError as exc:
         print(f"error: cannot write report {args.report}: {exc}", file=sys.stderr)
         return 1
