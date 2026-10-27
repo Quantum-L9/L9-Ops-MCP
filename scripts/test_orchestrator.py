@@ -21,6 +21,7 @@ from __future__ import annotations
 import asyncio
 import copy
 import json
+import time
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
@@ -336,14 +337,20 @@ class TestNightlyLifecycle:
 class _SlowEnricher:
     """In-process fake of AIEnrichmentEngine.enqueue_enrichment."""
 
-    def __init__(self, *, fail: bool = False) -> None:
+    def __init__(self, *, fail: bool = False, delay: float = 0.05) -> None:
         self.fail = fail
+        self.delay = delay
         self.started = False
         self.finished = False
+        self.cancelled = False
 
     async def enqueue_enrichment(self, findings):
         self.started = True
-        await asyncio.sleep(0.05)
+        try:
+            await asyncio.sleep(self.delay)
+        except asyncio.CancelledError:
+            self.cancelled = True
+            raise
         if self.fail:
             msg = "enrichment backend down"
             raise RuntimeError(msg)
@@ -403,6 +410,22 @@ class TestAsyncEnrichment:
         assert result.should_block_merge is True
         assert result.enrichment_completed is False
         assert result.enrichment_error == "RuntimeError: enrichment backend down"
+
+    def test_pr_scan_waits_for_enrichment_no_longer_than_the_configured_bound(
+        self, sample_config, tmp_path
+    ):
+        """PR #38 review: an unavailable AI API must not hold the PR scan open."""
+        enricher = _SlowEnricher(delay=30)
+        sample_config["execution"]["triggers"]["pr"]["ai_enrichment_timeout_seconds"] = 0.1
+        orch = _async_enrichment_orchestrator(sample_config, tmp_path, enricher)
+        started = time.monotonic()
+        result = asyncio.run(orch.run_pr_scan(pr_number=5, changed_files=["core/a.py"]))
+        assert time.monotonic() - started < 5
+        assert result.should_block_merge is True
+        assert result.enrichment_queued is True
+        assert result.enrichment_completed is False
+        assert result.enrichment_error == "enrichment timed out after 0.1s"
+        assert enricher.cancelled is True
 
 
 # ─────────────────────────────────────────────

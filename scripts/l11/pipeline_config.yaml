@@ -25,6 +25,9 @@ execution:
       incremental: true
       deterministic_only: true
       ai_enrichment_async: true
+      # Upper bound on how long a PR scan waits for enrichment after the merge
+      # decision is final; on expiry the task is cancelled and reported.
+      ai_enrichment_timeout_seconds: 30
     schedule:
       nightly_full_scan: true
       cron: "0 2 * * *"

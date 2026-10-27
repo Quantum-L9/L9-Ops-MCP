@@ -317,7 +317,8 @@ class L11Orchestrator:
         pr_cfg = self.config["execution"]["triggers"]["pr"]
         if pr_cfg.get("ai_enrichment_async") and self.ai_engine is not None:
             enrichment_queued = True
-            enrichment_completed, enrichment_error = await self._drain_enrichment(findings)
+            timeout = float(pr_cfg.get("ai_enrichment_timeout_seconds", 30))
+            enrichment_completed, enrichment_error = await self._drain_enrichment(findings, timeout)
         duration_ms = (datetime.now(tz=timezone.utc) - start).total_seconds() * 1000.0
 
         logger.info(
@@ -340,17 +341,25 @@ class L11Orchestrator:
             duration_ms=duration_ms,
         )
 
-    async def _drain_enrichment(self, findings: list[Finding]) -> tuple[bool, str | None]:
-        """Run enrichment as a retained task, await it, and copy results back.
+    async def _drain_enrichment(
+        self, findings: list[Finding], timeout: float
+    ) -> tuple[bool, str | None]:
+        """Run enrichment as a retained task, await it for at most ``timeout``
+        seconds, and copy results back.
 
-        Returns ``(completed, error)``.  Failures are logged, never raised.
+        Returns ``(completed, error)``.  Failures and expiry are logged and
+        reported, never raised; an expired task is cancelled, not abandoned.
         """
         payload = [f.to_dict() for f in findings]
         task = asyncio.create_task(self.ai_engine.enqueue_enrichment(payload))
         self._enrichment_tasks.add(task)
         task.add_done_callback(self._enrichment_tasks.discard)
         try:
-            await task
+            await asyncio.wait_for(task, timeout=timeout)
+        except TimeoutError:
+            error = f"enrichment timed out after {timeout:g}s"
+            logger.error("ai_enrichment_timed_out", timeout_seconds=timeout)
+            return False, error
         except Exception as exc:  # noqa: BLE001 — enrichment is non-blocking by contract
             error = f"{type(exc).__name__}: {exc}"
             logger.error("ai_enrichment_failed", error=error)
