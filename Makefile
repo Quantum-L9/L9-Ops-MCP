@@ -16,6 +16,7 @@ TEST_PATHS ?= tests scripts
 CI_STEPS ?= health progressive-disclosure hardban-audit convergence wiring lint typecheck test
 PREFLIGHT_SCRIPT ?= scripts/preflight.sh
 EVAL_CONFIG ?= assets/evals/promptfooconfig.yaml
+PROMPTFOO_VERSION ?= 0.124.1
 GRAPH_INDEX ?= AGENT_RETRIEVAL_INDEX.yaml
 GRAPH_OUT ?= dist/graph
 GRAPH_SEED := $(GRAPH_OUT)/graph-seed.jsonl
@@ -77,7 +78,7 @@ ci: ## Run complete local CI-equivalent proof gate (fails on the first failing s
 	@set -e; for step in $(CI_STEPS); do echo "==> make $$step"; $(MAKE) --no-print-directory $$step; done
 
 eval: ## Run prompt/skill evals when promptfoo is available
-	@if command -v npx >/dev/null 2>&1; then npx promptfoo eval --config $(EVAL_CONFIG); else echo "BLOCKED: npx unavailable"; exit 1; fi
+	@if command -v npx >/dev/null 2>&1; then npx --yes promptfoo@$(PROMPTFOO_VERSION) eval --config $(EVAL_CONFIG); else echo "BLOCKED: npx unavailable"; exit 1; fi
 
 zip: ## Package repo metadata snapshot
 	mkdir -p dist && zip -r dist/l9-ops-mcp-metadata.zip README.md AGENTS.md docs skills playbooks schemas scripts -x "*.pyc" "*/__pycache__/*"

@@ -139,9 +139,13 @@ def test_eval_config_exists_and_matches_ci() -> None:
     assert dry_run.returncode == 0, dry_run.stderr
     make_cfg = [c.rstrip(";") for c in re.findall(r"--config\s+(\S+)", dry_run.stdout)]
     workflow = (ROOT / ".github" / "workflows" / "governance.yml").read_text(encoding="utf-8")
-    ci_cfg = re.findall(r"promptfoo eval --config\s+(\S+)", workflow)
+    ci_cfg = re.findall(r"promptfoo(?:@\S+)? eval --config\s+(\S+)", workflow)
     assert make_cfg and ci_cfg
     assert set(make_cfg) == set(ci_cfg)
+    # Both entry points run the same pinned promptfoo release.
+    make_pin = set(re.findall(r"promptfoo@(\S+) eval", dry_run.stdout))
+    ci_pin = set(re.findall(r"promptfoo@(\S+) eval", workflow))
+    assert make_pin and make_pin == ci_pin
     for cfg in make_cfg:
         assert (ROOT / cfg).is_file(), cfg
 

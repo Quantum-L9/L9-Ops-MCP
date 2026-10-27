@@ -15,7 +15,7 @@ files:
   .github/workflows/governance.yml:
     retrieval: on_demand
     role: context
-    sha256: 7319e3d201e4595bd2ee79e2de87c67aa502623844573cc5a5a4923b4deee06c
+    sha256: ad095f05cab0eec17e1fdb611e3ae524674fda6af6d5f10cd3fdf01462a9f743
     tags:
     - general
   .gitignore:
@@ -81,7 +81,7 @@ files:
   Makefile:
     retrieval: on_demand
     role: context
-    sha256: 8ec7b481fdebde5473cb59a6e9cef79c330bb58cc310e4c4dbd2f954ca034e24
+    sha256: bfd4cbdf93c906cd88e4d13484d77823a15c7a9357f0a1bb541e9b3bbf75da8b
     tags:
     - general
   PROVENANCE_MAP.yaml:
@@ -1257,7 +1257,7 @@ files:
   scripts/convergence_tracker.py:
     retrieval: on_demand
     role: script
-    sha256: ae3f2bd5880a74faf789107e05ea4fa869738b548dff24dcf5fe68ff0bfbf184
+    sha256: 7e94aff91dd2cc79fa923246663933cde3ea3a7656d6696f23103e04be1cebf0
     tags:
     - general
   scripts/enforce_progressive_disclosure.sh:
@@ -1275,7 +1275,7 @@ files:
   scripts/inject_dora_complete.py:
     retrieval: on_demand
     role: script
-    sha256: bc2f35b88bf2ed9c1fc607daab9b5a4c7cbb34d5d52a88d25995998b97b4fe69
+    sha256: 2a84943d8b795216738c873a7d0902302a93e2d0966af3e06661f83bb58c6051
     tags:
     - general
   scripts/l11/__init__.py:
@@ -1335,7 +1335,7 @@ files:
   scripts/library_health_v341.sh:
     retrieval: on_demand
     role: script
-    sha256: bddb7fc003080d863ad7112a7857ce8f5a769264f12eb024d4e58c8e47f5a59e
+    sha256: d0e6e025f4f202914d3250b46b13146f1522bf535878c8f764f878f2a3453e02
     tags:
     - general
   scripts/refresh_retrieval_index.py:
@@ -1383,7 +1383,7 @@ files:
   scripts/validate-protected-files-v6.py:
     retrieval: on_demand
     role: script
-    sha256: 1cc0e72783fe138eb3964163ea4ed234c75bbd108b446025a0f3c15efa7e66cd
+    sha256: 1849366e847839f30b8859a6ca383dd82a4f17396ccc654d8e53b301427d961e
     tags:
     - general
   scripts/validate_headers.py:

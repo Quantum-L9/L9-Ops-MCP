@@ -38,4 +38,4 @@ jobs:
       - name: Run eval suite
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: npx promptfoo eval --config assets/evals/promptfooconfig.yaml
+        run: npx --yes promptfoo@0.124.1 eval --config assets/evals/promptfooconfig.yaml
