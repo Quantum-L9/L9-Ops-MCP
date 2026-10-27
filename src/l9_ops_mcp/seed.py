@@ -16,13 +16,40 @@ from .graphiti_client import get_graphiti
 from .trust_ladder import GLOBAL_DECISIONS
 
 
+_LAW = "CANONICAL_LAW.md"
+
+
+class SeedInputMissingError(FileNotFoundError):
+    """CANONICAL_LAW.md was not found at any documented location."""
+
+    def __init__(self, tried: list[pathlib.Path]) -> None:
+        self.tried = tried
+        listed = "\n".join(f"  - {p}" for p in tried)
+        super().__init__(
+            f"{_LAW} not found. Locations tried:\n{listed}\n"
+            "Set CG_ROOT to a Cursor-Governance checkout or pass --file <path>."
+        )
+
+
+def _candidates() -> list[pathlib.Path]:
+    """Documented Cursor-Governance locations, in precedence order.
+
+    1. ``$CG_ROOT`` (only when set and non-empty);
+    2. ``~/.cursor-governance`` (the governance SSOT clone);
+    3. ``<repo>/Cursor-Governance`` — the layout scripts/wire_governance_sink.py
+       also uses for its sink source.
+    """
+    out: list[pathlib.Path] = []
+    cg_root = os.getenv("CG_ROOT")
+    if cg_root:
+        out.append(pathlib.Path(cg_root) / _LAW)
+    out.append(pathlib.Path.home() / ".cursor-governance" / _LAW)
+    out.append(pathlib.Path(__file__).resolve().parents[2] / "Cursor-Governance" / _LAW)
+    return out
+
+
 def _find() -> pathlib.Path | None:
-    candidates = [
-        pathlib.Path(os.getenv("CG_ROOT", "")) / "CANONICAL_LAW.md",
-        pathlib.Path.home() / ".cursor-governance" / "CANONICAL_LAW.md",
-        pathlib.Path(__file__).parents[4] / "Cursor-Governance" / "CANONICAL_LAW.md",
-    ]
-    return next((p for p in candidates if p.exists()), None)
+    return next((p for p in _candidates() if p.is_file()), None)
 
 
 def _chunk(text: str, max_chars: int = 800) -> list[str]:
@@ -32,9 +59,8 @@ def _chunk(text: str, max_chars: int = 800) -> list[str]:
 
 async def seed(path: pathlib.Path | None = None) -> None:
     target = path or _find()
-    if target is None or not target.exists():
-        print("CANONICAL_LAW.md not found. Set CG_ROOT or use --file.")
-        return
+    if target is None or not target.is_file():
+        raise SeedInputMissingError([path] if path is not None else _candidates())
     chunks = _chunk(target.read_text(encoding="utf-8"))
     g = await get_graphiti()
     print(f"Seeding {len(chunks)} chunks -> {GLOBAL_DECISIONS} ...")
@@ -55,7 +81,11 @@ def main() -> None:
     path = None
     if "--file" in sys.argv:
         path = pathlib.Path(sys.argv[sys.argv.index("--file") + 1])
-    asyncio.run(seed(path))
+    try:
+        asyncio.run(seed(path))
+    except SeedInputMissingError as exc:
+        print(str(exc), file=sys.stderr)
+        sys.exit(2)
 
 
 if __name__ == "__main__":
