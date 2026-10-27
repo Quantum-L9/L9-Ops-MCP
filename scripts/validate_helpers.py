@@ -28,7 +28,7 @@ def status_line(status: str, check: str, detail: str) -> str:
 
 
 def find_markdown_links(text: str) -> list[str]:
-    return [m.group(1) for m in re.finditer(r"\[[^\]]+\]\(([^)]+)\)", text)]
+    return [m.group(1) for m in re.finditer(r"\[[^\[\]]+\]\(([^)]+)\)", text)]
 
 
 _RULE = re.compile(r"^([A-Za-z0-9_.%/ -]+?)\s*::?(?![=:])")
@@ -57,7 +57,7 @@ def extract_make_targets(makefile: str) -> set[str]:
 # after ``&&`` / ``||``, or the start of an inline code span.  Prose such as
 # "make sure ..." mid-sentence is not a command reference.
 _MAKE_COMMAND = re.compile(
-    r"(?:^[ \t]*(?:[-*]\s+)?(?:\$\s+|run:\s*)?|(?:&&|\|\|)\s*|`)make\s+([A-Za-z0-9_.-]+)",
+    r"(?:(?:^[ \t]*(?:[-*]\s+)?(?:\$\s+|run:\s*)?)|(?:(?:&&|\|\|)\s*)|`)make\s+([A-Za-z0-9_.-]+)",
     re.MULTILINE,
 )
 

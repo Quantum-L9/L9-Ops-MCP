@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 # Export every .env assignment so child processes (pip, python, the config
 # writers) see it; without set -a the values stay shell-local.
-if [ -f .env ]; then
+if [[ -f .env ]]; then
     set -a
     # shellcheck disable=SC1091
     . ./.env
@@ -22,17 +22,17 @@ docker compose -f docker-compose.neo4j.yml up -d
 neo4j_health() {
     local cid
     cid="$(docker compose -f docker-compose.neo4j.yml ps -q neo4j 2>/dev/null | head -n 1)"
-    [ -n "$cid" ] || { echo "absent"; return 0; }
+    [[ -n "$cid" ]] || { echo "absent"; return 0; }
     docker inspect --format '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "unknown"
 }
 log "Waiting for Neo4j healthy (up to 90s)..."
 NEO4J_HEALTH="unknown"
 for _ in $(seq 1 30); do
     NEO4J_HEALTH="$(neo4j_health)"
-    [ "$NEO4J_HEALTH" = "healthy" ] && break
+    [[ "$NEO4J_HEALTH" = "healthy" ]] && break
     sleep 3
 done
-if [ "$NEO4J_HEALTH" != "healthy" ]; then
+if [[ "$NEO4J_HEALTH" != "healthy" ]]; then
     echo "ERROR: Neo4j did not become healthy (last status: $NEO4J_HEALTH)" >&2
     exit 1
 fi

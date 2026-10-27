@@ -24,7 +24,7 @@ ok() { PASS=$((PASS + 1)); }
 # NUL-delimited file lists; a missing directory yields an empty list.
 list_files() { # <dir> <find-name-expression...>
   local dir="$1"; shift
-  [ -d "$dir" ] || return 0
+  [[ -d "$dir" ]] || return 0
   find "$dir" \( "$@" \) -type f -print0 | sort -z
 }
 
@@ -103,7 +103,7 @@ while IFS= read -r -d '' f; do
     grab { exit }
     END { print buf }
   ' "$f" | tr '\n' ' ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//')"
-  if [ -z "$PURPOSE" ]; then
+  if [[ -z "$PURPOSE" ]]; then
     continue
   fi
   if echo "$PURPOSE" | grep -qiE "^(Governs|Defines|Manages)\.?$"; then
@@ -115,7 +115,7 @@ done < <(list_files "$KERNELS_DIR/R5" -name "*.yaml")
 
 echo ""
 echo "=== Health check complete: $PASS passed, $WARN warnings, $FAIL failures ==="
-if [ "$FAIL" -gt 0 ]; then
+if [[ "$FAIL" -gt 0 ]]; then
   exit 1
 fi
 exit 0
