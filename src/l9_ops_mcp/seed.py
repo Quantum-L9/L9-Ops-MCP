@@ -44,8 +44,7 @@ def _candidates() -> list[pathlib.Path]:
 
     1. ``$CG_ROOT`` (only when set and non-empty);
     2. ``~/.cursor-governance`` (the governance SSOT clone);
-    3. ``<repo>/Cursor-Governance`` — the layout scripts/wire_governance_sink.py
-       also uses for its sink source.
+    3. ``<repo>/Cursor-Governance`` — a sibling checkout inside this repository.
     """
     out: list[pathlib.Path] = []
     cg_root = os.getenv("CG_ROOT")
