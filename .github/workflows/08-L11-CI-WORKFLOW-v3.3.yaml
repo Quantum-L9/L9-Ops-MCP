@@ -98,19 +98,28 @@ jobs:
           pip install --upgrade pip
           pip install -e '.[dev]'
 
+      # Changed .py files of the PR, diffed against the PR's real base
+      # (main or develop). Names are written NUL-delimited to a file and read
+      # back as data by later steps; they are never interpolated into a
+      # script. A failing diff fails the step (bash -e).
       - name: Get Changed Files
         id: changed
         if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          FILES=$(git diff --name-only --diff-filter=ACMR origin/main...HEAD -- '*.py' | tr '\n' ' ')
-          echo "files=$FILES" >> "$GITHUB_OUTPUT"
-          echo "count=$(echo $FILES | wc -w)" >> "$GITHUB_OUTPUT"
+          git diff -z --name-only --diff-filter=ACMR "$BASE_SHA"...HEAD -- '*.py' \
+            > "$RUNNER_TEMP/changed_py_files"
+          count=$(tr -cd '\0' < "$RUNNER_TEMP/changed_py_files" | wc -c)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Changed .py files vs $BASE_SHA: $count"
 
-      # ── Ruff Lint ──
+      # ── Ruff Lint (PR: changed files; otherwise: src/ scripts/) ──
       - name: Ruff Lint
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.changed.outputs.files }}" ]; then
-            ruff check ${{ steps.changed.outputs.files }} --output-format=github
+          if [ -s "$RUNNER_TEMP/changed_py_files" ]; then
+            mapfile -d '' -t files < "$RUNNER_TEMP/changed_py_files"
+            ruff check --output-format=github -- "${files[@]}"
           else
             ruff check src/ scripts/ --output-format=github
           fi
@@ -118,8 +127,9 @@ jobs:
       # ── Ruff Format Check ──
       - name: Ruff Format Check
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.changed.outputs.files }}" ]; then
-            ruff format --check ${{ steps.changed.outputs.files }}
+          if [ -s "$RUNNER_TEMP/changed_py_files" ]; then
+            mapfile -d '' -t files < "$RUNNER_TEMP/changed_py_files"
+            ruff format --check -- "${files[@]}"
           else
             ruff format --check src/ scripts/
           fi
@@ -134,22 +144,35 @@ jobs:
 
       # ── pytest (fast tests only, matches "make test-fast") ──
       - name: pytest (fast)
-        run: |
-          pytest tests/ -m "not slow" --tb=short -q --co -q 2>/dev/null || \
-            pytest tests/ -m "not slow" --tb=short -q
+        run: pytest tests/ -m "not slow" --tb=short -q
 
-      # ── Bandit Security Scan ──
+      # ── Bandit Security Scan: fails on any finding at BANDIT_SEVERITY or above ──
       - name: Bandit Security Scan
+        env:
+          BANDIT_SEVERITY: high
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ] && [ -n "${{ steps.changed.outputs.files }}" ]; then
-            bandit -r ${{ steps.changed.outputs.files }} -f json -o bandit-report.json || true
+          if [ -s "$RUNNER_TEMP/changed_py_files" ]; then
+            mapfile -d '' -t files < "$RUNNER_TEMP/changed_py_files"
+            bandit -r --severity-level "$BANDIT_SEVERITY" -f json -o bandit-report.json -- "${files[@]}"
           else
-            bandit -r src/ scripts/ -f json -o bandit-report.json || true
+            bandit -r --severity-level "$BANDIT_SEVERITY" -f json -o bandit-report.json src/ scripts/
           fi
 
-      # ── Complexity Check ──
+      # ── Complexity Check: fails on any block at radon rank COMPLEXITY_FAIL_RANK or worse ──
+      # Rank C = cyclomatic complexity > 10 (the level this step always listed
+      # with `-nc`). Existing code has blocks at C and above; the threshold is
+      # for owner calibration, not suppression.
       - name: Complexity Check
-        run: radon cc src/ scripts/ -a -nc
+        env:
+          COMPLEXITY_FAIL_RANK: C
+        run: |
+          report=$(radon cc src/ scripts/ --min "$COMPLEXITY_FAIL_RANK" --show-complexity)
+          if [ -n "$report" ]; then
+            echo "$report"
+            echo "::error::code blocks at radon rank $COMPLEXITY_FAIL_RANK or worse"
+            exit 1
+          fi
+          echo "No code blocks at radon rank $COMPLEXITY_FAIL_RANK or worse."
 
       - name: Upload Reports
         if: always()
@@ -404,34 +427,31 @@ jobs:
       - name: Install Dependencies
         run: pip install pyyaml structlog
 
-      - name: Get Changed Files
-        id: changed
-        run: |
-          FILES=$(git diff --name-only --diff-filter=ACMRD origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')
-          echo "files=$FILES" >> "$GITHUB_OUTPUT"
-          echo "count=$(echo $FILES | wc -w)" >> "$GITHUB_OUTPUT"
-          echo "Changed files: $FILES"
-
       - name: Get PR Labels
         id: labels
         run: |
-          LABELS=$(gh pr view ${{ github.event.pull_request.number }} \
-            --repo ${{ github.repository }} \
+          LABELS=$(gh pr view "$PR_NUMBER" --repo "$REPO" \
             --json labels --jq '.labels[].name' | tr '\n' ',' | sed 's/,$//')
           echo "labels=$LABELS" >> "$GITHUB_OUTPUT"
           echo "PR labels: $LABELS"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
 
-      # The validator reads labels from PR_LABELS, computes changed files via
-      # git diff, loads config/policies/protected_files.yaml, and writes
-      # protected_files_gate_report.json. Fail-closed on protected paths.
+      # The validator reads labels from PR_LABELS, computes the PR's changed
+      # files as BASE_SHA...HEAD (the PR's real base, main or develop), reads
+      # approval tokens only from BASE_SHA..HEAD, loads
+      # config/policies/protected_files.yaml, and writes
+      # protected_files_gate_report.json. Fail-closed on protected paths and
+      # when the change set cannot be computed.
       - name: Validate Protected Files
         env:
           PR_LABELS: ${{ steps.labels.outputs.labels }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_ACTOR: ${{ github.actor }}
-        run: python scripts/validate-protected-files-v6.py
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python scripts/validate-protected-files-v6.py --base-ref "$BASE_SHA"
 
       - name: Upload Gate Report
         if: always()

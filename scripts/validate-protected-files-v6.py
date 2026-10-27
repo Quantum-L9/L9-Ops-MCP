@@ -18,7 +18,7 @@ Usage (CI):
     PR_LABELS="LCTO_APPROVED,bug" python scripts/validate-protected-files-v6.py
 
 Usage (local dry-run):
-    python scripts/validate-protected-files-v6.py --dry-run
+    python scripts/validate-protected-files-v6.py --dry-run [--base-ref origin/develop]
 
 DORA:
     component_id: PFV-OPS-001
@@ -340,8 +340,13 @@ def write_report(
 def main() -> None:
     parser = argparse.ArgumentParser(description="L9 Protected Files Validator v6")
     parser.add_argument("--dry-run", action="store_true", help="Report only, do not fail")
+    parser.add_argument(
+        "--base-ref",
+        default="origin/main",
+        help="PR base revision (CI passes github.event.pull_request.base.sha)",
+    )
     args = parser.parse_args()
-    sys.exit(validate(dry_run=args.dry_run))
+    sys.exit(validate(dry_run=args.dry_run, base_ref=args.base_ref))
 
 
 if __name__ == "__main__":
