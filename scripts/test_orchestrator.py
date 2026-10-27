@@ -18,6 +18,7 @@ DORA:
 
 from __future__ import annotations
 
+import asyncio
 import copy
 import json
 from pathlib import Path
@@ -327,3 +328,78 @@ class TestNightlyLifecycle:
         result = await orch.run_nightly_scan(scope=["core/a.py"])
         assert json.loads(debt_file.read_text())[0]["status"] == "regressed"
         assert [r["file"] for r in result.regressions] == ["core/a.py"]
+
+
+# ─────────────────────────────────────────────
+# WU-22 regression (RG-23): async enrichment actually completes
+# ─────────────────────────────────────────────
+class _SlowEnricher:
+    """In-process fake of AIEnrichmentEngine.enqueue_enrichment."""
+
+    def __init__(self, *, fail: bool = False) -> None:
+        self.fail = fail
+        self.started = False
+        self.finished = False
+
+    async def enqueue_enrichment(self, findings):
+        self.started = True
+        await asyncio.sleep(0.05)
+        if self.fail:
+            msg = "enrichment backend down"
+            raise RuntimeError(msg)
+        for f in findings:
+            f["ai_enrichment"] = {"category": "maintainability"}
+        self.finished = True
+
+    async def health(self):
+        return {"healthy": True}
+
+
+def _async_enrichment_orchestrator(sample_config, tmp_path, enricher):
+    cfg = copy.deepcopy(sample_config)
+    cfg["execution"]["triggers"]["pr"]["ai_enrichment_async"] = True
+    det = AsyncMock()
+    det.scan = AsyncMock(
+        return_value={
+            "passed": False,
+            "findings": [
+                {
+                    "tool": "ruff",
+                    "rule": "E1",
+                    "message": "m",
+                    "file": "core/a.py",
+                    "severity": "P0",
+                }
+            ],
+        }
+    )
+    cfg["state_management"]["json_fallback"]["path"] = str(tmp_path / "debt.json")
+    return L11Orchestrator(
+        _write_config(cfg, tmp_path),
+        deterministic_engine=det,
+        risk_scorer=RiskScorer(cfg),
+        ai_engine=enricher,
+    )
+
+
+class TestAsyncEnrichment:
+    def test_enrichment_finishes_before_loop_shutdown(self, sample_config, tmp_path):
+        """subaudit_A r3: asyncio.run(run_pr_scan) must not cancel enrichment."""
+        enricher = _SlowEnricher()
+        orch = _async_enrichment_orchestrator(sample_config, tmp_path, enricher)
+        result = asyncio.run(orch.run_pr_scan(pr_number=3, changed_files=["core/a.py"]))
+        assert result.enrichment_queued is True
+        assert enricher.finished is True
+        assert result.enrichment_completed is True
+        assert result.findings[0].ai_enrichment == {"category": "maintainability"}
+
+    def test_enrichment_failure_is_observed_and_does_not_change_decision(
+        self, sample_config, tmp_path
+    ):
+        enricher = _SlowEnricher(fail=True)
+        orch = _async_enrichment_orchestrator(sample_config, tmp_path, enricher)
+        result = asyncio.run(orch.run_pr_scan(pr_number=4, changed_files=["core/a.py"]))
+        assert enricher.started is True
+        assert result.should_block_merge is True
+        assert result.enrichment_completed is False
+        assert result.enrichment_error == "RuntimeError: enrichment backend down"

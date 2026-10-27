@@ -145,6 +145,8 @@ class ScanResult:
     findings: list[Finding]
     should_block_merge: bool = False
     enrichment_queued: bool = False
+    enrichment_completed: bool = False
+    enrichment_error: str | None = None
     regressions: list[dict[str, Any]] = field(default_factory=list)
     duration_ms: float = 0.0
 
@@ -245,6 +247,7 @@ class L11Orchestrator:
             ValueError: If a required engine cannot be built from config.
         """
         self.config = load_config(config_path)
+        self._enrichment_tasks: set[asyncio.Task[Any]] = set()
         self.deterministic_engine: Any = deterministic_engine
         if self.deterministic_engine is None:
             self.deterministic_engine = self._build(
@@ -279,7 +282,7 @@ class L11Orchestrator:
         Phase 2 — Risk scoring.
         Phase 3 — Debt graph upsert.
         Phase 4 — Merge decision.
-        Phase 5 — Queue AI enrichment (NON-BLOCKING).
+        Phase 5 — AI enrichment (cannot change the decision; drained before return).
         """
         start = datetime.now(tz=timezone.utc)
         logger.info(
@@ -305,13 +308,16 @@ class L11Orchestrator:
         block_threshold: int = self.config["risk_model"]["thresholds"]["block_pr"]
         should_block = any(f.risk_score >= block_threshold for f in findings)
 
-        # Phase 5
+        # Phase 5 — the merge decision above is final; enrichment cannot
+        # change it.  The enrichment task is retained and drained before
+        # returning so it is never cancelled by the caller's loop shutdown.
         enrichment_queued = False
+        enrichment_completed = False
+        enrichment_error: str | None = None
         pr_cfg = self.config["execution"]["triggers"]["pr"]
         if pr_cfg.get("ai_enrichment_async") and self.ai_engine is not None:
-            asyncio.create_task(self.ai_engine.enqueue_enrichment([f.to_dict() for f in findings]))
             enrichment_queued = True
-
+            enrichment_completed, enrichment_error = await self._drain_enrichment(findings)
         duration_ms = (datetime.now(tz=timezone.utc) - start).total_seconds() * 1000.0
 
         logger.info(
@@ -320,6 +326,7 @@ class L11Orchestrator:
             findings_count=len(findings),
             should_block=should_block,
             enrichment_queued=enrichment_queued,
+            enrichment_completed=enrichment_completed,
             duration_ms=round(duration_ms, 1),
         )
 
@@ -328,8 +335,29 @@ class L11Orchestrator:
             findings=findings,
             should_block_merge=should_block,
             enrichment_queued=enrichment_queued,
+            enrichment_completed=enrichment_completed,
+            enrichment_error=enrichment_error,
             duration_ms=duration_ms,
         )
+
+    async def _drain_enrichment(self, findings: list[Finding]) -> tuple[bool, str | None]:
+        """Run enrichment as a retained task, await it, and copy results back.
+
+        Returns ``(completed, error)``.  Failures are logged, never raised.
+        """
+        payload = [f.to_dict() for f in findings]
+        task = asyncio.create_task(self.ai_engine.enqueue_enrichment(payload))
+        self._enrichment_tasks.add(task)
+        task.add_done_callback(self._enrichment_tasks.discard)
+        try:
+            await task
+        except Exception as exc:  # noqa: BLE001 — enrichment is non-blocking by contract
+            error = f"{type(exc).__name__}: {exc}"
+            logger.error("ai_enrichment_failed", error=error)
+            return False, error
+        for f, enriched in zip(findings, payload, strict=True):
+            f.ai_enrichment = enriched.get("ai_enrichment", {}) or {}
+        return True, None
 
     # ── Nightly Full-Repo Scan ──────────────
     async def run_nightly_scan(
