@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import re
 import sys
+from pathlib import Path
+
 from validate_helpers import (
     ROOT,
     read,
@@ -11,30 +12,34 @@ from validate_helpers import (
     status_line,
 )
 
+WORKFLOW_SUFFIXES = (".yml", ".yaml")
 
-def workflow_commands() -> set[str]:
+
+def workflow_commands(root: Path = ROOT) -> set[str]:
     cmds: set[str] = set()
-    for wf in (
-        (ROOT / ".github" / "workflows").glob("*.yml")
-        if (ROOT / ".github" / "workflows").exists()
-        else []
-    ):
-        text = read(wf)
-        cmds.update(re.findall(r"\bmake\s+([A-Za-z0-9_.-]+)", text))
+    workflows = root / ".github" / "workflows"
+    if not workflows.is_dir():
+        return cmds
+    for wf in sorted(workflows.iterdir()):
+        if wf.is_file() and wf.suffix in WORKFLOW_SUFFIXES:
+            cmds.update(extract_readme_make_commands(read(wf)))
     return cmds
 
 
-def main() -> int:
-    makefile = read(ROOT / "Makefile")
-    readme = read(ROOT / "README.md")
-    agents = read(ROOT / "AGENTS.md")
-    targets = extract_make_targets(makefile)
-    referenced = (
-        extract_readme_make_commands(readme)
-        | extract_readme_make_commands(agents)
-        | workflow_commands()
-    )
+def main(root: Path = ROOT) -> int:
     failures = 0
+    for required in ("Makefile", "README.md"):
+        if not (root / required).is_file():
+            print(status_line("FAIL", "command-parity", f"{required} missing"))
+            failures += 1
+    if failures:
+        return 1
+    targets = extract_make_targets(read(root / "Makefile"))
+    referenced = (
+        extract_readme_make_commands(read(root / "README.md"))
+        | extract_readme_make_commands(read(root / "AGENTS.md"))
+        | workflow_commands(root)
+    )
     for cmd in sorted(referenced):
         if cmd not in targets:
             print(
