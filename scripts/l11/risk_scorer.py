@@ -29,6 +29,16 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+def _directory_segments(file_path: str) -> set[str]:
+    """Directory components of *file_path* (the file name itself excluded).
+
+    Directories are matched as whole path segments, so ``hardcore/x.py`` or
+    ``src/scoring_core/x.py`` are not ``core`` (OBS-09).
+    """
+    parts = file_path.replace("\\", "/").split("/")
+    return {part for part in parts[:-1] if part}
+
+
 class RiskScorer:
     """Multi-factor risk scoring engine.
 
@@ -102,23 +112,23 @@ class RiskScorer:
             return float(br_map.get("utility", 40))
 
         # Heuristic from file path
-        file_path = finding.get("file", "")
-        if "core/" in file_path or "kernel/" in file_path:
+        dirs = _directory_segments(finding.get("file", ""))
+        if dirs & {"core", "kernel"}:
             return float(br_map.get("core_kernel", 100))
-        if "api/" in file_path:
+        if "api" in dirs:
             return float(br_map.get("api_layer", 80))
-        if "agents/" in file_path:
+        if "agents" in dirs:
             return float(br_map.get("agent_logic", 60))
-        if "workers/" in file_path:
+        if "workers" in dirs:
             return float(br_map.get("worker", 50))
         return float(br_map.get("utility", 40))
 
     def _criticality_score(self, finding: dict[str, Any]) -> float:
         crit_map = self._weights.get("service_criticality", {})
-        file_path = finding.get("file", "")
-        if any(d in file_path for d in ("core/", "api/", "memory/")):
+        dirs = _directory_segments(finding.get("file", ""))
+        if dirs & {"core", "api", "memory"}:
             return float(crit_map.get("tier1_production", 100))
-        if any(d in file_path for d in ("agents/", "orchestrators/")):
+        if dirs & {"agents", "orchestrators"}:
             return float(crit_map.get("tier2_staging", 60))
         return float(crit_map.get("tier3_dev", 20))
 
