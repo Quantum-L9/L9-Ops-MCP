@@ -65,7 +65,7 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def _get_resolver() -> KernelResolver:
+def _get_resolver(strict_integrity: bool | None = None) -> KernelResolver:
     """Return the process-cached resolver, loading it on first call.
 
     Cache-invalidation contract (execution contract §37):
@@ -81,13 +81,21 @@ def _get_resolver() -> KernelResolver:
       integrations that must detect a mid-process repo mutation.
     - Full cache invalidation on repo mutation is a Slice 2 PE-integration
       prerequisite; the current cache assumes an immutable repo checkout.
+    - ``strict_integrity`` overrides the environment for this call only:
+      ``True``/``False`` force or skip verification, ``None`` (default)
+      reads ``L9_KERNEL_STRICT_INTEGRITY``. A caller that needs strictness
+      passes it here rather than mutating the process environment (OBS-14).
     """
 
     global _KERNEL_REGISTRY, _KERNEL_RESOLVER
     if _KERNEL_RESOLVER is None:
         _KERNEL_REGISTRY = KernelRegistry.load(_repo_root())
         _KERNEL_RESOLVER = KernelResolver(_KERNEL_REGISTRY)
-    strict = os.getenv("L9_KERNEL_STRICT_INTEGRITY", "").lower() in {"1", "true", "yes", "on"}
+    strict = (
+        os.getenv("L9_KERNEL_STRICT_INTEGRITY", "").lower() in {"1", "true", "yes", "on"}
+        if strict_integrity is None
+        else strict_integrity
+    )
     if strict and _KERNEL_REGISTRY is not None:
         _KERNEL_REGISTRY.verify_integrity()
     return _KERNEL_RESOLVER
@@ -242,6 +250,34 @@ async def kernel_resolve(
     an LLM.
     """
 
+    return resolve_kernel_authority(
+        profile=profile,
+        consumer=consumer,
+        objective=objective,
+        trust_level=trust_level,
+        max_overload_weight=max_overload_weight,
+        allow_experimental=allow_experimental,
+    )
+
+
+def resolve_kernel_authority(
+    profile: str,
+    consumer: str,
+    objective: str,
+    trust_level: str,
+    max_overload_weight: float,
+    allow_experimental: bool = False,
+    *,
+    strict_integrity: bool | None = None,
+) -> dict[str, object]:
+    """Shared body of every ``kernel_resolve`` MCP tool.
+
+    ``strict_integrity`` is passed to :func:`_get_resolver` for this call
+    only; ``None`` keeps the ``L9_KERNEL_STRICT_INTEGRITY`` environment
+    default. It is a keyword, not an MCP tool argument, so no client can
+    switch it.
+    """
+
     try:
         coerced_budget = _coerce_max_overload_weight(max_overload_weight)
         request = KernelResolutionRequest(
@@ -259,7 +295,7 @@ async def kernel_resolve(
         return KernelRequestInvalidError(f"malformed kernel_resolve request: {exc}").to_dict()
 
     try:
-        resolver = _get_resolver()
+        resolver = _get_resolver(strict_integrity)
     except KernelAuthorityError as exc:
         return exc.to_dict()
     except OSError as exc:
