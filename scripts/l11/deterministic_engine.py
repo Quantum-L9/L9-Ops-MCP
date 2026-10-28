@@ -40,6 +40,19 @@ logger = structlog.get_logger(__name__)
 ENGINE_ERROR_RULE = "engine_error"
 
 
+#: Names in ``deterministic_layer.engines`` that :meth:`DeterministicEngine.scan`
+#: can run.  Any other enabled name fails closed (OBS-07).
+IMPLEMENTED_ENGINES = frozenset(
+    {"ruff", "mypy", "bandit", "semgrep", "adr_compliance", "complexity_threshold"}
+)
+
+#: Keys of ``deterministic_layer`` the engine reads; any other mapping with
+#: ``enabled: true`` is a configured check this engine cannot run.
+LAYER_KEYS = frozenset(
+    {"required", "blocks_merge", "engines", "tool_timeout_seconds", "l9_ci_scripts", "test_suite"}
+)
+
+
 def engine_error(tool: str, message: str, file: str = "") -> dict[str, Any]:
     """Build a failing finding (producer contract keys) for an unrunnable check."""
     return {
@@ -215,6 +228,27 @@ class DeterministicEngine:
             return default
         return ".semgrep/"
 
+    def _unimplemented_check_errors(self) -> list[dict[str, Any]]:
+        """Fail closed on every enabled check this engine cannot run.
+
+        A check named in ``engines`` or as an enabled block of the layer
+        that has no implementation here would otherwise "pass" silently.
+        """
+        unknown = [
+            name
+            for name, enabled in self._engine_map.items()
+            if enabled and name not in IMPLEMENTED_ENGINES
+        ]
+        unknown.extend(
+            key
+            for key, value in self.config.items()
+            if key not in LAYER_KEYS and isinstance(value, dict) and value.get("enabled")
+        )
+        return [
+            engine_error(name, f"configured check {name!r} is enabled but not implemented")
+            for name in unknown
+        ]
+
     # ── Public API ──────────────────────────
     async def scan(self, files: list[str]) -> dict[str, Any]:
         """Run all enabled engines on *files*.
@@ -227,7 +261,7 @@ class DeterministicEngine:
         if not files:
             return {"passed": True, "findings": []}
 
-        all_findings: list[dict[str, Any]] = []
+        all_findings: list[dict[str, Any]] = self._unimplemented_check_errors()
         engines: list[tuple[str, str, Any]] = [
             ("ruff", "ruff", lambda: self._run_ruff(files)),
             ("mypy", "mypy", lambda: self._run_mypy(files)),

@@ -71,17 +71,20 @@ detection:
           - "0055"   # Fail-loudly policy
           - "0083"   # UTC datetime standard
       - name: dependency_graph_validator
-        enabled: true
+        # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+        enabled: false
         check_circular_imports: true
       - name: schema_validator
-        enabled: true
+        # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+        enabled: false
         schemas_dir: schemas/
       - name: complexity_threshold
         enabled: true
         max_cyclomatic: 15
         max_cognitive: 25
       - name: test_coverage_threshold
-        enabled: true
+        # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+        enabled: false
         min_coverage_percent: 80.0
 
     # ── L9 Existing CI Scripts ──
@@ -107,7 +110,8 @@ detection:
 
     # ── Secrets Scanning (NEW — gitleaks) ──
     secrets_scan:
-      enabled: true
+      # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+      enabled: false
       tool: gitleaks
       config: .gitleaks.toml
       license_env: GITLEAKS_LICENSE
