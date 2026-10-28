@@ -40,11 +40,24 @@ on:
       - "runtime/**"
       - "config/**"
       - "Dockerfile"
+      - "Dockerfile.*"
       - "docker-compose*.yml"
+      - ".dockerignore"
       - ".github/**"
       - "pyproject.toml"
+      - "requirements.txt"
+      - "requirements-*.txt"
+      - "Makefile"
+      - ".gitleaks.toml"
+      - ".pre-commit-config.yaml"
+      - "codecov.yml"
+      - "ruff.toml"
+      - "pytest.ini"
       - "src/**"
       - "tests/**"
+      # OBS-02: must cover every pattern in config/policies/protected_files.yaml
+      # (tests/test_ci_workflow_paths_filter.py) or the protected-files gate
+      # never runs for a PR touching only that path.
   push:
     branches: [main]
   schedule:
