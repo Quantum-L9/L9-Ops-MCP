@@ -205,6 +205,28 @@ def test_library_health_clean_tree_exits_zero(tmp_path: Path) -> None:
     assert "FAIL:" not in proc.stdout
 
 
+@pytest.mark.parametrize("present", [(), ("kernels",), ("skills",)])
+def test_library_health_missing_or_empty_input_fails(
+    tmp_path: Path, present: tuple[str, ...]
+) -> None:
+    """F-pr38-10: with nothing to check the script printed '0 failures' and exited 0."""
+    repo = _repo_copy(tmp_path, "library_health_v341.sh")
+    (repo / "skills").mkdir()  # an empty directory is as empty as a missing one
+    if "kernels" in present:
+        kernel = repo / "docs" / "kernels" / "R5" / "k.v1.yaml"
+        kernel.parent.mkdir(parents=True)
+        kernel.write_text("kernel_id: k.v1\nchanges_from_v3.3.0: []\n", encoding="utf-8")
+    if "skills" in present:
+        skill = repo / "skills" / "alpha" / "SKILL.md"
+        skill.parent.mkdir(parents=True)
+        skill.write_text("---\nlast_tested: 2026-10-01\n---\n", encoding="utf-8")
+
+    proc = _bash(repo / "scripts" / "library_health_v341.sh", repo, dict(os.environ))
+
+    assert proc.returncode != 0, proc.stdout
+    assert "NO INPUT" in proc.stdout
+
+
 @pytest.mark.parametrize(
     ("seed_rc", "expected"),
     [

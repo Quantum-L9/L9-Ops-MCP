@@ -28,7 +28,27 @@ list_files() { # <dir> <find-name-expression...>
   find "$dir" \( "$@" \) -type f -print0 | sort -z
 }
 
+has_files() { # <dir> <find-name-expression...>
+  local dir="$1"; shift
+  [[ -d "$dir" ]] && [[ -n "$(find "$dir" \( "$@" \) -type f -print -quit)" ]]
+}
+
 echo "=== L9 Library Health Check v3.4.1 ==="
+echo ""
+
+# 0. Inputs: nothing to check is a failure, not a clean bill of health
+# (library_health.py reports the same condition as NO INPUT).
+echo "--- Inputs ---"
+if has_files "$KERNELS_DIR" -name "*.yaml" -o -name "*.md"; then
+  ok
+else
+  fail "NO INPUT: $KERNELS_DIR is missing or has no kernel files"
+fi
+if has_files "$SKILLS_DIR" -name "SKILL.md"; then
+  ok
+else
+  fail "NO INPUT: $SKILLS_DIR is missing or has no SKILL.md files"
+fi
 echo ""
 
 # 1. Stale last_tested
