@@ -16,7 +16,7 @@ LOG = Path("logs/memory-admission-log.jsonl")
 QUARANTINE = Path("memory_quarantine")
 THRESHOLD = 0.65
 MIN_TRUST = "L2"
-_ORDER = ["L0", "L1", "L2", "L3", "L4", "L5"]
+TRUST_ORDER: tuple[str, ...] = ("L0", "L1", "L2", "L3", "L4", "L5")
 
 
 def _log(d: dict[str, object]) -> None:
@@ -45,8 +45,8 @@ def _quarantine_path(candidate: MemoryCandidate) -> Path:
     return qf
 
 
-def _ge(a: str, b: str) -> bool:
-    return _ORDER.index(a) >= _ORDER.index(b)
+def trust_at_least(level: str, minimum: str) -> bool:
+    return TRUST_ORDER.index(level) >= TRUST_ORDER.index(minimum)
 
 
 async def evaluate(
@@ -59,7 +59,7 @@ async def evaluate(
         quarantine(candidate, "relevance", base, score=candidate.semantic_score)
         return False, "quarantine:relevance"
 
-    if not _ge(candidate.trust_level, MIN_TRUST):
+    if not trust_at_least(candidate.trust_level, MIN_TRUST):
         _log({**base, "criterion": "trust", "disposition": "block_with_escalation"})
         return False, "block:trust"
 
@@ -94,6 +94,11 @@ def decision_base(candidate: MemoryCandidate) -> dict[str, object]:
         "agent": candidate.source_agent_id,
         "ts": datetime.now(timezone.utc).isoformat(),
     }
+
+
+def log_event(record: dict[str, object]) -> None:
+    """Append a memory-write decision that has no candidate (e.g. a fact invalidation)."""
+    _log({"ts": datetime.now(timezone.utc).isoformat(), **record})
 
 
 def log_decision(
