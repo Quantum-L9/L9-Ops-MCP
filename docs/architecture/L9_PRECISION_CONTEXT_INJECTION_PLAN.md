@@ -39,7 +39,7 @@ All kernels will be restructured into three explicit load tiers:
    - Write a new `description` at the root level using the Trigger Triad (Capability, Trigger Conditions, User Vocabulary).
 2. Repeat for all R5 kernels (`memory_admission`, `model_governance`, `preferences`, `trust_ladder`).
 3. Update R0 `soul_kernel.v1.yaml` with a clear identity-lock description.
-4. **Validation:** Run `make validate-wiring` to ensure schema compliance.
+4. **Validation:** Run `make ci`; kernel schema compliance is enforced by the kernel registry tests it runs (`tests/test_kernel_registry.py`). (There is no `make validate-wiring` target.)
 
 ## P2: Defer Governance Metadata to Tier 3
 
