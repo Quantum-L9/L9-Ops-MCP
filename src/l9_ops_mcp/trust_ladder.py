@@ -7,9 +7,18 @@ Encoding
 Logical scopes are written ``<namespace>:<name>`` in doctrine (for example
 ``global:decisions``). graphiti-core (0.31.x) only accepts group ids matching
 ``^[a-zA-Z0-9_-]+$``, so every group id this service emits is encoded as
-``<namespace>__<name>`` (``GROUP_SEP``). A name that contains characters outside
-that alphabet (e.g. an agent id ``claude.code``) is sanitized and suffixed with
-a short sha256 of the original so distinct names never collide.
+``<namespace>__<name>`` (``GROUP_SEP``). The encoding is one-to-one
+(F-pr38-03):
+
+- a namespace is ``[A-Za-z0-9]+`` (no ``_`` or ``-``), so the first ``__``
+  always ends it;
+- a *canonical* name (``[A-Za-z0-9-]+``, no ``_``) is used unchanged, so ids
+  for ordinary agent and scope names are stable;
+- any other name (it contains ``_`` or a character outside the alphabet, e.g.
+  agent id ``claude.code``) becomes ``<sanitized>_<sha256[:16]>``, where the
+  sanitized part has no ``_``. Encoded names therefore contain exactly one
+  ``_`` and canonical names none, so the two sets cannot alias, and two
+  distinct non-canonical names collide only on a 64-bit hash collision.
 
 Legacy data / one-time migration (U-01, not executed)
 -----------------------------------------------------
@@ -42,36 +51,48 @@ from typing import cast, get_args
 from .models import TrustLevel
 
 GROUP_SEP = "__"
-_LEGAL = re.compile(r"^[A-Za-z0-9_-]+$")
-_ILLEGAL_CHARS = re.compile(r"[^A-Za-z0-9_-]")
+_NAMESPACE = re.compile(r"^[A-Za-z0-9]+$")
+_CANONICAL_NAME = re.compile(r"^[A-Za-z0-9-]+$")
+_ENCODED_NAME = re.compile(r"^[A-Za-z0-9-]*_[0-9a-f]{16}$")
+_NON_CANONICAL_CHARS = re.compile(r"[^A-Za-z0-9-]")
 
 
 def encode_component(value: str) -> str:
-    """Encode one group-id component into the graphiti-legal alphabet."""
+    """Encode one group-id name into the graphiti-legal alphabet, injectively."""
     if not value:
         msg = "group id component must be non-empty"
         raise ValueError(msg)
-    if _LEGAL.match(value):
+    if _CANONICAL_NAME.match(value):
         return value
-    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()[:8]
-    return f"{_ILLEGAL_CHARS.sub('-', value)}-{digest}"
+    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()[:16]
+    return f"{_NON_CANONICAL_CHARS.sub('-', value)}_{digest}"
 
 
 def group_id(namespace: str, name: str) -> str:
     """Return the encoded group id for the logical scope ``namespace:name``."""
-    if not _LEGAL.match(namespace):
-        msg = f"invalid group namespace {namespace!r}"
+    if not _NAMESPACE.match(namespace):
+        msg = f"invalid group namespace {namespace!r}: use [A-Za-z0-9]+"
         raise ValueError(msg)
     return f"{namespace}{GROUP_SEP}{encode_component(name)}"
 
 
 def normalize_group_id(raw: str) -> str:
-    """Map caller input (encoded or legacy ``namespace:name``) to an encoded group id."""
+    """Map caller input (encoded or legacy ``namespace:name``) to an encoded group id.
+
+    Already-encoded input is accepted only when it is a well-formed encoding,
+    so no caller-supplied id can sit outside the one-to-one image of
+    :func:`group_id`.
+    """
     if ":" in raw:
         namespace, _, name = raw.partition(":")
         return group_id(namespace, name)
-    if not raw or not _LEGAL.match(raw):
-        msg = f"invalid group id {raw!r}: use 'namespace:name' or [A-Za-z0-9_-]+"
+    namespace, sep, name = raw.partition(GROUP_SEP)
+    if (
+        not sep
+        or not _NAMESPACE.match(namespace)
+        or not (_CANONICAL_NAME.match(name) or _ENCODED_NAME.match(name))
+    ):
+        msg = f"invalid group id {raw!r}: use 'namespace:name' or an encoded 'namespace__name'"
         raise ValueError(msg)
     return raw
 

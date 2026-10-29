@@ -50,7 +50,10 @@ When `add_artifact.py` is called, it wires EXACTLY these 5 locations:
 4. `evals/datasets/<id>-basic.yaml` eval fixture stub
 5. `evals/promptfooconfig.yaml` test stub
 
-All 5 must be consistent. `make validate-wiring id=X` verifies this.
+All 5 must be consistent. No command verifies this contract today: there is no `make validate-wiring` target and
+`scripts/validate_wiring.py` was retired in PR #38. `make wiring` checks skill installability,
+playbooks, command parity, org invariants, upload routing and pyproject entrypoints, not these
+five locations.
 
 ## Runtime Load Order
 

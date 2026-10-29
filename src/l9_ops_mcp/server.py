@@ -176,24 +176,62 @@ async def memory_query_context(
 # EntityEdge); a node pattern such as (n {uuid: $uuid}) can never match one.
 # invalid_at / expired_at follow graphiti's own invalidation semantics and are
 # stored as datetimes; read paths exclude edges with invalid_at set.
+# The scope predicate keeps the write inside the caller's trust-ladder scopes
+# ($all_scopes is true only for L5); an edge outside them matches nothing.
 _INVALIDATE_EDGE_CYPHER = """
 MATCH (:Entity)-[e:RELATES_TO {uuid: $uuid}]->(:Entity)
+WHERE $all_scopes OR e.group_id IN $scopes
 SET e.invalid_at = $ts,
     e.expired_at = coalesce(e.expired_at, $ts),
     e.invalid_reason = $reason
 RETURN e.uuid AS uuid
 """
 
+# Invalidation writes memory without passing the admission gate, which the
+# trust ladder kernel permits only from L3 (memory_write_via_admission_gate).
+_INVALIDATE_MIN_TRUST = "L3"
+
 
 @mcp.tool()  # type: ignore[untyped-decorator]
-async def memory_invalidate_fact(entity_uuid: str, reason: str) -> dict[str, object]:
+async def memory_invalidate_fact(
+    entity_uuid: str,
+    reason: str,
+    agent_id: str,
+    trust_level: str,
+) -> dict[str, object]:
     """Mark a graph fact (RELATES_TO edge, by uuid) as invalid. Does not delete it.
 
-    Returns ``{invalidated, reason, ts}`` when the edge was updated and
-    ``{status: 'not_found', invalidated: None, uuid}`` when no fact edge has
-    that uuid. Driver errors surface as tool errors."""
+    This is a memory write: ``trust_level`` must be L3 or higher and the edge
+    must lie inside ``allowed_scopes(agent_id, trust_level)``. Below L3 the call
+    returns ``{status: 'denied'}`` without touching the graph; unknown trust
+    levels are rejected. Returns ``{invalidated, reason, ts}`` when the edge was
+    updated and ``{status: 'not_found', invalidated: None, uuid}`` when no fact
+    edge with that uuid lies in the caller's scopes (absence and out-of-scope
+    are indistinguishable by design). Every decision is appended to the
+    admission log. Driver errors surface as tool errors."""
+    from . import admission
+    from .trust_ladder import allowed_scopes, validate_trust_level
+
+    level = validate_trust_level(trust_level)  # raises before any graph access
+    decision = {
+        "criterion": "invalidate",
+        "agent": agent_id,
+        "trust_level": level,
+        "uuid": entity_uuid,
+        "reason": reason,
+    }
+    if not admission.trust_at_least(level, _INVALIDATE_MIN_TRUST):
+        admission.log_event({**decision, "disposition": "denied"})
+        return {
+            "status": "denied",
+            "invalidated": None,
+            "uuid": entity_uuid,
+            "reason": f"invalidation requires trust_level >= {_INVALIDATE_MIN_TRUST}",
+        }
+
     from .graphiti_client import get_graphiti
 
+    scopes = allowed_scopes(agent_id, level)
     g = await get_graphiti()
     now = datetime.now(timezone.utc)
     records, _, _ = await g.driver.execute_query(
@@ -201,9 +239,13 @@ async def memory_invalidate_fact(entity_uuid: str, reason: str) -> dict[str, obj
         uuid=entity_uuid,
         ts=now,
         reason=reason,
+        all_scopes=scopes == ["*"],
+        scopes=scopes,
     )
     if not records:
+        admission.log_event({**decision, "disposition": "not_found"})
         return {"status": "not_found", "invalidated": None, "uuid": entity_uuid}
+    admission.log_event({**decision, "disposition": "invalidated"})
     return {
         "status": "invalidated",
         "invalidated": entity_uuid,

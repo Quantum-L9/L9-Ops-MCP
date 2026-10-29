@@ -124,8 +124,10 @@ class _FakeGraph:
         )
         self.driver = _FakeDriver({"edge-1"} if known is None else known)
         self.episodes: list[dict[str, Any]] = []
+        self.searches: list[Any] = []
 
     async def search_(self, **kwargs: Any) -> SearchResults:
+        self.searches.append(kwargs.get("group_ids"))
         return SearchResults(edges=[self.edge], edge_reranker_scores=[1.0])
 
     async def add_episode(self, **kwargs: Any) -> None:
@@ -203,3 +205,47 @@ def test_mcp_ingest_carries_consent(paths, monkeypatch) -> None:
     )
     assert admitted["admitted"] is True
     assert len(g.episodes) == 1
+
+
+# --- scope (F-pr38-02) ---------------------------------------------------
+
+
+def test_write_outside_readable_scope_is_blocked_before_any_search(paths, monkeypatch) -> None:
+    """An L2 writer cannot read global__decisions, so it may not dedup-search it:
+    no search, no merge, no edge uuid disclosed."""
+    log, _ = paths
+    g = _FakeGraph("an architectural decision")
+    g.edge.group_id = "global__decisions"
+    _patch(monkeypatch, g)
+    c = _candidate(group_ids=["global:decisions"], source_agent_id="mallory")
+    result = asyncio.run(memory_ops.ingest_episode(c))
+
+    assert result == {"admitted": False, "disposition": "block:scope"}
+    assert g.searches == []
+    assert g.driver.calls == []
+    assert g.episodes == []
+    last = _lines(log)[-1]
+    assert (last["criterion"], last["disposition"]) == ("scope", "block")
+    assert last["group"] == "global__decisions"
+
+
+def test_write_inside_scope_still_reaches_dedup(paths, monkeypatch) -> None:
+    g = _FakeGraph("an architectural decision")
+    g.edge.group_id = "global__decisions"
+    _patch(monkeypatch, g)
+    c = _candidate(group_ids=["global:decisions"], trust_level="L4")
+    result = asyncio.run(memory_ops.ingest_episode(c))
+
+    assert g.searches == [["global__decisions"]]
+    assert result["disposition"] == "merge:dedup"
+
+
+def test_unknown_trust_level_on_ingest_is_rejected_before_graph_access(paths, monkeypatch) -> None:
+    from l9_ops_mcp.trust_ladder import UnknownTrustLevelError
+
+    g = _FakeGraph("anything")
+    _patch(monkeypatch, g)
+    c = _candidate().model_copy(update={"trust_level": "L9"})
+    with pytest.raises(UnknownTrustLevelError):
+        asyncio.run(memory_ops.ingest_episode(c))
+    assert g.searches == []

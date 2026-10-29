@@ -7,7 +7,12 @@ import json
 from . import admission
 from .graphiti_client import get_graphiti, search_edges
 from .models import MemoryCandidate
-from .trust_ladder import SESSION_CURRENT, normalize_group_id
+from .trust_ladder import (
+    SESSION_CURRENT,
+    allowed_scopes,
+    normalize_group_id,
+    validate_trust_level,
+)
 
 
 _DEDUP_CANDIDATES = 10
@@ -97,8 +102,19 @@ async def _merge(c: MemoryCandidate, edge_uuid: str | None) -> dict[str, object]
     }
 
 
+def _writable(agent_id: str, trust_level: str, group: str) -> bool:
+    """A writer may only target, and so only dedup-search, a group it may read."""
+    scopes = allowed_scopes(agent_id, validate_trust_level(trust_level))
+    return scopes == ["*"] or group in scopes
+
+
 async def ingest_episode(c: MemoryCandidate) -> dict[str, object]:
     target_group = normalize_group_id((c.group_ids or [SESSION_CURRENT])[0])
+    if not _writable(c.source_agent_id, c.trust_level, target_group):
+        # Decided before admission.evaluate so no search touches a group the
+        # writer cannot read and no edge uuid from it is ever disclosed.
+        admission.log_decision(c, "scope", "block", group=target_group)
+        return {"admitted": False, "disposition": "block:scope"}
     dedup = _GroupDedup(target_group)
     ok, disp = await admission.evaluate(c, dedup)
     if disp == "merge:dedup":
