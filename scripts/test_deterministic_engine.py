@@ -348,6 +348,17 @@ class TestUnimplementedChecksFailClosed:
         assert len(errors) == 1
         assert "secrets_scan" in errors[0]["message"]
 
+    async def test_empty_file_list_still_fails_an_unimplemented_check(self, sample_config):
+        """F-pr38-14: scan([]) returned passed=True before this check ran."""
+        cfg = _config_with(sample_config, secrets_scan={"enabled": True, "tool": "gitleaks"})
+        result = await DeterministicEngine(cfg).scan([])
+        assert result["passed"] is False
+        assert len(_engine_errors(result, "secrets_scan")) == 1
+
+    async def test_empty_file_list_passes_when_every_check_is_implemented(self, sample_config):
+        result = await DeterministicEngine(sample_config).scan([])
+        assert result == {"passed": True, "findings": []}
+
     async def test_disabled_unknown_checks_are_ignored(self, sample_config):
         cfg = _config_with(sample_config, secrets_scan={"enabled": False})
         cfg["detection"]["deterministic_layer"]["engines"] = [

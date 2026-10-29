@@ -258,10 +258,12 @@ class DeterministicEngine:
         or cannot run contributes an ``engine_error`` finding instead of
         aborting the scan.
         """
-        if not files:
-            return {"passed": True, "findings": []}
-
+        # An enabled check that cannot run fails the scan whatever the file
+        # list is: with no files there is nothing to scan, not nothing to fail.
         all_findings: list[dict[str, Any]] = self._unimplemented_check_errors()
+        if not files:
+            return {"passed": not all_findings, "findings": all_findings}
+
         engines: list[tuple[str, str, Any]] = [
             ("ruff", "ruff", lambda: self._run_ruff(files)),
             ("mypy", "mypy", lambda: self._run_mypy(files)),
