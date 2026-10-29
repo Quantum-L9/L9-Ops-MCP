@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # --- L9_META ---
 # l9_schema: 1
 # component: library_health
@@ -7,7 +8,6 @@
 # status: active
 # --- /L9_META ---
 
-#!/usr/bin/env python3
 """
 library_health.py — L9 Pack library health check.
 Detects: stale last_tested dates, missing retrieval_keys, missing tier markers,

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # --- L9_META ---
 # l9_schema: 1
 # component: convergence_tracker
@@ -7,7 +8,6 @@
 # status: active
 # --- /L9_META ---
 
-#!/usr/bin/env python3
 """
 l9-ops: Convergence Tracker (v1.2.2)
 Reads convergence_footer from every YAML kernel under docs/kernels.
