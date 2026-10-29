@@ -48,7 +48,9 @@ async def test_ingest_admitted():
         body="Integration test: Graphiti is the L9 graph backend.",
         source_agent_id="test-agent",
         session_id="s-integration",
-        group_ids=["session__s-integration"],
+        # an explicit group the L2 writer holds (its own agent scope); a
+        # per-session group is outside allowed_scopes and is blocked (F-pr38-02)
+        group_ids=["agent:test-agent"],
         semantic_score=0.95,
     )
     result = await ingest_episode(c)
@@ -112,7 +114,7 @@ async def test_invalidate_round_trip():
         body="Integration round trip: the L9 invalidation probe uses Neo4j relationships.",
         source_agent_id="test-agent",
         session_id="s-invalidate",
-        group_ids=["session__s-invalidate"],
+        group_ids=["agent:test-agent"],
         semantic_score=0.95,
     )
     await ingest_episode(c)
@@ -121,10 +123,13 @@ async def test_invalidate_round_trip():
     assert facts, "graphiti extracted no fact edges from the ingested episode"
     target = facts[0].uuid
 
-    result = await memory_invalidate_fact(target, "integration round trip")
+    # invalidation is an L3+ write scoped to the caller's groups (F-pr38-01)
+    result = await memory_invalidate_fact(target, "integration round trip", "test-agent", "L3")
     assert result["invalidated"] == target
 
-    missing = await memory_invalidate_fact("00000000-0000-0000-0000-000000000000", "x")
+    missing = await memory_invalidate_fact(
+        "00000000-0000-0000-0000-000000000000", "x", "test-agent", "L3"
+    )
     assert missing["status"] == "not_found"
 
     after = await hydrate("L9 invalidation probe", "test-agent", 4000, "L5", "s-invalidate")
