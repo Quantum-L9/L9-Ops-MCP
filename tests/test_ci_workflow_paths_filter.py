@@ -10,8 +10,10 @@ paths, and every sample must be matched by some ``paths`` entry.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 import pytest
@@ -20,6 +22,18 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = REPO_ROOT / ".github" / "workflows" / "08-L11-CI-WORKFLOW-v3.3.yaml"
 POLICY = REPO_ROOT / "config" / "policies" / "protected_files.yaml"
+GATE_PATH = REPO_ROOT / "scripts" / "validate-protected-files-v6.py"
+
+
+def _load_gate() -> ModuleType:
+    spec = importlib.util.spec_from_file_location("validate_protected_files_v6", GATE_PATH)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+GATE = _load_gate()
 
 
 def _github_glob_to_regex(pattern: str) -> re.Pattern[str]:
@@ -62,16 +76,35 @@ def _pr_paths() -> list[str]:
     return [str(p) for p in paths]
 
 
-def _protected_patterns() -> list[str]:
-    policy = yaml.safe_load(POLICY.read_text())
-    patterns: list[str] = []
-    for category in policy["categories"].values():
-        patterns.extend(category.get("protected_paths", []) or [])
-        for sub in (category.get("subsystems") or {}).values():
-            patterns.extend(sub.get("paths", []) or [])
-    patterns.extend(policy.get("meta_protected_files", []) or [])
+def _protected_patterns(policy: dict[str, Any] | None = None) -> list[str]:
+    """Every pattern the gate protects, derived with the gate's own accessors
+    (F-pr38-15: a second derivation read subsystem 'paths' while the gate reads
+    'protected_paths'), plus .pre-commit-config.yaml, which this filter must
+    also reach."""
+    if policy is None:
+        policy = yaml.safe_load(POLICY.read_text())
+    patterns = GATE.get_all_protected_paths(policy) + GATE.get_meta_protected_files(policy)
     patterns.append(".pre-commit-config.yaml")
     return sorted(set(patterns))
+
+
+def test_patterns_include_subsystem_protected_paths() -> None:
+    policy = {
+        "categories": {
+            "lcto_controlled": {"protected_paths": ["Makefile"]},
+            "subsystem_protected": {
+                "subsystems": {"engine": {"protected_paths": ["engine/core/**"]}}
+            },
+        },
+        "meta_protected_files": ["config/policies/protected_files.yaml"],
+    }
+    assert "engine/core/**" in _protected_patterns(policy)
+    assert set(_protected_patterns(policy)) == {
+        "Makefile",
+        "engine/core/**",
+        "config/policies/protected_files.yaml",
+        ".pre-commit-config.yaml",
+    }
 
 
 def test_glob_semantics_match_github() -> None:
