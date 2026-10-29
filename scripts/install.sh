@@ -3,30 +3,44 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-[ -f .env ] && source .env || true
+# Export every .env assignment so child processes (pip, python, the config
+# writers) see it; without set -a the values stay shell-local.
+if [[ -f .env ]]; then
+    set -a
+    # shellcheck disable=SC1091
+    . ./.env
+    set +a
+fi
 
 log() { printf "\n[L9] %s\n" "$*"; }
 
 # ── 1. Neo4j ──────────────────────────────────────────────────────────────────
 log "Starting Neo4j..."
 docker compose -f docker-compose.neo4j.yml up -d
+# Accept only the exact Docker health status "healthy" ("unhealthy" and
+# "starting" are not ready).
+neo4j_health() {
+    local cid
+    cid="$(docker compose -f docker-compose.neo4j.yml ps -q neo4j 2>/dev/null | head -n 1)"
+    [[ -n "$cid" ]] || { echo "absent"; return 0; }
+    docker inspect --format '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo "unknown"
+}
 log "Waiting for Neo4j healthy (up to 90s)..."
-for i in $(seq 1 30); do
-    docker compose -f docker-compose.neo4j.yml ps | grep -q "healthy" && break
+NEO4J_HEALTH="unknown"
+for _ in $(seq 1 30); do
+    NEO4J_HEALTH="$(neo4j_health)"
+    [[ "$NEO4J_HEALTH" = "healthy" ]] && break
     sleep 3
 done
-docker compose -f docker-compose.neo4j.yml ps | grep -q "healthy" \
-    || { echo "ERROR: Neo4j did not become healthy"; exit 1; }
+if [[ "$NEO4J_HEALTH" != "healthy" ]]; then
+    echo "ERROR: Neo4j did not become healthy (last status: $NEO4J_HEALTH)" >&2
+    exit 1
+fi
 log "Neo4j is up."
 
 # ── 2. Python deps ────────────────────────────────────────────────────────────
 log "Installing Python package + Graphiti deps..."
-pip install -e ".[dev]" \
-    "graphiti-core>=0.3.17" \
-    "neo4j>=5.20.0" \
-    "mcp[cli]>=1.2.0" \
-    "tiktoken>=0.7.0" \
-    "httpx>=0.27.0"
+pip install -e ".[dev]"
 
 # ── 3. Graphiti indices ───────────────────────────────────────────────────────
 log "Building Graphiti indices & constraints..."
@@ -39,21 +53,30 @@ PY
 
 # ── 4. Seed global:decisions ──────────────────────────────────────────────────
 log "Seeding global:decisions from CANONICAL_LAW.md..."
-python -m l9_ops_mcp.seed || log "seed skipped (CANONICAL_LAW.md not found — set CG_ROOT)"
+seed_status=0
+python -m l9_ops_mcp.seed || seed_status=$?
+case "$seed_status" in
+    0) ;;
+    2) log "seed skipped (CANONICAL_LAW.md not found — set CG_ROOT)" ;;
+    *) echo "ERROR: seed failed (exit $seed_status) — see output above" >&2
+       exit "$seed_status" ;;
+esac
 
 # ── 5. Cursor MCP config ──────────────────────────────────────────────────────
+# The writers refuse (exit 1, reason on stderr) rather than overwrite a config
+# they cannot parse; install continues so the user can merge the entry by hand.
 log "Writing ~/.cursor/mcp.json..."
-python scripts/write_cursor_config.py
-
-# ── 6. Claude Desktop config (optional) ──────────────────────────────────────
-if python scripts/write_claude_config.py 2>/dev/null; then
-    log "Claude Desktop config written."
+if python scripts/write_cursor_config.py; then
+    log "Cursor MCP config written."
 else
-    log "Claude Desktop config skipped (not installed or unsupported platform)."
+    log "Cursor MCP config NOT written (see message above); add the l9-ops-mcp entry manually."
 fi
 
-# ── 7. Wire Cursor-Governance sink ────────────────────────────────────────────
-log "Wiring Cursor-Governance graphiti_sink..."
-python scripts/wire_governance_sink.py || log "Governance sink skipped (CG_ROOT not found)."
+# ── 6. Claude Desktop config (optional) ──────────────────────────────────────
+if python scripts/write_claude_config.py; then
+    log "Claude Desktop config written."
+else
+    log "Claude Desktop config NOT written (see message above)."
+fi
 
 log "Install complete. Run: bash scripts/preflight.sh"

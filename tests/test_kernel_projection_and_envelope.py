@@ -400,3 +400,88 @@ def test_strict_integrity_env_forces_reverify(monkeypatch, server_module):
     # Reset for later tests.
     server_module._KERNEL_REGISTRY = None
     server_module._KERNEL_RESOLVER = None
+
+
+# ---------------------------------------------------------------------------
+# RG-10: repository-state faults during registry load keep the envelope and
+# carry a repository-state code (never KERNEL_REQUEST_INVALID, never a raise)
+# ---------------------------------------------------------------------------
+
+_REPOSITORY_CODES = {
+    "KERNEL_NOT_FOUND",
+    "KERNEL_INDEX_ENTRY_MISSING",
+    "KERNEL_SCHEMA_INVALID",
+}
+
+
+def _repo_with(tmp_path: Path, *, index: str | None, schema: str | None) -> Path:
+    root = tmp_path / "repo"
+    root.mkdir()
+    if index is None:
+        (root / "AGENT_RETRIEVAL_INDEX.yaml").mkdir()  # index path is a directory
+    else:
+        (root / "AGENT_RETRIEVAL_INDEX.yaml").write_text(index, encoding="utf-8")
+    if schema is not None:
+        (root / "schemas").mkdir()
+        (root / "schemas" / "kernel.canonical.schema.json").write_text(schema, encoding="utf-8")
+    return root
+
+
+def _resolve_against(monkeypatch, root: Path, *, manus: bool = False) -> dict:
+    from l9_ops_mcp import server as srv
+
+    monkeypatch.setenv("L9_OPS_MCP_REPO_ROOT", str(root))
+    srv._KERNEL_REGISTRY = None
+    srv._KERNEL_RESOLVER = None
+    try:
+        if manus:
+            from l9_ops_mcp import manus_kernel_server as facade
+
+            monkeypatch.setenv("L9_KERNEL_STRICT_INTEGRITY", "1")
+            fn = facade.kernel_resolve
+        else:
+            fn = srv.kernel_resolve
+        return asyncio.run(
+            fn(
+                profile="BUILD",
+                consumer="test",
+                objective="corrupt repo state",
+                trust_level="L3",
+                max_overload_weight=6.0,
+            )
+        )
+    finally:
+        srv._KERNEL_REGISTRY = None
+        srv._KERNEL_RESOLVER = None
+
+
+@pytest.mark.parametrize(
+    ("label", "index", "schema", "expected"),
+    [
+        (
+            "malformed-index-yaml",
+            "files: [unclosed\n  - x: : :\n",
+            None,
+            "KERNEL_INDEX_ENTRY_MISSING",
+        ),
+        ("index-is-directory", None, None, "KERNEL_INDEX_ENTRY_MISSING"),
+        ("malformed-schema-json", "files: {}\n", "{not json", "KERNEL_SCHEMA_INVALID"),
+        ("schema-not-an-object", "files: {}\n", "[1, 2]", "KERNEL_SCHEMA_INVALID"),
+    ],
+)
+def test_repository_faults_return_repository_codes(
+    monkeypatch, tmp_path, label, index, schema, expected
+):
+    root = _repo_with(tmp_path, index=index, schema=schema)
+    result = _resolve_against(monkeypatch, root)
+    assert result["status"] == "error", label
+    assert result["code"] == expected, (label, result)
+    assert result["code"] in _REPOSITORY_CODES
+
+
+def test_manus_facade_returns_same_repository_envelope(monkeypatch, tmp_path):
+    root = _repo_with(tmp_path, index="files: {}\n", schema="{not json")
+    native = _resolve_against(monkeypatch, root)
+    facade = _resolve_against(monkeypatch, root, manus=True)
+    assert facade["status"] == "error"
+    assert facade["code"] == native["code"] == "KERNEL_SCHEMA_INVALID"

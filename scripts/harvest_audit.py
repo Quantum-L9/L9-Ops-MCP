@@ -11,51 +11,47 @@
 """
 harvest_audit.py — IgorOS source-to-pack alignment audit.
 Checks that a transformed pack file covers the required fields from its source.
+Coverage means the field is a key of the file's parsed metadata (frontmatter,
+L9_META block or YAML mapping); a mention in prose or a comment does not count.
 Usage: python3 scripts/harvest_audit.py --source <file> --check-fields field1,field2,...
+Relative --source paths resolve from the repository root.
+Exits 1 when the source is missing or unparseable, or a field is not covered.
 """
 
-import sys
-import os
 import argparse
-import yaml
+import sys
+
+from validate_helpers import MetadataError, load_metadata, resolve_repo_path
 
 
-def load_frontmatter(filepath):
-    with open(filepath) as f:
-        content = f.read()
-    if content.startswith("---"):
-        parts = content.split("---", 2)
-        if len(parts) >= 3:
-            try:
-                return yaml.safe_load(parts[1]) or {}
-            except Exception:
-                pass
-    try:
-        return yaml.safe_load(open(filepath)) or {}
-    except Exception:
-        return {}
-
-
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", required=True, help="Path to the transformed pack file")
     parser.add_argument("--check-fields", required=True, help="Comma-separated required fields")
     args = parser.parse_args()
 
-    if not os.path.exists(args.source):
-        print(f"  SKIP: {args.source} not found (not yet created)")
-        sys.exit(0)
+    source = resolve_repo_path(args.source)
+    if not source.is_file():
+        print(f"  FAIL: {source} not found")
+        return 1
 
-    required = [f.strip() for f in args.check_fields.split(",")]
-    meta = load_frontmatter(args.source)
+    required = [f.strip() for f in args.check_fields.split(",") if f.strip()]
+    try:
+        meta = load_metadata(source)
+    except (MetadataError, UnicodeDecodeError) as exc:
+        print(f"  FAIL: {source} metadata does not parse: {exc}")
+        return 1
+    if not isinstance(meta, dict):
+        print(f"  FAIL: {source} has no metadata mapping")
+        return 1
 
-    missing = [f for f in required if f not in meta and f not in open(args.source).read()]
+    missing = [field for field in required if field not in meta]
     if missing:
-        print(f"  FAIL: {args.source} missing coverage for: {missing}")
-        sys.exit(1)
-    else:
-        print(f"  OK: {args.source} covers all required fields.")
+        print(f"  FAIL: {source} missing coverage for: {missing}")
+        return 1
+    print(f"  OK: {source} covers all required fields.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

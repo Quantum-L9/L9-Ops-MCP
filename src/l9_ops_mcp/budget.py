@@ -16,16 +16,30 @@ def _fill(facts: list[ContextFact], budget: int) -> tuple[list[ContextFact], int
     return out, used
 
 
-def allocate(facts: list[ContextFact], token_budget: int) -> ContextSlice:
+def _tier_budgets(token_budget: int) -> tuple[int, int, int]:
     sb = int(token_budget * 0.80)
     denom = T1 + T2 + T3
     t1b = int(sb * T1 / denom)
     t2b = int(sb * T2 / denom)
     t3b = sb - t1b - t2b
+    return t1b, t2b, t3b
+
+
+def _not_taken(facts: list[ContextFact], taken: list[ContextFact]) -> list[ContextFact]:
+    # Tier 3 draws only from facts not already injected in tiers 1/2, so each
+    # fact appears once and token_count counts distinct context.
+    taken_ids = {id(f) for f in taken}
+    taken_uuids = {f.uuid for f in taken if f.uuid}
+    return [f for f in facts if id(f) not in taken_ids and not (f.uuid and f.uuid in taken_uuids)]
+
+
+def allocate(facts: list[ContextFact], token_budget: int) -> ContextSlice:
+    t1b, t2b, t3b = _tier_budgets(token_budget)
     mid = max(1, len(facts) // 2)
     t1, u1 = _fill(facts[:mid] or facts, t1b)
     t2, u2 = _fill(facts[mid:], t2b)
-    t3, u3 = _fill([f for f in facts if f.invalid_at is None][:20], t3b)
+    remaining = _not_taken(facts, t1 + t2)
+    t3, u3 = _fill([f for f in remaining if f.invalid_at is None][:20], t3b)
     return ContextSlice(
         tier1_load_bearing=t1,
         tier2_examples=t2,

@@ -13,24 +13,18 @@ repos:
         name: Progressive disclosure enforcement
         entry: bash scripts/enforce_progressive_disclosure.sh
         language: system
-        files: ^kernels/optimized/.*\.yaml$
+        files: ^(docs/kernels/.*\.ya?ml|skills/.*|playbooks/.*)$
         pass_filenames: false
 
       - id: l9-hardban-audit
         name: Hardban duplication audit
         entry: bash scripts/audit_hardban_duplication.sh
         language: system
-        files: ^kernels/optimized/.*\.yaml$
+        files: ^(docs|skills|playbooks)/
         pass_filenames: false
 
       - id: l9-library-health
         name: Library health
         entry: bash scripts/library_health.sh
-        language: system
-        pass_filenames: false
-
-      - id: l9-wiring-validation
-        name: Wiring validation
-        entry: python3 scripts/validate_wiring.py --all
         language: system
         pass_filenames: false

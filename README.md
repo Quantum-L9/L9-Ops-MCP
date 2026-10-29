@@ -82,12 +82,11 @@ CI is meaningful only when it proves all referenced automation exists and runs f
 bash scripts/library_health.sh
 bash scripts/enforce_progressive_disclosure.sh
 bash scripts/audit_hardban_duplication.sh
-python3 scripts/impact_analysis.py --all
 python3 scripts/convergence_tracker.py
-python3 scripts/validate_wiring.py --all
+make wiring
 ```
 
-The wiring layer covers skill installability, playbook schema validity, AGENTS registry links, pyproject console scripts, README/Makefile parity, upload-to-repo routing, and Quantum-L9 org invariant enforcement.
+`make wiring` runs skill installability, playbook schema validity, README/Makefile/AGENTS command parity, Quantum-L9 org invariant enforcement, upload-to-repo routing and pyproject console-script checks. `validate_wiring.py` and `impact_analysis.py` were retired (decision D-13 C): they depended on a root `MANIFEST.json` that does not exist and never produced a signal.
 
 ## Layout
 

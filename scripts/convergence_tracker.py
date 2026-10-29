@@ -10,8 +10,14 @@
 #!/usr/bin/env python3
 """
 l9-ops: Convergence Tracker (v1.2.2)
-Reads convergence_footer from all optimized kernels. Reports eval/rot status.
+Reads convergence_footer from every YAML kernel under docs/kernels.
+Reports eval/rot status; exits 1 when no kernel is found.
 Activates the dormant convergence_footer telemetry schema.
+
+--update-kernel selects the kernel whose parsed kernel_id equals the argument
+and edits only the direct child keys of that file's top-level
+convergence_footer block (missing keys are appended to the block). The edited
+text is re-parsed and verified before it is written.
 
 Usage:
   python3 scripts/convergence_tracker.py
@@ -21,21 +27,59 @@ Usage:
 """
 
 import argparse
+import json
 import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Any
+
+import yaml
 
 LIBRARY_ROOT = Path(__file__).parent.parent
-KERNEL_DIR = LIBRARY_ROOT / "kernels" / "optimized"
+KERNEL_DIR = LIBRARY_ROOT / "docs" / "kernels"
 REPORT_PATH = LIBRARY_ROOT / "evals" / "convergence-status.yaml"
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
+FOOTER_KEY = "convergence_footer"
+FOOTER_FIELDS = ("status", "threshold", "pass_count", "final_ratio", "lastRunDate", "modelVersion")
 
-def extract_footer(kpath):
-    c = kpath.read_text()
-    f = {
-        "kernelid": None,
+
+class TrackerError(Exception):
+    """A kernel could not be read, parsed, selected or safely edited."""
+
+
+def _load_docs(kpath: Path) -> list[Any]:
+    try:
+        return list(yaml.safe_load_all(kpath.read_text(encoding="utf-8")))
+    except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
+        msg = f"{kpath}: cannot parse kernel YAML ({exc})"
+        raise TrackerError(msg) from exc
+
+
+def _kernel_doc(docs: list[Any]) -> dict[str, Any] | None:
+    """Return the document that declares kernel_id (multi-document aware)."""
+    for doc in docs:
+        if isinstance(doc, dict) and isinstance(doc.get("kernel_id") or doc.get("kernelid"), str):
+            return doc
+    return None
+
+
+def _scalar(value: Any) -> Any:
+    if value in ("", [], "~"):
+        return None
+    if hasattr(value, "isoformat") and not isinstance(value, datetime):
+        return value.isoformat()  # YAML dates -> "YYYY-MM-DD"
+    return value
+
+
+def extract_footer(kpath: Path) -> dict[str, Any] | None:
+    """Return footer telemetry for a kernel file, or None if it is not a kernel."""
+    doc = _kernel_doc(_load_docs(kpath))
+    if doc is None:
+        return None
+    f: dict[str, Any] = {
+        "kernelid": doc.get("kernel_id") or doc.get("kernelid"),
         "status": "unknown",
         "threshold": 0.05,
         "pass_count": 0,
@@ -44,32 +88,16 @@ def extract_footer(kpath):
         "modelVersion": None,
         "file": kpath.name,
     }
-    m = re.search(r"^kernelid:\s*(.+)$", c, re.MULTILINE)
-    if m:
-        f["kernelid"] = m.group(1).strip()
-    cf = re.search(r"convergence_footer:(.*)", c, re.DOTALL | re.IGNORECASE)
-    if cf:
-        block = cf.group(1)
-        for field in [
-            "status",
-            "threshold",
-            "pass_count",
-            "final_ratio",
-            "lastRunDate",
-            "modelVersion",
-        ]:
-            fm = re.search(field + r":\s*(.+)", block)
-            if fm:
-                v = fm.group(1).strip()
-                if v in ("null", "~", "", "[]"):
-                    f[field] = None
-                elif re.fullmatch(r"-?\d+\.\d+", v):
-                    f[field] = float(v)
-                elif re.fullmatch(r"-?\d+", v):
-                    f[field] = int(v)
-                else:
-                    f[field] = v
+    footer = doc.get(FOOTER_KEY)
+    if isinstance(footer, dict):
+        for field in FOOTER_FIELDS:
+            if field in footer:
+                f[field] = _scalar(footer[field])
     return f
+
+
+def iter_kernel_files() -> list[Path]:
+    return sorted(p for p in KERNEL_DIR.rglob("*.yaml") if p.is_file())
 
 
 def classify(footer, rot_days):
@@ -90,8 +118,10 @@ def classify(footer, rot_days):
 def report(rot_days):
     buckets = {"NEVER_EVALUATED": [], "STALE": [], "BELOW_THRESHOLD": [], "CURRENT": []}
     kernels = []
-    for kf in sorted(KERNEL_DIR.glob("*.yaml")):
+    for kf in iter_kernel_files():
         f = extract_footer(kf)
+        if f is None:
+            continue  # YAML under docs/kernels without a kernel_id is not a kernel
         s = classify(f, rot_days)
         f["rot_status"] = s
         kernels.append(f)
@@ -135,36 +165,110 @@ def print_report(r):
     print("\n  To collect evidence: npx promptfoo eval --config evals/promptfooconfig.yaml")
 
 
-def update_kernel(kernel_id, pass_rate, model):
-    target = None
-    for f in KERNEL_DIR.glob("*.yaml"):
-        if kernel_id in f.read_text():
-            target = f
+def _find_kernel(kernel_id: str) -> Path:
+    matches = []
+    for kf in iter_kernel_files():
+        doc = _kernel_doc(_load_docs(kf))
+        if doc is not None and (doc.get("kernel_id") or doc.get("kernelid")) == kernel_id:
+            matches.append(kf)
+    if not matches:
+        msg = f"kernel '{kernel_id}' not found under {KERNEL_DIR}"
+        raise TrackerError(msg)
+    if len(matches) > 1:
+        msg = f"kernel '{kernel_id}' declared by several files: {[str(m) for m in matches]}"
+        raise TrackerError(msg)
+    target = matches[0]
+    if not target.resolve().is_relative_to(KERNEL_DIR.resolve()):
+        msg = f"kernel '{kernel_id}' resolves outside {KERNEL_DIR}: {target.resolve()}"
+        raise TrackerError(msg)
+    return target
+
+
+def _footer_bounds(lines: list[str]) -> tuple[int, int]:
+    """Return [start, end) of the top-level convergence_footer block body."""
+    header = [i for i, line in enumerate(lines) if re.match(rf"{FOOTER_KEY}:\s*(#.*)?$", line)]
+    if len(header) != 1:
+        msg = f"expected exactly one top-level '{FOOTER_KEY}:' block, found {len(header)}"
+        raise TrackerError(msg)
+    start = header[0] + 1
+    end = start
+    for i in range(start, len(lines)):
+        line = lines[i]
+        if line.strip() and not line[0].isspace():
+            break  # next top-level key, comment or document marker ends the block
+        end = i + 1
+    while end > start and not lines[end - 1].strip():
+        end -= 1  # keep trailing blank lines outside the block
+    return start, end
+
+
+def update_footer_text(text: str, updates: dict[str, str]) -> str:
+    """Set ``updates`` (key -> YAML scalar text) as direct children of the footer."""
+    lines = text.split("\n")
+    start, end = _footer_bounds(lines)
+    child_indent = None
+    for line in lines[start:end]:
+        if line.strip() and not line.lstrip().startswith("#"):
+            child_indent = line[: len(line) - len(line.lstrip())]
             break
-    if not target:
-        print(f"ERROR: kernel '{kernel_id}' not found", file=sys.stderr)
-        sys.exit(1)
+    if not child_indent:
+        msg = f"'{FOOTER_KEY}' block has no child keys"
+        raise TrackerError(msg)
+    remaining = dict(updates)
+    for i in range(start, end):
+        m = re.match(rf"^{re.escape(child_indent)}([A-Za-z_][A-Za-z0-9_]*):(\s.*)?$", lines[i])
+        if m and m.group(1) in remaining:
+            lines[i] = f"{child_indent}{m.group(1)}: {remaining.pop(m.group(1))}"
+    added = [f"{child_indent}{key}: {value}" for key, value in remaining.items()]
+    lines[end:end] = added
+    return "\n".join(lines)
+
+
+def update_kernel(kernel_id, pass_rate, model):
+    target = _find_kernel(kernel_id)
     status = "stable" if pass_rate >= 0.85 else ("converging" if pass_rate >= 0.5 else "diverging")
-    lines = target.read_text().split("\n")
-    in_footer = False
-    out = []
-    for line in lines:
-        if re.search(r"convergence_footer:", line, re.IGNORECASE):
-            in_footer = True
-        if in_footer:
-            if re.match(r"\s*final_ratio:", line):
-                line = re.sub(r"final_ratio:.*", f"final_ratio: {round(pass_rate, 3)}", line)
-            elif re.match(r"\s*status:", line):
-                line = re.sub(r"status:.*", f"status: {status}", line)
-            elif re.match(r"\s*lastRunDate:", line):
-                line = re.sub(r"lastRunDate:.*", f"lastRunDate: {TODAY}", line)
-            elif re.match(r"\s*modelVersion:", line):
-                line = re.sub(r"modelVersion:.*", f"modelVersion: {model}", line)
-        out.append(line)
-    target.write_text("\n".join(out))
+    ratio = round(pass_rate, 3)
+    original = target.read_text(encoding="utf-8")
+    updates = {
+        "final_ratio": repr(float(ratio)),
+        "status": status,
+        "lastRunDate": TODAY,
+        "modelVersion": json.dumps(model),
+    }
+    new_text = update_footer_text(original, updates)
+
+    # Verify before writing: same documents except the four footer fields.
+    before_doc = _kernel_doc(_load_docs(target))
+    try:
+        after_docs = list(yaml.safe_load_all(new_text))
+    except yaml.YAMLError as exc:
+        msg = f"{target}: edit would produce invalid YAML ({exc}); file left unchanged"
+        raise TrackerError(msg) from exc
+    after_doc = _kernel_doc(after_docs)
+    expected = dict(before_doc or {})
+    expected[FOOTER_KEY] = {
+        **(before_doc or {}).get(FOOTER_KEY, {}),
+        "final_ratio": float(ratio),
+        "status": status,
+        "lastRunDate": datetime.strptime(TODAY, "%Y-%m-%d").date(),
+        "modelVersion": model,
+    }
+    if after_doc != expected:
+        msg = f"{target}: edit verification failed; file left unchanged"
+        raise TrackerError(msg)
+
+    target.write_text(new_text, encoding="utf-8")
     print(
-        f"OK updated {kernel_id}: status={status} final_ratio={pass_rate:.3f} lastRunDate={TODAY} modelVersion={model}"
+        f"OK updated {kernel_id} ({target}): status={status} final_ratio={pass_rate:.3f} "
+        f"lastRunDate={TODAY} modelVersion={model}"
     )
+
+
+def write_report(r: dict[str, Any]) -> None:
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    header = f"# l9-ops Convergence Status\n# Generated: {r['generated']}\n\n"
+    REPORT_PATH.write_text(header + yaml.safe_dump(r, sort_keys=False), encoding="utf-8")
+    print(f"Report: {REPORT_PATH}")
 
 
 def main():
@@ -175,19 +279,25 @@ def main():
     p.add_argument("--model", default="claude-sonnet-4")
     p.add_argument("--write-report", action="store_true")
     a = p.parse_args()
-    if a.update_kernel:
-        if a.pass_rate is None:
-            print("ERROR: --pass-rate required", file=sys.stderr)
-            sys.exit(1)
-        update_kernel(a.update_kernel, a.pass_rate, a.model)
-        return
-    r = report(a.rot_threshold_days)
+    try:
+        if a.update_kernel:
+            if a.pass_rate is None:
+                print("ERROR: --pass-rate required", file=sys.stderr)
+                return 1
+            update_kernel(a.update_kernel, a.pass_rate, a.model)
+            return 0
+        r = report(a.rot_threshold_days)
+    except TrackerError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     print_report(r)
     if a.write_report:
-        REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        REPORT_PATH.write_text(f"# l9-ops Convergence Status\n# Generated: {r['generated']}\n\n")
-        print(f"Report: {REPORT_PATH}")
+        write_report(r)
+    if r["summary"]["total"] == 0:
+        print(f"ERROR: no kernels found under {KERNEL_DIR}", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

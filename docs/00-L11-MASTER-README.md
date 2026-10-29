@@ -45,6 +45,8 @@ status: active
 
 ## Package Contents (11 Files)
 
+> **In this repository** the numbered Python files were consolidated into `scripts/l11/` (`orchestrator.py`, `deterministic_engine.py`, `ai_enrichment_engine.py`, `debt_graph_service.py`, `risk_scorer.py`) with configuration in `scripts/l11/pipeline_config.yaml`. The numbered shims were deleted (D-09 A) and the auto-fix engine was retired (D-08 A). The table below describes the original package.
+
 | File | Purpose |
 |------|---------|
 | `00-L11-MASTER-README.md` | Master orientation (this file) |

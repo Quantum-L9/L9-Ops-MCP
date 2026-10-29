@@ -39,7 +39,7 @@ All kernels will be restructured into three explicit load tiers:
    - Write a new `description` at the root level using the Trigger Triad (Capability, Trigger Conditions, User Vocabulary).
 2. Repeat for all R5 kernels (`memory_admission`, `model_governance`, `preferences`, `trust_ladder`).
 3. Update R0 `soul_kernel.v1.yaml` with a clear identity-lock description.
-4. **Validation:** Run `make validate-wiring` to ensure schema compliance.
+4. **Validation:** Run `make ci`; kernel schema compliance is enforced by the kernel registry tests it runs (`tests/test_kernel_registry.py`). (There is no `make validate-wiring` target.)
 
 ## P2: Defer Governance Metadata to Tier 3
 
@@ -49,7 +49,7 @@ All kernels will be restructured into three explicit load tiers:
 **Implementation Steps:**
 1. In all kernel YAMLs, create a new root key: `tier3_governance`.
 2. Move `convergence_footer`, `compatibility`, and `routing_hints` into this block.
-3. Update the `moderouter` logic (in `src/l9_ops_mcp/transport.py` or the agent system reading these files) to only parse root and `tier2_body` during standard execution, explicitly ignoring `tier3_governance` unless `audit_mode=True`.
+3. Update the `moderouter` logic (in the agent system reading these files; `src/l9_ops_mcp/transport.py` was retired under D-05 A) to only parse root and `tier2_body` during standard execution, explicitly ignoring `tier3_governance` unless `audit_mode=True`.
 
 ## P3: Universal Hard Bans Deduplication
 
@@ -110,7 +110,7 @@ All kernels will be restructured into three explicit load tiers:
 **Target State:** `moderouter` separates evaluation from injection.
 
 **Implementation Steps:**
-1. Modify the MCP Context Broker's retrieval logic (`src/l9_ops_mcp/transport.py` or equivalent).
+1. Modify the MCP Context Broker's retrieval logic (`src/l9_ops_mcp/transport.py` was retired under D-05 A; use the retrieval owner).
 2. When building a TransportPacket, if a kernel is requested, read the file and assemble the `payload` using ONLY the Tier 1 and Tier 2 sections.
 3. Explicitly strip the `tier3_governance` section before emitting the TransportPacket to the downstream consumer.
 

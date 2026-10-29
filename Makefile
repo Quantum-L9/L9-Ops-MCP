@@ -7,12 +7,23 @@
 # --- /L9_META ---
 
 .DEFAULT_GOAL := help
-PYTHON ?= python3
+# Prefer the provisioned virtualenv; fall back to tools on PATH.
+PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
+RUFF ?= $(if $(wildcard .venv/bin/ruff),.venv/bin/ruff,ruff)
+MYPY ?= $(if $(wildcard .venv/bin/mypy),.venv/bin/mypy,mypy)
+LINT_PATHS ?= src scripts tests
+TEST_PATHS ?= tests scripts
+CI_STEPS ?= health progressive-disclosure hardban-audit convergence wiring lint typecheck test
+PREFLIGHT_SCRIPT ?= scripts/preflight.sh
+EVAL_CONFIG ?= assets/evals/promptfooconfig.yaml
+PROMPTFOO_VERSION ?= 0.124.1
+GRAPH_INDEX ?= AGENT_RETRIEVAL_INDEX.yaml
+GRAPH_OUT ?= dist/graph
+GRAPH_SEED := $(GRAPH_OUT)/graph-seed.jsonl
 
 .PHONY: help setup validate health skill-audit playbook-audit wiring ci eval zip \
-        progressive-disclosure hardban-audit impact convergence command-parity \
-        mcp-dev preflight graph-export graph-verify graph-sync \
-        pr-fix pr-fix-dry pr-fix-propose pr-fix-verify pr-fix-learn
+        progressive-disclosure hardban-audit convergence command-parity \
+        lint typecheck test mcp-dev preflight graph-export graph-verify graph-sync
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*##"; printf "\nL9-Ops-MCP commands\n\n"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-28s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -20,8 +31,7 @@ help: ## Show available commands
 setup: ## Install declared package dependencies when pyproject is present
 	@if command -v uv >/dev/null 2>&1; then uv sync --locked || uv sync; else $(PYTHON) -m pip install -e ".[dev]"; fi
 
-validate: ## Run structural repo validation
-	$(PYTHON) scripts/validate_wiring.py --all
+validate: wiring ## Run structural repo validation (alias of wiring)
 
 health: ## Run library health checks
 	bash scripts/library_health.sh
@@ -32,8 +42,13 @@ skill-audit: ## Validate skill installability
 playbook-audit: ## Validate playbook schemas and wiring
 	$(PYTHON) scripts/validate_playbooks.py
 
-wiring: ## Validate AGENTS, workflows, Makefile, README, schemas, and pyproject entrypoints
-	$(PYTHON) scripts/validate_wiring.py --all
+wiring: ## Validate skills, playbooks, README/Makefile parity, org invariants, upload routing, and pyproject entrypoints
+	$(PYTHON) scripts/validate_skill_installability.py
+	$(PYTHON) scripts/validate_playbooks.py
+	$(PYTHON) scripts/validate_command_parity.py
+	$(PYTHON) scripts/validate_org_invariants.py
+	$(PYTHON) scripts/validate_upload_router.py
+	$(PYTHON) scripts/validate_pyproject_entrypoints.py
 
 progressive-disclosure: ## Enforce progressive disclosure rules
 	bash scripts/enforce_progressive_disclosure.sh
@@ -41,27 +56,29 @@ progressive-disclosure: ## Enforce progressive disclosure rules
 hardban-audit: ## Audit duplicate hard bans and copied doctrine fragments
 	bash scripts/audit_hardban_duplication.sh
 
-impact: ## Analyze repo impact surface
-	$(PYTHON) scripts/impact_analysis.py --all
-
 convergence: ## Report convergence status
 	$(PYTHON) scripts/convergence_tracker.py
 
 command-parity: ## Compare README, Makefile, AGENTS, and workflow commands
 	$(PYTHON) scripts/validate_command_parity.py
 
-ci: ## Run complete local CI-equivalent proof gate
-	$(MAKE) health
-	$(MAKE) progressive-disclosure
-	$(MAKE) hardban-audit
-	$(MAKE) impact
-	$(MAKE) convergence
-	$(MAKE) wiring
-	@if command -v ruff >/dev/null 2>&1; then ruff check scripts src tests || true; fi
-	@if command -v pytest >/dev/null 2>&1; then pytest -q || true; fi
+lint: ## Ruff lint and format check (fails when ruff is missing)
+	@command -v $(RUFF) >/dev/null 2>&1 || { echo "BLOCKED: ruff not found ($(RUFF)); run make setup"; exit 1; }
+	$(RUFF) check $(LINT_PATHS)
+	$(RUFF) format --check $(LINT_PATHS)
+
+typecheck: ## Mypy type check of the CI scope (src/l9_ops_mcp)
+	@command -v $(MYPY) >/dev/null 2>&1 || { echo "BLOCKED: mypy not found ($(MYPY)); run make setup"; exit 1; }
+	$(MYPY) src/l9_ops_mcp
+
+test: ## Run the pytest suite (fails when pytest is missing)
+	$(PYTHON) -m pytest $(TEST_PATHS) -q
+
+ci: ## Run complete local CI-equivalent proof gate (fails on the first failing step)
+	@set -e; for step in $(CI_STEPS); do echo "==> make $$step"; $(MAKE) --no-print-directory $$step; done
 
 eval: ## Run prompt/skill evals when promptfoo is available
-	@if command -v npx >/dev/null 2>&1; then npx promptfoo eval --config evals/promptfooconfig.yaml; else echo "BLOCKED: npx unavailable"; exit 1; fi
+	@if command -v npx >/dev/null 2>&1; then npx --yes promptfoo@$(PROMPTFOO_VERSION) eval --config $(EVAL_CONFIG); else echo "BLOCKED: npx unavailable"; exit 1; fi
 
 zip: ## Package repo metadata snapshot
 	mkdir -p dist && zip -r dist/l9-ops-mcp-metadata.zip README.md AGENTS.md docs skills playbooks schemas scripts -x "*.pyc" "*/__pycache__/*"
@@ -69,29 +86,14 @@ zip: ## Package repo metadata snapshot
 mcp-dev: ## Run MCP server locally
 	$(PYTHON) -m l9_ops_mcp.server
 
-preflight: ## Run runtime preflight when present
-	@if [ -x scripts/preflight.sh ]; then bash scripts/preflight.sh; else echo "BLOCKED: scripts/preflight.sh missing or not executable"; exit 1; fi
+preflight: ## Run runtime preflight
+	@if [ -f $(PREFLIGHT_SCRIPT) ]; then bash $(PREFLIGHT_SCRIPT); else echo "BLOCKED: $(PREFLIGHT_SCRIPT) missing"; exit 1; fi
 
-graph-export: ## Export artifact metadata to graph seed
-	$(PYTHON) scripts/export_graph_seed.py --index ./out/meta/retrieval-index.json --manifest ./out/meta/artifact-manifest.json --out ./out/graph/graph-seed.jsonl
+graph-export: ## Export AGENT_RETRIEVAL_INDEX.yaml to a graph seed (GRAPH_OUT, default dist/graph)
+	$(PYTHON) scripts/export_graph_seed.py --index $(GRAPH_INDEX) --repo-root . --out $(GRAPH_SEED)
 
-graph-verify: ## Verify graph seed schema
-	$(PYTHON) scripts/verify_graph.py --seed ./out/graph/graph-seed.jsonl --schema schemas/graph-seed.schema.json
+graph-verify: graph-export ## Verify the graph seed against schemas/graph-seed.schema.json
+	$(PYTHON) scripts/verify_graph.py --seed $(GRAPH_SEED) --schema schemas/graph-seed.schema.json
 
-graph-sync: ## Sync graph seed to Graphiti
-	$(PYTHON) scripts/sync_graph.py --seed ./out/graph/graph-seed.jsonl
-
-pr-fix: ## Run PR repair workflow
-	$(PYTHON) -m pr_repair.cli run --mode repair_and_verify
-
-pr-fix-dry: ## Run PR repair in dry-run mode
-	$(PYTHON) -m pr_repair.cli run --mode dry_run
-
-pr-fix-propose: ## Propose PR repair only
-	$(PYTHON) -m pr_repair.cli run --mode propose_only
-
-pr-fix-verify: ## Verify PR repair outputs
-	$(PYTHON) -m pr_repair.cli verify
-
-pr-fix-learn: ## Learn from PR repair result
-	$(PYTHON) -m pr_repair.cli learn
+graph-sync: ## Export, verify and ingest the graph seed into the local JSONL report sink (no live Graphiti)
+	$(PYTHON) scripts/sync_graph.py --index $(GRAPH_INDEX) --repo-root . --seed $(GRAPH_SEED) --report $(GRAPH_OUT)/ingest-report.json
