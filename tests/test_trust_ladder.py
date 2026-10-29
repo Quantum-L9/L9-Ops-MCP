@@ -83,6 +83,68 @@ def test_normalize_rejects_unencodable_input() -> None:
         normalize_group_id("")
 
 
+# --- F-pr38-03: the encoding is one-to-one -----------------------------------
+
+
+def test_namespace_and_name_cannot_trade_separators() -> None:
+    """Audit repro: 'a__b:c' and 'a:b__c' both encoded to 'a__b__c'."""
+    with pytest.raises(ValueError):
+        normalize_group_id("a__b:c")  # namespace may not contain '_'
+    left = normalize_group_id("a:b__c")
+    assert left != "a__b__c"
+    validate_group_ids([left])
+
+
+def test_encoded_illegal_name_cannot_alias_a_canonical_agent() -> None:
+    """Audit repro: 'claude.code' encoded to 'claude-code-b2416c37', which is
+    itself a legal agent id, so that agent received claude.code's private scope."""
+    from l9_ops_mcp.trust_ladder import encode_component
+
+    encoded = encode_component("claude.code")
+    assert encoded != encode_component(encoded)
+    assert allowed_scopes("claude.code", "L2")[1] != allowed_scopes(encoded, "L2")[1]
+    assert allowed_scopes("claude.code", "L2")[1] != allowed_scopes("claude-code-b2416c37", "L2")[1]
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        ("claude.code", "claude-code"),
+        ("x_y", "x-y"),
+        ("team/a", "team.a"),
+        ("a b", "a-b"),
+    ],
+)
+def test_distinct_names_never_share_a_group(a: str, b: str) -> None:
+    from l9_ops_mcp.trust_ladder import group_id
+
+    assert group_id("agent", a) != group_id("agent", b)
+
+
+def test_canonical_names_keep_their_ids() -> None:
+    from l9_ops_mcp.trust_ladder import group_id
+
+    assert group_id("agent", "orchestrator") == "agent__orchestrator"
+    assert group_id("session", "s-integration") == "session__s-integration"
+
+
+@pytest.mark.parametrize(
+    "raw",
+    ["a__b__c", "agent__x_y", "agent__x_0123456789abcde", "a-b__c", "noseparator", "__x"],
+)
+def test_malformed_encoded_input_is_rejected(raw: str) -> None:
+    with pytest.raises(ValueError):
+        normalize_group_id(raw)
+
+
+def test_wellformed_encoded_input_round_trips() -> None:
+    from l9_ops_mcp.trust_ladder import group_id
+
+    encoded = group_id("agent", "claude.code")
+    assert normalize_group_id(encoded) == encoded
+    assert normalize_group_id("agent:claude.code") == encoded
+
+
 class _RecordingGraph:
     def __init__(self) -> None:
         self.episodes: list[dict[str, Any]] = []
@@ -149,15 +211,18 @@ def test_legacy_colon_group_input_is_encoded_on_ingest(tmp_path, monkeypatch) ->
     monkeypatch.setattr(adm, "LOG", tmp_path / "log.jsonl")
     monkeypatch.setattr(adm, "QUARANTINE", tmp_path / "q")
     g = _patch_graph(monkeypatch, memory_ops)
+    # The target must be a group the L2 writer holds (F-pr38-02); its own agent
+    # scope with a non-canonical id exercises the full colon -> encoded path.
     c = MemoryCandidate(
         body="fact",
-        source_agent_id="a",
+        source_agent_id="x.y",
         session_id="s",
-        group_ids=["session:s-integration"],
+        group_ids=["agent:x.y"],
         semantic_score=0.9,
     )
     asyncio.run(memory_ops.ingest_episode(c))
-    assert g.episodes[0]["group_id"] == "session__s-integration"
+    assert g.episodes[0]["group_id"] == allowed_scopes("x.y", "L2")[1]
+    assert g.episodes[0]["group_id"].startswith("agent__x-y_")
 
 
 def test_seed_group_is_valid(tmp_path, monkeypatch) -> None:
