@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # --- L9_META ---
 # l9_schema: 1
 # component: skill_endpoint_audit
@@ -7,7 +8,6 @@
 # status: active
 # --- /L9_META ---
 
-#!/usr/bin/env python3
 """
 skill_endpoint_audit.py — Custom skill metadata audit.
 Scans every SKILL.md under --skills-dir (default: the repository's skills/)

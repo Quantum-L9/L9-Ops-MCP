@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # --- L9_META ---
 # l9_schema: 1
 # component: validate_headers
@@ -7,7 +8,6 @@
 # status: active
 # --- /L9_META ---
 
-#!/usr/bin/env python3
 """
 validate_headers.py — Enforce canonical headers on all kernels and skills.
 Usage: python3 scripts/validate_headers.py --dir docs/kernels --ext .yaml --required title,purpose,summary,...

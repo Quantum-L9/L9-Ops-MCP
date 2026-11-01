@@ -19,3 +19,7 @@ protected_files_gate_report.json
 dora_dryrun_report.json
 dora_injection_report.json
 *.egg-info/
+
+# Runtime output of src/l9_ops_mcp/admission.py (cwd-relative; holds memory content)
+/logs/
+/memory_quarantine/

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # --- L9_META ---
 # l9_schema: 1
 # component: inject_dora_complete
@@ -7,8 +8,6 @@
 # status: active
 # --- /L9_META ---
 
-
-#!/usr/bin/env python3
 """
 DORA Block Report (read-only)
 =============================

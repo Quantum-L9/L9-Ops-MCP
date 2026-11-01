@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # --- L9_META ---
 # l9_schema: 1
 # component: harvest_audit
@@ -7,7 +8,6 @@
 # status: active
 # --- /L9_META ---
 
-#!/usr/bin/env python3
 """
 harvest_audit.py — IgorOS source-to-pack alignment audit.
 Checks that a transformed pack file covers the required fields from its source.

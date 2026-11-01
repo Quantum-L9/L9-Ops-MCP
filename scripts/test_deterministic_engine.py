@@ -318,3 +318,64 @@ class TestADRPrecision:
     def test_engine_self_scan_is_clean(self, sample_config):
         engine_src = REPO_ROOT / "scripts" / "l11" / "deterministic_engine.py"
         assert DeterministicEngine(sample_config)._check_adr_compliance([str(engine_src)]) == []
+
+
+# ─────────────────────────────────────────────
+# OBS-07 regression: an enabled check with no implementation fails closed
+# ─────────────────────────────────────────────
+UNIMPLEMENTED_IN_SHIPPED = (
+    "dependency_graph_validator",
+    "schema_validator",
+    "test_coverage_threshold",
+    "secrets_scan",
+)
+
+
+class TestUnimplementedChecksFailClosed:
+    async def test_enabled_unknown_engine_fails_with_engine_error(self, sample_config):
+        cfg = _config_with(sample_config, "dependency_graph_validator")
+        result = await DeterministicEngine(cfg).scan(["a.py"])
+        assert result["passed"] is False
+        errors = _engine_errors(result, "dependency_graph_validator")
+        assert len(errors) == 1
+        assert "dependency_graph_validator" in errors[0]["message"]
+
+    async def test_enabled_unknown_layer_block_fails_with_engine_error(self, sample_config):
+        cfg = _config_with(sample_config, secrets_scan={"enabled": True, "tool": "gitleaks"})
+        result = await DeterministicEngine(cfg).scan(["a.py"])
+        assert result["passed"] is False
+        errors = _engine_errors(result, "secrets_scan")
+        assert len(errors) == 1
+        assert "secrets_scan" in errors[0]["message"]
+
+    async def test_empty_file_list_still_fails_an_unimplemented_check(self, sample_config):
+        """F-pr38-14: scan([]) returned passed=True before this check ran."""
+        cfg = _config_with(sample_config, secrets_scan={"enabled": True, "tool": "gitleaks"})
+        result = await DeterministicEngine(cfg).scan([])
+        assert result["passed"] is False
+        assert len(_engine_errors(result, "secrets_scan")) == 1
+
+    async def test_empty_file_list_passes_when_every_check_is_implemented(self, sample_config):
+        result = await DeterministicEngine(sample_config).scan([])
+        assert result == {"passed": True, "findings": []}
+
+    async def test_disabled_unknown_checks_are_ignored(self, sample_config):
+        cfg = _config_with(sample_config, secrets_scan={"enabled": False})
+        cfg["detection"]["deterministic_layer"]["engines"] = [
+            {"name": "schema_validator", "enabled": False}
+        ]
+        result = await DeterministicEngine(cfg).scan(["a.py"])
+        assert result == {"passed": True, "findings": []}
+
+    @pytest.mark.parametrize("name", UNIMPLEMENTED_IN_SHIPPED)
+    def test_shipped_config_disables_unimplemented_check(self, name):
+        layer = yaml.safe_load(SHIPPED_CONFIG.read_text())["detection"]["deterministic_layer"]
+        engines = {e["name"]: e for e in layer["engines"]}
+        entry = engines.get(name, layer.get(name))
+        assert entry is not None, name
+        assert entry.get("enabled") is False
+
+    def test_shipped_config_has_no_unimplemented_enabled_check(self):
+        cfg = yaml.safe_load(SHIPPED_CONFIG.read_text())
+        errors = DeterministicEngine(cfg)._unimplemented_check_errors()
+        assert errors == []
