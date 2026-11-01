@@ -14,6 +14,23 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+@pytest.fixture(autouse=True)
+async def _fresh_graphiti_client():
+    """Give each test its own Graphiti client, closed on the loop that made it.
+
+    get_graphiti() caches one client per process; pytest-asyncio runs each test
+    on a new event loop, so a client cached by an earlier test is bound to a
+    closed loop ("RuntimeError: Event loop is closed").
+    """
+    from l9_ops_mcp import graphiti_client
+
+    graphiti_client._client.cache_clear()
+    yield
+    if graphiti_client._client.cache_info().currsize:
+        await graphiti_client.close()
+    graphiti_client._client.cache_clear()
+
+
 @pytest.mark.asyncio
 async def test_graphiti_indices_build():
     from l9_ops_mcp.graphiti_client import get_graphiti
@@ -31,7 +48,25 @@ async def test_ingest_admitted():
         body="Integration test: Graphiti is the L9 graph backend.",
         source_agent_id="test-agent",
         session_id="s-integration",
-        group_ids=["session:s-integration"],
+        # an explicit group the L2 writer holds (its own agent scope); a
+        # per-session group is outside allowed_scopes and is blocked (F-pr38-02)
+        group_ids=["agent:test-agent"],
+        semantic_score=0.95,
+    )
+    result = await ingest_episode(c)
+    assert result["admitted"] is True
+
+
+@pytest.mark.asyncio
+async def test_ingest_default_group_accepted():
+    """RG-01 live: the default ingest group (session__current) is accepted by graphiti-core."""
+    from l9_ops_mcp.memory_ops import ingest_episode
+    from l9_ops_mcp.models import MemoryCandidate
+
+    c = MemoryCandidate(
+        body="Integration test: default ingest group is graphiti-valid.",
+        source_agent_id="test-agent",
+        session_id="s-integration",
         semantic_score=0.95,
     )
     result = await ingest_episode(c)
@@ -45,6 +80,10 @@ async def test_hydrate_returns_bounded_readonly():
     p = await hydrate("integration test", "test-agent", 4000, "L2", "s-integration")
     assert p.readonly is True
     assert 0 <= p.budget_remaining_tokens <= 4000
+    # RG-01/RG-04 live: every fact comes from an encoded L2 group and carries it.
+    for tier in (p.context_slice.tier1_load_bearing, p.context_slice.tier2_examples):
+        for fact in tier:
+            assert fact.group_id in p.allowed_scopes
 
 
 @pytest.mark.asyncio
@@ -61,3 +100,43 @@ async def test_low_score_quarantined():
     result = await ingest_episode(c)
     assert result["admitted"] is False
     assert "quarantine" in result["disposition"]
+
+
+@pytest.mark.asyncio
+async def test_invalidate_round_trip():
+    """RG-06 live: ingest -> hydrate -> invalidate edge -> hydrate no longer serves it."""
+    from l9_ops_mcp.hydrator import hydrate
+    from l9_ops_mcp.memory_ops import ingest_episode
+    from l9_ops_mcp.models import MemoryCandidate
+    from l9_ops_mcp.server import memory_invalidate_fact
+
+    c = MemoryCandidate(
+        body="Integration round trip: the L9 invalidation probe uses Neo4j relationships.",
+        source_agent_id="test-agent",
+        session_id="s-invalidate",
+        group_ids=["agent:test-agent"],
+        semantic_score=0.95,
+    )
+    await ingest_episode(c)
+    before = await hydrate("L9 invalidation probe", "test-agent", 4000, "L5", "s-invalidate")
+    facts = before.context_slice.tier1_load_bearing + before.context_slice.tier2_examples
+    assert facts, "graphiti extracted no fact edges from the ingested episode"
+    target = facts[0].uuid
+
+    # invalidation is an L3+ write scoped to the caller's groups (F-pr38-01)
+    result = await memory_invalidate_fact(target, "integration round trip", "test-agent", "L3")
+    assert result["invalidated"] == target
+
+    missing = await memory_invalidate_fact(
+        "00000000-0000-0000-0000-000000000000", "x", "test-agent", "L3"
+    )
+    assert missing["status"] == "not_found"
+
+    after = await hydrate("L9 invalidation probe", "test-agent", 4000, "L5", "s-invalidate")
+    served = {
+        f.uuid
+        for f in after.context_slice.tier1_load_bearing
+        + after.context_slice.tier2_examples
+        + after.context_slice.tier3_stakes
+    }
+    assert target not in served

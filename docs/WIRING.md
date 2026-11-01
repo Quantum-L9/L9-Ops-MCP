@@ -22,11 +22,11 @@ Authoritative map of how every system component connects. Update this whenever a
 library_health.sh  enforce_disclosure.sh  audit_hardbans.sh
         |               |                   |
         ▼               ▼                   ▼
-impact_analysis.py  convergence_tracker.py  validate_wiring.py
-        |               |                   |
-        ▼               ▼                   ▼
-  MANIFEST.json    kernel YAML files    MANIFEST + skills + AGENTS.md
-  dep graph        convergence_footer   all 9 dimensions
+convergence_tracker.py            make wiring
+        |                         |
+        ▼                         ▼
+docs/kernels/** YAML       skills, playbooks, commands,
+convergence_footer         org invariants, entrypoints
 ```
 
 ## Connection Contracts
@@ -37,7 +37,6 @@ impact_analysis.py  convergence_tracker.py  validate_wiring.py
 | Kernel ID ↔ MANIFEST | `kernels.registry[].id` | Field mismatches yaml kernelid |
 | Kernel file path | `kernels.registry[].file` | File moved without updating MANIFEST |
 | Dep graph ↔ kernels | `dependencyGraph.skillsRequiringKernels` | References non-existent kernel |
-| impact_analysis ↔ files | MANIFEST `file` field (NOT string munging) | `file` field absent or wrong |
 | convergence_tracker ↔ kernels | `convergence_footer.lastRunDate` / `modelVersion` | Fields absent from kernel |
 | Scripts ↔ CI | Makefile + governance.yml | Script renamed without updating Makefile |
 | Doctrine ↔ artifacts | KERNEL_DOCTRINE.md / SKILLS_DOCTRINE.md | Schema drifts from doctrine |
@@ -51,7 +50,10 @@ When `add_artifact.py` is called, it wires EXACTLY these 5 locations:
 4. `evals/datasets/<id>-basic.yaml` eval fixture stub
 5. `evals/promptfooconfig.yaml` test stub
 
-All 5 must be consistent. `make validate-wiring id=X` verifies this.
+All 5 must be consistent. No command verifies this contract today: there is no `make validate-wiring` target and
+`scripts/validate_wiring.py` was retired in PR #38. `make wiring` checks skill installability,
+playbooks, command parity, org invariants, upload routing and pyproject entrypoints, not these
+five locations.
 
 ## Runtime Load Order
 

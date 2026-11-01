@@ -230,19 +230,19 @@ canonical_contract: TransportPacket
 - `scripts/05-L11-DEBT-GRAPH-SERVICE.py`
 - `scripts/06-L11-RISK-SCORER.py`
 - `scripts/07-L11-AUTO-FIX-ENGINE.py`
-- `scripts/DEPLOY-v3.3.sh`
-- `scripts/DEPLOY_ADDITIONS.sh`
+- `scripts/DEPLOY-v3.3.sh` (retired in PR #38; no longer present)
+- `scripts/DEPLOY_ADDITIONS.sh` (retired in PR #38; no longer present)
 - `scripts/__init__.py`
 - `scripts/audit_hardban_duplication.sh`
 - `scripts/conftest.py`
 - `scripts/convergence_tracker.py`
 - `scripts/enforce_progressive_disclosure.sh`
 - `scripts/harvest_audit.py`
-- `scripts/impact_analysis.py`
+- `scripts/impact_analysis.py` (retired in PR #38; no longer present)
 - `scripts/inject_dora_complete.py`
 - `scripts/l11/__init__.py`
 - `scripts/l11/ai_enrichment_engine.py`
-- `scripts/l11/auto_fix_engine.py`
+- `scripts/l11/auto_fix_engine.py` (retired in PR #38; no longer present)
 - `scripts/l11/debt_graph_service.py`
 - `scripts/l11/deterministic_engine.py`
 - `scripts/l11/orchestrator.py`
@@ -253,14 +253,14 @@ canonical_contract: TransportPacket
 - `scripts/library_health_v341.sh`
 - `scripts/skill_endpoint_audit.py`
 - `scripts/test_ai_enrichment_engine.py`
-- `scripts/test_auto_fix_engine.py`
+- `scripts/test_auto_fix_engine.py` (retired in PR #38; no longer present)
 - `scripts/test_debt_graph_service.py`
 - `scripts/test_deterministic_engine.py`
 - `scripts/test_orchestrator.py`
 - `scripts/test_risk_scorer.py`
 - `scripts/validate-protected-files-v6.py`
 - `scripts/validate_headers.py`
-- `scripts/validate_wiring.py`
+- `scripts/validate_wiring.py` (retired in PR #38; no longer present)
 - `skills/INDEX.yaml`
 - `skills/agent/generate-execution-plan/SKILL.md`
 - `skills/agents-project-memory/SKILL.md`

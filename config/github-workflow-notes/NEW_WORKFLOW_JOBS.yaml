@@ -29,7 +29,7 @@
       - name: Run Protected Files Validator
         env:
           PR_LABELS: "${{ join(github.event.pull_request.labels.*.name, ',') }}"
-        run: python .github/scripts/validate-protected-files-v6.py
+        run: python scripts/validate-protected-files-v6.py
 
       - name: Upload Gate Report
         if: always()
@@ -69,7 +69,7 @@
           from pathlib import Path
 
           POLICY = Path("config/policies/protected_files.yaml")
-          VALIDATOR = Path(".github/scripts/validate-protected-files-v6.py")
+          VALIDATOR = Path("scripts/validate-protected-files-v6.py")
           WORKFLOW = Path(".github/workflows/l11-debt-governance.yaml")
 
           drift_issues = []

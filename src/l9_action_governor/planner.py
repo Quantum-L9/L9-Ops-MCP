@@ -15,6 +15,7 @@ from collections import defaultdict
 from .models import (
     ActionGovernorResult,
     ComponentScore,
+    Confidence,
     ConvergenceAction,
     ConvergencePlan,
     DecisionClass,
@@ -44,6 +45,21 @@ DEFAULT_TARGETS: dict[str, str] = {
     "experiment": "/l9_system/99_experiments",
 }
 
+# Queue membership of each decision class in ActionGovernorResult.
+_EXECUTION_CLASSES = frozenset(
+    {DecisionClass.build_now, DecisionClass.build_next, DecisionClass.build_later}
+)
+_REMEDIATION_CLASSES = frozenset(
+    {DecisionClass.remediate_now, DecisionClass.rename, DecisionClass.reorganize}
+)
+_ESCALATION_CLASSES = frozenset({DecisionClass.escalate, DecisionClass.delete})
+
+# Action types that decide the class on their own, checked in this order.
+_ACTION_TYPE_CLASSES: tuple[tuple[frozenset[str], DecisionClass], ...] = (
+    (frozenset({"rename", "canonicalize_name"}), DecisionClass.rename),
+    (frozenset({"move", "reorganize", "canonicalize_folder"}), DecisionClass.reorganize),
+)
+
 
 class ActionGovernor:
     def decide(
@@ -68,53 +84,26 @@ class ActionGovernor:
             primary_action = self._primary_action(actions)
             canonical_name = self._canonical_name(node, primary_action)
             target_folder = self._target_folder(node, primary_action)
-            decision_class = self._decision_class(component_score, primary_action, node_findings)
-            blockers = primary_action.blockers if primary_action else []
-            priority = primary_action.priority if primary_action else "medium"
-            score_value = priority_score(component_score, node_findings, priority, len(blockers))
-            evidence = self._evidence(node, primary_action, node_findings)
-            reason = self._reason(node, decision_class, component_score, node_findings, blockers)
-            next_action = self._next_action(decision_class, canonical_name, target_folder, blockers)
 
             decisions.append(
-                DecisionPacket(
-                    decision_id=f"decision_{node.node_id}",
-                    rank=0,
-                    component_id=node.node_id,
-                    component_name=node.name,
-                    canonical_name=canonical_name,
-                    decision_class=decision_class,
-                    priority_score=score_value,
-                    confidence=self._confidence(component_score, actions, node_findings),
-                    reason=reason,
-                    next_action=next_action,
-                    evidence=evidence,
-                    dependencies=node.dependencies,
-                    risks=self._risks(component_score, node_findings, blockers),
-                    target_folder=target_folder,
-                    approval_required=True,
+                self._decision_packet(
+                    node,
+                    component_score,
+                    actions,
+                    primary_action,
+                    node_findings,
+                    canonical_name,
+                    target_folder,
                 )
             )
 
-            if canonical_name != node.name:
-                rename_items.append(
-                    RenamePlanItem(
-                        component_id=node.node_id,
-                        current_name=node.name,
-                        canonical_name=canonical_name,
-                        reason="Canonical name describes durable function instead of pack history or temporary phase naming.",
-                    )
-                )
+            rename_item = self._rename_item(node, canonical_name)
+            if rename_item is not None:
+                rename_items.append(rename_item)
 
-            if target_folder != (node.proposed_path or node.current_path):
-                reorg_items.append(
-                    ReorgPlanItem(
-                        component_id=node.node_id,
-                        current_path=node.current_path,
-                        target_folder=target_folder,
-                        reason="Target folder follows L9 authority placement and build sequence.",
-                    )
-                )
+            reorg_item = self._reorg_item(node, target_folder)
+            if reorg_item is not None:
+                reorg_items.append(reorg_item)
 
         if not decisions:
             decisions.append(self._empty_input_escalation())
@@ -125,26 +114,73 @@ class ActionGovernor:
 
         return ActionGovernorResult(
             ranked_decisions=ranked,
-            execution_queue=[
-                d
-                for d in ranked
-                if d.decision_class
-                in {DecisionClass.build_now, DecisionClass.build_next, DecisionClass.build_later}
-            ],
-            remediation_queue=[
-                d
-                for d in ranked
-                if d.decision_class
-                in {DecisionClass.remediate_now, DecisionClass.rename, DecisionClass.reorganize}
-            ],
-            escalation_queue=[
-                d
-                for d in ranked
-                if d.decision_class in {DecisionClass.escalate, DecisionClass.delete}
-            ],
+            execution_queue=self._queue(ranked, _EXECUTION_CLASSES),
+            remediation_queue=self._queue(ranked, _REMEDIATION_CLASSES),
+            escalation_queue=self._queue(ranked, _ESCALATION_CLASSES),
             rename_plan=rename_items,
             reorg_plan=reorg_items,
         )
+
+    def _decision_packet(
+        self,
+        node: GraphNode,
+        component_score: ComponentScore,
+        actions: list[ConvergenceAction],
+        primary_action: ConvergenceAction | None,
+        node_findings: list[RuntimeFinding],
+        canonical_name: str,
+        target_folder: str,
+    ) -> DecisionPacket:
+        decision_class = self._decision_class(component_score, primary_action, node_findings)
+        blockers = primary_action.blockers if primary_action else []
+        priority = primary_action.priority if primary_action else "medium"
+        score_value = priority_score(component_score, node_findings, priority, len(blockers))
+        evidence = self._evidence(node, primary_action, node_findings)
+        reason = self._reason(node, decision_class, component_score, node_findings, blockers)
+        next_action = self._next_action(decision_class, canonical_name, target_folder, blockers)
+
+        return DecisionPacket(
+            decision_id=f"decision_{node.node_id}",
+            rank=0,
+            component_id=node.node_id,
+            component_name=node.name,
+            canonical_name=canonical_name,
+            decision_class=decision_class,
+            priority_score=score_value,
+            confidence=self._confidence(component_score, actions, node_findings),
+            reason=reason,
+            next_action=next_action,
+            evidence=evidence,
+            dependencies=node.dependencies,
+            risks=self._risks(component_score, node_findings, blockers),
+            target_folder=target_folder,
+            approval_required=True,
+        )
+
+    def _rename_item(self, node: GraphNode, canonical_name: str) -> RenamePlanItem | None:
+        if canonical_name == node.name:
+            return None
+        return RenamePlanItem(
+            component_id=node.node_id,
+            current_name=node.name,
+            canonical_name=canonical_name,
+            reason="Canonical name describes durable function instead of pack history or temporary phase naming.",
+        )
+
+    def _reorg_item(self, node: GraphNode, target_folder: str) -> ReorgPlanItem | None:
+        if target_folder == (node.proposed_path or node.current_path):
+            return None
+        return ReorgPlanItem(
+            component_id=node.node_id,
+            current_path=node.current_path,
+            target_folder=target_folder,
+            reason="Target folder follows L9 authority placement and build sequence.",
+        )
+
+    def _queue(
+        self, ranked: list[DecisionPacket], classes: frozenset[DecisionClass]
+    ) -> list[DecisionPacket]:
+        return [d for d in ranked if d.decision_class in classes]
 
     def _group_actions(
         self, actions: list[ConvergenceAction]
@@ -196,16 +232,39 @@ class ActionGovernor:
         action: ConvergenceAction | None,
         findings: list[RuntimeFinding],
     ) -> DecisionClass:
+        # Precedence, highest first: blocker/runtime signals, then the primary
+        # action type, then the component scores. The first tier that decides wins.
+        signal_class = self._signal_decision_class(score, action, findings)
+        if signal_class is not None:
+            return signal_class
+        action_class = self._action_type_decision_class(action)
+        if action_class is not None:
+            return action_class
+        return self._score_decision_class(score)
+
+    def _signal_decision_class(
+        self,
+        score: ComponentScore,
+        action: ConvergenceAction | None,
+        findings: list[RuntimeFinding],
+    ) -> DecisionClass | None:
         if action and action.blockers:
             return DecisionClass.escalate
         if any(f.severity == "critical" for f in findings):
             return DecisionClass.escalate
         if findings and score.governance_criticality >= 70:
             return DecisionClass.remediate_now
-        if action and action.action_type in {"rename", "canonicalize_name"}:
-            return DecisionClass.rename
-        if action and action.action_type in {"move", "reorganize", "canonicalize_folder"}:
-            return DecisionClass.reorganize
+        return None
+
+    def _action_type_decision_class(self, action: ConvergenceAction | None) -> DecisionClass | None:
+        if not action:
+            return None
+        for action_types, decision_class in _ACTION_TYPE_CLASSES:
+            if action.action_type in action_types:
+                return decision_class
+        return None
+
+    def _score_decision_class(self, score: ComponentScore) -> DecisionClass:
         if (
             score.strategic_value >= 75
             and score.execution_readiness >= 65
@@ -223,7 +282,7 @@ class ActionGovernor:
         score: ComponentScore,
         actions: list[ConvergenceAction],
         findings: list[RuntimeFinding],
-    ) -> str:
+    ) -> Confidence:
         signal_count = len(actions) + len(findings)
         if signal_count >= 2 and score.documentation_quality >= 50:
             return "high"

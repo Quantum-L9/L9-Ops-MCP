@@ -18,6 +18,8 @@ DORA:
 
 from __future__ import annotations
 
+import pytest
+
 from scripts.l11.risk_scorer import RiskScorer
 
 
@@ -87,3 +89,46 @@ class TestHealth:
         health = scorer.health()
         assert health["healthy"] is True
         assert "thresholds" in health
+
+
+class TestPathSegmentMatching:
+    """OBS-09: directories are matched as whole path segments, not substrings."""
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "hardcore/x.py",
+            "src/scoring_core/x.py",
+            "snapi/x.py",
+            "subagents/x.py",
+            "myworkers/x.py",
+            "nokernel/x.py",
+            "core.py",
+        ],
+    )
+    def test_substring_lookalikes_are_utility(self, sample_config, path):
+        scorer = RiskScorer(sample_config)
+        finding = {"severity": "P2", "file": path}
+        assert scorer._blast_radius_score(finding) == 40.0
+        assert scorer._criticality_score(finding) == 20.0
+
+    @pytest.mark.parametrize(
+        ("path", "blast", "criticality"),
+        [
+            ("core/x.py", 100.0, 100.0),
+            ("src/core/x.py", 100.0, 100.0),
+            ("src/kernel/x.py", 100.0, 20.0),
+            ("api/v1/x.py", 80.0, 100.0),
+            ("pkg/memory/x.py", 40.0, 100.0),
+            ("agents/x.py", 60.0, 60.0),
+            ("src/orchestrators/x.py", 40.0, 60.0),
+            ("workers/x.py", 50.0, 20.0),
+        ],
+    )
+    def test_true_directory_segments_keep_their_weights(
+        self, sample_config, path, blast, criticality
+    ):
+        scorer = RiskScorer(sample_config)
+        finding = {"severity": "P2", "file": path}
+        assert scorer._blast_radius_score(finding) == blast
+        assert scorer._criticality_score(finding) == criticality

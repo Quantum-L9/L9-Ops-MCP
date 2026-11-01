@@ -15,13 +15,11 @@ This process deliberately exposes only ``kernel_resolve`` from the native
 L9-Ops-MCP server. It has no Graphiti, memory, secret, filesystem-write, or
 network tool surface. Strict integrity checks are forced for every resolution,
 so a long-lived connector cannot silently return authority after canonical
-kernel bytes drift.
+kernel bytes drift. Strictness is passed per call; the process environment is
+never mutated, so it cannot leak into the native server's tools (OBS-14).
 """
 
 from __future__ import annotations
-
-import os
-from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -53,16 +51,16 @@ async def kernel_resolve(
     message}`` envelope and never expose raw tracebacks.
     """
 
-    os.environ["L9_KERNEL_STRICT_INTEGRITY"] = "1"
-    payload = await native_server.kernel_resolve(
+    payload = native_server.resolve_kernel_authority(
         profile=profile,
         consumer=consumer,
         objective=objective,
         trust_level=trust_level,
         max_overload_weight=max_overload_weight,
         allow_experimental=allow_experimental,
+        strict_integrity=True,
     )
-    return cast(dict[str, object], payload)
+    return payload
 
 
 def main() -> None:

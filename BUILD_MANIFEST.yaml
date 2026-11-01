@@ -16,9 +16,9 @@ requested_next_build:
       - scripts/library_health.sh
       - scripts/enforce_progressive_disclosure.sh
       - scripts/audit_hardban_duplication.sh
-      - scripts/impact_analysis.py
+      - scripts/impact_analysis.py  # retired in PR #38; no longer present
       - scripts/convergence_tracker.py
-      - scripts/validate_wiring.py
+      - scripts/validate_wiring.py  # retired in PR #38; no longer present
     create:
       - ORG_INVARIANTS.yaml
       - docs/REPO_IDENTITY.md

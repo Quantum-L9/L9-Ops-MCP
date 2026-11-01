@@ -25,6 +25,9 @@ execution:
       incremental: true
       deterministic_only: true
       ai_enrichment_async: true
+      # Upper bound on how long a PR scan waits for enrichment after the merge
+      # decision is final; on expiry the task is cancelled and reported.
+      ai_enrichment_timeout_seconds: 30
     schedule:
       nightly_full_scan: true
       cron: "0 2 * * *"
@@ -68,41 +71,30 @@ detection:
           - "0055"   # Fail-loudly policy
           - "0083"   # UTC datetime standard
       - name: dependency_graph_validator
-        enabled: true
+        # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+        enabled: false
         check_circular_imports: true
       - name: schema_validator
-        enabled: true
+        # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+        enabled: false
         schemas_dir: schemas/
       - name: complexity_threshold
         enabled: true
         max_cyclomatic: 15
         max_cognitive: 25
       - name: test_coverage_threshold
-        enabled: true
+        # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+        enabled: false
         min_coverage_percent: 80.0
 
-    # ── L9 Existing CI Scripts (NEW — bridges L11 to L9) ──
+    # ── L9 Existing CI Scripts ──
+    # Disabled (decision D-07 A): the ci/ scripts this block listed belong to
+    # another repository layout and none exist here.  The deterministic engine
+    # fails closed on a configured script that is missing, so enabling this
+    # block requires every listed script to exist in this repository.
     l9_ci_scripts:
-      enabled: true
-      scripts:
-        - ci/check_adr_compliance.py
-        - ci/lint_forbidden_imports.py
-        - ci/check_protected_files.py
-        - ci/check_dependency_patterns.py
-        - ci/check_tool_wiring.py
-        - ci/check_substrate_api.py
-        - ci/check_global_state.py
-        - ci/check_imports.py
-        - ci/check_memory_bypass.py
-        - ci/check_no_deprecated_services.py
-        - ci/validate_dora_blocks.py
-        - ci/check_packet_type_naming.py
-        - ci/check_report_naming.py
-        - ci/check_tool_naming.py
-        - ci/check_schema_deprecation.py
-        - ci/validate_codegen.py
-        - ci/validate_spec_v25.py
-        - ci/check_definition_of_done.py
+      enabled: false
+      scripts: []
 
     # ── Test Suite (NEW — pytest + coverage) ──
     test_suite:
@@ -118,7 +110,8 @@ detection:
 
     # ── Secrets Scanning (NEW — gitleaks) ──
     secrets_scan:
-      enabled: true
+      # Not implemented by scripts/l11/deterministic_engine.py (OBS-07, D-07 A).
+      enabled: false
       tool: gitleaks
       config: .gitleaks.toml
       license_env: GITLEAKS_LICENSE
@@ -240,25 +233,9 @@ ownership:
 # ─────────────────────────────────────────────
 # REMEDIATION
 # ─────────────────────────────────────────────
-remediation:
-  auto_fix:
-    enabled: true
-    supported_categories:
-      - linting_errors
-      - import_sorting
-      - docstring_missing
-      - type_hint_missing
-      - structlog_migration
-    safety:
-      require_passing_tests: true
-      shadow_diff_validation: true
-      rollback_on_failure: true
-      require_approval: true
-    codemod_framework:
-      enabled: true
-      supported_languages:
-        - python
-        - typescript
+# The auto-fix engine was retired (decision D-08 A): it was never wired into
+# the orchestrator, ignored its safety settings and could destroy uncommitted
+# work.  No remediation engine is configured.
 
 # ─────────────────────────────────────────────
 # SCALING
@@ -326,4 +303,3 @@ notifications:
       - "debt:p1"
       - "debt:p2"
       - "debt:p3"
-      - "auto-fix"

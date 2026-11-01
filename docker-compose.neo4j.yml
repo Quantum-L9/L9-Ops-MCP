@@ -6,7 +6,7 @@ services:
       - "7474:7474"
       - "7687:7687"
     environment:
-      NEO4J_AUTH: "neo4j/l9_local_dev_pw"
+      NEO4J_AUTH: "neo4j/${L9_NEO4J_PASS:-l9_local_dev_pw}"
       NEO4J_PLUGINS: '["apoc"]'
       NEO4J_server_memory_heap_max__size: "2G"
     volumes:

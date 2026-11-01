@@ -1,8 +1,11 @@
 # ══════════════════════════════════════════════════════════════
 # L9 Protected Files Policy — Source of Truth
 # ══════════════════════════════════════════════════════════════
-# Loaded by: core/governance/protected_files_policy.py
-# Enforced by: .github/scripts/validate-protected-files-v6.py
+# Loaded and enforced by: scripts/validate-protected-files-v6.py
+#   (CI: .github/workflows/08-L11-CI-WORKFLOW-v3.3.yaml, job protected-files)
+# Path list: decision D-11 A — this repository's own core; paths copied from
+#   another repository layout (runtime/, core/, memory/, .github/scripts/)
+#   were removed.
 # Spec: L9 Protected Files Enforcement System v6.0.0
 #
 # DORA:
@@ -23,17 +26,13 @@ categories:
       - LCTO
       - IGOR
     protected_paths:
-      # Runtime core
-      - runtime/websocket_orchestrator.py
-      - runtime/kernel_loader.py
-      - runtime/redis_client.py
-      - core/agents/executor.py
+      # Package core
+      - "src/l9_ops_mcp/**"
 
       # Docker / Infra
       - Dockerfile
       - "Dockerfile.*"
-      - docker-compose.yml
-      - docker-compose.prod.yml
+      - "docker-compose*.yml"
       - .dockerignore
 
       # Core dependency + packaging
@@ -44,9 +43,8 @@ categories:
 
       # Governance system (meta-protection)
       - "config/policies/**"
-      - "core/governance/**"
       - ".github/workflows/**"
-      - ".github/scripts/**"
+      - scripts/validate-protected-files-v6.py
 
       # Repo security posture
       - .gitleaks.toml
@@ -57,25 +55,9 @@ categories:
 
   subsystem_protected:
     description: "Subsystem ownership enforcement"
-    subsystems:
-      agents:
-        owner: L
-        protected_paths:
-          - core/agents/executor.py
-          - core/agents/registry.py
-          - core/agents/__init__.py
-      memory:
-        owner: L
-        protected_paths:
-          - memory/substrate_service.py
-          - memory/substrate_dag.py
-          - memory/__init__.py
-      tools:
-        owner: L
-        protected_paths:
-          - core/tools/registry_adapter.py
-          - core/tools/tool_graph.py
-          - core/tools/__init__.py
+    # The previous subsystems (core/agents, memory/, core/tools) do not exist
+    # in this repository (D-11 A). src/l9_ops_mcp/** is protected above.
+    subsystems: {}
 
 approval_signals:
   pr_labels:
@@ -87,6 +69,5 @@ approval_signals:
 
 meta_protected_files:
   - config/policies/protected_files.yaml
-  - .github/scripts/validate-protected-files-v6.py
-  - .github/workflows/l11-debt-governance.yaml
-  - core/governance/protected_files_policy.py
+  - scripts/validate-protected-files-v6.py
+  - .github/workflows/08-L11-CI-WORKFLOW-v3.3.yaml

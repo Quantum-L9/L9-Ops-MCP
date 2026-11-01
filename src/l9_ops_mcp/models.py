@@ -35,6 +35,9 @@ class RuntimePayload(BaseModel):
     allowed_scopes: list[str]
     context_slice: ContextSlice
     budget_remaining_tokens: int
+    # Which signal ContextFact.score carries: "rrf" (Graphiti reciprocal-rank
+    # fusion score), "ordinal" (explicit rank fallback) or "none" (no search).
+    relevance_signal: Literal["rrf", "ordinal", "none"] = "none"
     readonly: Literal[True] = True  # handoff_packets_are_views invariant
 
 
@@ -47,3 +50,8 @@ class MemoryCandidate(BaseModel):
     semantic_score: float = 0.0
     trust_level: TrustLevel = "L2"
     metadata: dict[str, Any] = Field(default_factory=dict)
+    # Consent criterion (memory_admission_kernel.v1, D-03 A): a write that opens
+    # an external sharing path requires an explicit consent declaration.
+    # Default deny: no consent is assumed.
+    external_sharing: bool = False
+    consent: Literal["deny", "granted"] = "deny"

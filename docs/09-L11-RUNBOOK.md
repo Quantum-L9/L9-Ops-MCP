@@ -32,9 +32,9 @@ PR Event / Cron Schedule
         │                         │
         ▼                         ▼
 ┌──────────────────┐     ┌──────────────────┐
-│  AI Enrichment    │     │  Auto-Fix Engine │
-│  (Perplexity)     │     │  (Shadow Branch) │
-│  [NON-BLOCKING]   │     │  [HITL APPROVAL] │
+│  AI Enrichment    │     │  Debt Graph       │
+│  (Perplexity)     │     │  (fixed/regressed │
+│  [NON-BLOCKING]   │     │   lifecycle)      │
 └──────────────────┘     └──────────────────┘
 ```
 
@@ -59,7 +59,7 @@ PR Event / Cron Schedule
    ```
 3. If API is down → wait for recovery (circuit breaker auto-resets after 300s cooldown)
 4. If API key expired → rotate in GitHub Secrets → re-run workflow
-5. If persistent → check monthly budget cap in `01-L11-PIPELINE-CONFIG.yaml`
+5. If persistent → check monthly budget cap in `scripts/l11/pipeline_config.yaml`
 
 **Resolution:** Circuit breaker resets automatically. No manual intervention required unless API key is invalid.
 
@@ -101,36 +101,13 @@ PR Event / Cron Schedule
    ```python
    x = some_expression  # noqa: ADR-0019  -- justified because ...
    ```
-3. If systemic → update thresholds in `01-L11-PIPELINE-CONFIG.yaml`:
+3. If systemic → update thresholds in `scripts/l11/pipeline_config.yaml`:
    ```yaml
    complexity_threshold:
      max_cyclomatic: 20  # Was 15; raised after audit
    ```
 4. File a tuning issue: `gh issue create --title "L11: Tune [rule] threshold" --label "debt:tuning"`
 5. Track false positive rate in Grafana
-
----
-
-### 2.4 Auto-Fix Test Failure
-
-**Symptom:** Log entry `auto_fix_rolled_back reason=tests_failed`
-
-**Impact:** LOW — Auto-fix rolled back cleanly; no code changes merged.
-
-**Steps:**
-
-1. Confirm shadow branch was deleted:
-   ```bash
-   git branch -r | grep auto-fix/
-   ```
-2. Check test failure details in CI artifact `l11-deterministic-report`
-3. If fix was correct but tests are flaky → fix the tests first
-4. If fix was wrong → mark the finding category as unsupported:
-   ```yaml
-   # In 01-L11-PIPELINE-CONFIG.yaml
-   supported_categories:
-     # - docstring_missing  # Disabled: auto-fix unreliable
-   ```
 
 ---
 
@@ -142,13 +119,15 @@ PR Event / Cron Schedule
 # Check all components
 python -c "
 import asyncio
-from 02_L11_ORCHESTRATOR import L11Orchestrator
 from pathlib import Path
-orch = L11Orchestrator(Path('01-L11-PIPELINE-CONFIG.yaml'))
+from scripts.l11.orchestrator import L11Orchestrator
+orch = L11Orchestrator(Path('scripts/l11/pipeline_config.yaml'))
 result = asyncio.run(orch.health_check())
 print(result)
 "
 ```
+
+Run from the repository root. `healthy` is false when a required engine is missing (listed in `missing_components`) or when Neo4j is configured but unreachable.
 
 ### 3.2 Monthly Threshold Review
 
@@ -234,7 +213,7 @@ gh workflow disable "L11 Debt Governance"
 ### Component-Level Disable
 
 ```yaml
-# In 01-L11-PIPELINE-CONFIG.yaml:
+# In scripts/l11/pipeline_config.yaml:
 
 # Disable AI enrichment
 detection:
@@ -242,9 +221,4 @@ detection:
     role: enrichment_and_classification
     blocks_merge: false
     # Set model to empty string to skip API calls
-
-# Disable auto-fix
-remediation:
-  auto_fix:
-    enabled: false
 ```

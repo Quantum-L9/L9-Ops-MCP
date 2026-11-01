@@ -33,9 +33,9 @@ All gaps fixed. `make ci` passes (exit 0). System fully wired and self-enforcing
 ## Verified End-to-End
 
 - `make add-skill` → scaffolds + wires 5 locations in one command ✓
-- `make validate-wiring id=X` → 9-dimension check, 0 gaps ✓
+- ~~`make validate-wiring id=X`~~ → historical record; the target no longer exists
 - `convergence_tracker.py --update-kernel` → telemetry write-back persists ✓
-- `impact_analysis.py --kernel-id` → reverse-dependency trace works ✓
+- ~~`impact_analysis.py --kernel-id`~~ → retired in PR #38 (historical record; the script no longer exists)
 - `make ci` → all 6 gates pass, exit 0 ✓
 
 ## Your Next Actions
@@ -44,4 +44,4 @@ All gaps fixed. `make ci` passes (exit 0). System fully wired and self-enforcing
 2. **Write back scores**: `python3 scripts/convergence_tracker.py --update-kernel <id> --pass-rate <r> --model <m>`
 3. **Author playbook steps 02-16**: use `templates/playbook/step.md.template`
 4. **Install pre-commit**: `pre-commit install` — enforces gates on every commit
-5. **Add new artifacts**: `make add-{kernel,skill,playbook,prompt}` then `make validate-wiring id=X`
+5. **Add new artifacts**: `make add-{kernel,skill,playbook,prompt}` then `make wiring` (there is no `make validate-wiring` target)

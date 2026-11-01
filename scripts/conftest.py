@@ -99,18 +99,6 @@ def sample_config() -> dict[str, Any]:
                 },
             },
         },
-        "remediation": {
-            "auto_fix": {
-                "enabled": False,
-                "supported_categories": ["linting_errors", "import_sorting"],
-                "safety": {
-                    "require_passing_tests": True,
-                    "shadow_diff_validation": True,
-                    "rollback_on_failure": True,
-                    "require_approval": True,
-                },
-            },
-        },
     }
 
 

@@ -1,16 +1,30 @@
-"""Write or merge l9-ops-mcp into Claude Desktop MCP config. Idempotent."""
+"""Write or merge l9-ops-mcp into Claude Desktop MCP config. Idempotent.
+
+The existing config is never discarded: if it is not plain JSON or does not
+have the expected shape, the file is left untouched and the script exits 1
+naming the file and the reason. The file carries credentials, so it is written
+atomically with mode 0600.
+"""
 
 from __future__ import annotations
+
 import json
 import os
 import pathlib
 import platform
 import sys
+import tempfile
+from typing import Any
 
 REPO_ROOT = pathlib.Path(__file__).parent.parent.resolve()
+SERVER_NAME = "l9-ops-mcp"
 
 
-def _cfg_path() -> pathlib.Path:
+class ConfigRefusal(Exception):
+    """The existing config cannot be merged safely; it is left untouched."""
+
+
+def _cfg_path() -> pathlib.Path | None:
     system = platform.system()
     if system == "Darwin":
         p = (
@@ -25,33 +39,86 @@ def _cfg_path() -> pathlib.Path:
         return pathlib.Path.home() / ".config" / "Claude" / "claude_desktop_config.json"
     if system == "Linux":
         return pathlib.Path.home() / ".config" / "Claude" / "claude_desktop_config.json"
-    print(f"Unsupported platform: {system}", file=sys.stderr)
-    sys.exit(1)
+    return None
 
 
-entry = {
-    "command": "python",
-    "args": ["-m", "l9_ops_mcp.server"],
-    "env": {
-        "L9_NEO4J_URI": os.getenv("L9_NEO4J_URI", "bolt://localhost:7687"),
-        "L9_NEO4J_USER": os.getenv("L9_NEO4J_USER", "neo4j"),
-        "L9_NEO4J_PASS": os.getenv("L9_NEO4J_PASS", "l9_local_dev_pw"),
-        "L9_OPENAI_API_KEY": os.getenv("L9_OPENAI_API_KEY", ""),
-        "PYTHONPATH": str(REPO_ROOT / "src"),
-    },
-}
+def build_entry() -> dict[str, Any]:
+    return {
+        "command": "python",
+        "args": ["-m", "l9_ops_mcp.server"],
+        "env": {
+            "L9_NEO4J_URI": os.getenv("L9_NEO4J_URI", "bolt://localhost:7687"),
+            "L9_NEO4J_USER": os.getenv("L9_NEO4J_USER", "neo4j"),
+            "L9_NEO4J_PASS": os.getenv("L9_NEO4J_PASS", "l9_local_dev_pw"),
+            "L9_OPENAI_API_KEY": os.getenv("L9_OPENAI_API_KEY", ""),
+            "PYTHONPATH": str(REPO_ROOT / "src"),
+        },
+    }
 
-cfg_path = _cfg_path()
-cfg_path.parent.mkdir(parents=True, exist_ok=True)
-cfg: dict = {}
-if cfg_path.exists():
+
+def load_config(path: pathlib.Path) -> dict[str, Any]:
+    """Return the existing config, or {} when absent. Refuse anything unusable."""
+    if not path.exists():
+        return {}
     try:
-        cfg = json.loads(cfg_path.read_text())
-    except json.JSONDecodeError:
-        cfg = {}
+        cfg = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        msg = f"{path} is not readable plain JSON ({exc})"
+        raise ConfigRefusal(msg) from exc
+    if not isinstance(cfg, dict):
+        msg = f"{path} top level is {type(cfg).__name__}, expected a JSON object"
+        raise ConfigRefusal(msg)
+    servers = cfg.get("mcpServers", {})
+    if not isinstance(servers, dict):
+        msg = f'{path} "mcpServers" is {type(servers).__name__}, expected a JSON object'
+        raise ConfigRefusal(msg)
+    return cfg
 
-cfg.setdefault("mcpServers", {})["l9-ops-mcp"] = entry
-cfg_path.write_text(json.dumps(cfg, indent=2) + "\n")
-print(f"wrote: {cfg_path}")
-print(f"servers: {list(cfg['mcpServers'].keys())}")
-print("restart Claude Desktop to pick up config.")
+
+def write_private_atomic(path: pathlib.Path, text: str) -> None:
+    """Replace ``path`` atomically with ``text``, readable by the owner only."""
+    target = path.resolve() if path.is_symlink() else path
+    fd, tmp_name = tempfile.mkstemp(prefix=f".{target.name}.", dir=target.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.chmod(tmp_name, 0o600)
+        os.replace(tmp_name, target)
+    except BaseException:
+        pathlib.Path(tmp_name).unlink(missing_ok=True)
+        raise
+
+
+def merge_entry(path: pathlib.Path, entry: dict[str, Any]) -> dict[str, Any]:
+    cfg = load_config(path)
+    cfg.setdefault("mcpServers", {})[SERVER_NAME] = entry
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_private_atomic(path, json.dumps(cfg, indent=2) + "\n")
+    return cfg
+
+
+def main() -> int:
+    cfg_path = _cfg_path()
+    if cfg_path is None:
+        print(f"Unsupported platform: {platform.system()}", file=sys.stderr)
+        return 1
+    try:
+        cfg = merge_entry(cfg_path, build_entry())
+    except ConfigRefusal as exc:
+        print(f"refusing to modify {cfg_path}: {exc}", file=sys.stderr)
+        print(
+            f'add the "{SERVER_NAME}" entry under "mcpServers" manually, or fix the file '
+            "and re-run this script.",
+            file=sys.stderr,
+        )
+        return 1
+    print(f"wrote: {cfg_path}")
+    print(f"servers: {list(cfg['mcpServers'].keys())}")
+    print("restart Claude Desktop to pick up config.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
