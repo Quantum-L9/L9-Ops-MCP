@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.makefile
+# title: Makefile
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: Makefile
+# content_hash: 7a0d330f607257238f60b6741487336e1e49bff84f8d4b5348deb5548b03e11f
+# token_cost_estimate: 1049
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: build_contract
@@ -12,13 +29,26 @@ PYTHON ?= python3
 .PHONY: help setup validate health skill-audit playbook-audit wiring ci eval zip \
         progressive-disclosure hardban-audit impact convergence command-parity \
         mcp-dev preflight graph-export graph-verify graph-sync \
-        pr-fix pr-fix-dry pr-fix-propose pr-fix-verify pr-fix-learn
+        pr-fix pr-fix-dry pr-fix-propose pr-fix-verify pr-fix-learn \
+        meta-setup meta-inventory meta-apply meta-check
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*##"; printf "\nL9-Ops-MCP commands\n\n"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-28s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 setup: ## Install declared package dependencies when pyproject is present
 	@if command -v uv >/dev/null 2>&1; then uv sync --locked || uv sync; else $(PYTHON) -m pip install -e ".[dev]"; fi
+
+meta-setup: ## Install the pinned format-safe metadata injector
+	npm ci --no-audit --no-fund
+
+meta-inventory: ## Read-only artifact inventory
+	npm run meta:inventory
+
+meta-apply: ## Apply explicitly authorized format-safe metadata headers
+	npm run meta:apply
+
+meta-check: ## Verify metadata carriers and central-index drift
+	npm run meta:check
 
 validate: ## Run structural repo validation
 	$(PYTHON) scripts/validate_wiring.py --all

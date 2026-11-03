@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_playbook__md"
+title: "PLAYBOOK"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/PLAYBOOK.md"
+content_hash: "709972c163e9d6b7abf86f9bee1205bcb3c06320ee32831e24f8bbf7d071878c"
+token_cost_estimate: 1412
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["check", "scaffold", "create", "domain"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 <!-- L9_META
 id: new-constellation-node
 version: 1.0.0

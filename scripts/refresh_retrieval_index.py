@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_refresh_retrieval_index__py
+# title: refresh retrieval index
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/refresh_retrieval_index.py
+# content_hash: 905b40a960c00c9a7f90d42e33880dfe6c9f8bf4b9e799d9f5bd99cffccbf75e
+# token_cost_estimate: 1862
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: script

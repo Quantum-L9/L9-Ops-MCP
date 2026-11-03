@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_manus_kernel_server__py
+# title: test manus kernel server
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_manus_kernel_server.py
+# content_hash: d3586bc7f6b49d37e8e3d38d7db38f7b8489802f48ec4b4becbaa92425df4086
+# token_cost_estimate: 879
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # origin: l9-ops-mcp

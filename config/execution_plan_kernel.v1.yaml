@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_execution_plan_kernel_v1__yaml
+# title: execution plan kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/execution_plan_kernel.v1.yaml
+# content_hash: 17f97c5b002855e239baaf4f6b77a0440914d7f98bdb61a436502e56e3300d78
+# token_cost_estimate: 848
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

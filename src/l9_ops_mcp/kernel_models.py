@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_ops_mcp_kernel_models__py
+# title: kernel models
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_ops_mcp/kernel_models.py
+# content_hash: cd236ec1d27013aaf68f8244624e6181998041379384e83f76aae318fbf6c957
+# token_cost_estimate: 2390
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: runtime_module

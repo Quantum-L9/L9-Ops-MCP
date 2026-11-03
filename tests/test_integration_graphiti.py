@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_integration_graphiti__py
+# title: test integration graphiti
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_integration_graphiti.py
+# content_hash: 742b7b54651f3be181db77b544b9f1d2eb1b0a8d8aadd21c4ce05cfad2784e51
+# token_cost_estimate: 448
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Integration tests — Neo4j required.
 Skipped automatically if L9_NEO4J_URI is not set.
 Run: L9_NEO4J_URI=bolt://localhost:7687 pytest tests/test_integration_graphiti.py -v

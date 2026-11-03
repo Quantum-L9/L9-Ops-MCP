@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_nonprofit_launch_profile__yaml
+# title: nonprofit launch profile
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/nonprofit_launch_profile.yaml
+# content_hash: dcd1ec7fdf0c8c6702028266519e2f8e706a05fefd87d4f1acba33acaefa444c
+# token_cost_estimate: 752
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

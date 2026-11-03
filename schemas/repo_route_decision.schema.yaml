@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.schemas_repo_route_decision_schema__yaml
+# title: repo route decision schema
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: schemas/repo_route_decision.schema.yaml
+# content_hash: 58eefdc3465ec5b569a203a9c6f2f2f46c8f036346326a89b2a6f41f42fa12a1
+# token_cost_estimate: 130
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 type: object
 required: [request_id, source_uploads, route, owner, evidence, decision_status]
 properties:

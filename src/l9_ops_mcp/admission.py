@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_ops_mcp_admission__py
+# title: admission
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_ops_mcp/admission.py
+# content_hash: e33296b988a3d61c806a56d2f1e07e977d42f654280d35ef5f12e5bc4055f704
+# token_cost_estimate: 550
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Memory Admission Gateway — memory_admission_kernel.v1, fail_closed."""
 
 from __future__ import annotations

@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_03_l11_deterministic_engine__py
+# title: 03 L11 DETERMINISTIC ENGINE
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/03-L11-DETERMINISTIC-ENGINE.py
+# content_hash: 85cd8c4810a59d669edc1dde488d7512599341d276635a3ba78f6d1dcc86f5fc
+# token_cost_estimate: 251
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: 03-L11-DETERMINISTIC-ENGINE

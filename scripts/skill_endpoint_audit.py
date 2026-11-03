@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_skill_endpoint_audit__py
+# title: skill endpoint audit
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/skill_endpoint_audit.py
+# content_hash: c3620b1a9313a52e3e38fed2d0078db75da0eea067e6d53704264d1d5edd0db0
+# token_cost_estimate: 563
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: skill_endpoint_audit

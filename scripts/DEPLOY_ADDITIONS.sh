@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_deploy_additions__sh
+# title: DEPLOY ADDITIONS
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/DEPLOY_ADDITIONS.sh
+# content_hash: 8b30475775811571ae86ea71777455726e72c50bdb880ced3d95959aa3d34ea4
+# token_cost_estimate: 435
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # ── Add to Phase 3 of DEPLOY.sh ──
 
 # ── Protected Files Policy (NEW — Spec v6) ──

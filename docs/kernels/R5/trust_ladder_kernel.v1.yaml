@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.kernel.docs_kernels_r5_trust_ladder_kernel_v1__yaml
+# title: trust ladder kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: docs/kernels/R5/trust_ladder_kernel.v1.yaml
+# content_hash: 30a257586cfdb7f05df5649266809e32998de50e8a63e4d867db2338ef4b5da7
+# token_cost_estimate: 1330
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9_META
 # l9_schema: 1 | origin: identityos-harvest | source_adr: ADR-014
 # source_repo: IdentityOS (2026-05-16) | layer: kernel | ring: R5

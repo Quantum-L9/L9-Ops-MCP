@@ -1,0 +1,38 @@
+schema: l9.meta-authority/v1
+writer:
+  repository: Quantum-L9/l9-meta-injector
+  ref: 983654dfee9342702f755a11b10e7e562213b1b1
+default_carrier: inline_managed
+legacy_writers: forbidden
+inline_allow:
+  - "**/*.md"
+  - "**/*.py"
+  - "**/*.sh"
+  - "**/*.yaml"
+  - "**/*.yml"
+  - "**/*.toml"
+  - "Makefile"
+  - "assets/Makefile"
+  - "assets/CODEOWNERS"
+  - ".editorconfig"
+  - ".gitignore"
+  - ".github/CODEOWNERS"
+  - ".github/workflows/**/*.yaml"
+  - ".github/workflows/**/*.yml"
+  - ".pre-commit-config.yaml"
+  - ".env.example"
+  - ".l9metaignore"
+inline_exclude:
+  - "tests/fixtures/**"
+  - "**/golden_tests/**"
+  - "**/datasets/**"
+  - "docs/SKILL.md"
+  - "skills/**/SKILL.md"
+  - "ORG_INVARIANTS.yaml"
+  - "docs/kernels/R0/soul_kernel.v1.yaml"
+  - "docs/kernels/R5/preferences_kernel.v1.yaml"
+  - "playbooks/microservice-build/PLAYBOOK.md"
+  - "skills/meta/optimize-kernel/SKILL__source_ecaa3134.md"
+  - "**/*.json"
+  - "**/*.jsonl"
+  - "**/*.txt"

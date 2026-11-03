@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_optimize_kernel_fixture__yaml
+# title: optimize kernel fixture
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/optimize-kernel-fixture.yaml
+# content_hash: 8aab5876f72ed608ed3cd549a9db37e89768d3637f8d2684e40054e7f6cd8697
+# token_cost_estimate: 132
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9_META: origin: l9-kernel | layer: evals | status: active
 # Eval fixture for optimize-kernel skill
 # File: evals/datasets/optimize-kernel-fixture.yaml

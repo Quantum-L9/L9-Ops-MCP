@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_sandbox_isolation_kernel_v1__yaml
+# title: sandbox isolation kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/sandbox_isolation_kernel.v1.yaml
+# content_hash: c1f67ac09c4b7847dd7eea330a04724d99f6f452554aa3ca29899e97de8ee07f
+# token_cost_estimate: 893
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

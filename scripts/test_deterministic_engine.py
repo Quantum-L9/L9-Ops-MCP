@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_test_deterministic_engine__py
+# title: test deterministic engine
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/test_deterministic_engine.py
+# content_hash: 21b335bd96c56988d17111d27bb316711dde0edbeead96edca7803e7c0aa6ffd
+# token_cost_estimate: 1014
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: test_deterministic_engine

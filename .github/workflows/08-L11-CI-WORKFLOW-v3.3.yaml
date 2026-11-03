@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.github_workflows_08_l11_ci_workflow_v3_3__yaml
+# title: 08 L11 CI WORKFLOW v3 3
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: .github/workflows/08-L11-CI-WORKFLOW-v3.3.yaml
+# content_hash: 3a08a55f9c9671f49b4609dea8ba3a2aeb34df71c3a44f59bd4842865e05c152
+# token_cost_estimate: 6158
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L11 Debt Governance Pipeline — GitHub Actions Workflow v3.3
 #
 # REVISION v3.3 — Carries forward all v3.2 Gap A–D fixes + adds:

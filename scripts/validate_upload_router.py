@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_validate_upload_router__py
+# title: validate upload router
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/validate_upload_router.py
+# content_hash: 3dcec2559499424e3c3fae0987669720553c56361030d1a2365fb06559219fad
+# token_cost_estimate: 308
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 from __future__ import annotations
 
 import sys

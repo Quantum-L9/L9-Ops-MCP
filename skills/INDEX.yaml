@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.skill.skills_index__yaml
+# title: INDEX
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: skills/INDEX.yaml
+# content_hash: df212e8398568938f0d78c7c8a804e63d3a7312af2ef75c2299304be648483ec
+# token_cost_estimate: 1051
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: skill

@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.playbook.playbooks_github_upload_capture_handoffs_repo_route_decision_schema__yaml
+# title: repo route decision schema
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: playbooks/github-upload-capture/handoffs/repo_route_decision.schema.yaml
+# content_hash: 5c3c46475752f8743607a27773ac02b80527b9937d73ab7241bd893e36a053c3
+# token_cost_estimate: 71
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 type: object
 required: [request_id, route, owner, evidence]
 properties:

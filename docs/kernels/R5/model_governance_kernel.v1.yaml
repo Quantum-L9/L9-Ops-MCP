@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.kernel.docs_kernels_r5_model_governance_kernel_v1__yaml
+# title: model governance kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: docs/kernels/R5/model_governance_kernel.v1.yaml
+# content_hash: 795323838e3d3543edd0f9e45a4a2422ef750bdea831a2cabe4a48d10ace6d8e
+# token_cost_estimate: 1331
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9_META
 # l9_schema: 1 | origin: l9-kernel | source_file: model_governance_kernel.v1.yaml (v3.3.0)
 # layer: kernel | ring: R5 | category: developer_support | status: active | version: 1.1.0

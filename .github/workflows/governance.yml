@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.github_workflows_governance__yml
+# title: governance
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: .github/workflows/governance.yml
+# content_hash: 8d77bc8ae85e7f5aeabfd697a6f4b8221454e7d09bf065f0b5d1bbc2648e12b7
+# token_cost_estimate: 440
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 name: l9-ops governance
 
 on:

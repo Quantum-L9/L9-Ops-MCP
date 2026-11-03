@@ -1,14 +1,34 @@
 ---
-title: Governance Engine
-version: 4.0.0
+title: "Governance Engine"
+version: "4.0.0"
 created: 2025-10-28T15:30:00Z
-owner: Igor Beylin
-platform: Odoo 19
-source: MANIFEST_v4.0.md + System Integrity Framework v4.0 + Ethical Enforcement Layer v4.0
-tags: [governance, ethics, compliance, audit, enforcement, oversight, odoo, mack]
-domain: governance
-type: enforcement-agent
+owner: "Igor Beylin"
+platform: "Odoo 19"
+source: "MANIFEST_v4.0.md + System Integrity Framework v4.0 + Ethical Enforcement Layer v4.0"
+tags: ["governance", "ethics", "compliance", "audit", "enforcement", "oversight", "odoo", "mack"]
+domain: "governance"
+type: "enforcement-agent"
 production_ready: true
+id: "L9-Ops-MCP.context.docs_governance_engine_v6_0__md"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/Governance_Engine_v6.0.md"
+content_hash: "19ac658c8ec1f8127fed0bcb586aad41e8c03e5eded4c7f8dd4115d14f471504"
+token_cost_estimate: 1487
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "legal"
+description: "Unknown"
+activation_signals: ["law"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # Governance Engine — System Integrity and Ethical Enforcement Layer (v4.0)

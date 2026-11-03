@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_test_risk_scorer__py
+# title: test risk scorer
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/test_risk_scorer.py
+# content_hash: 998a292ced76a7b0d55453e3fdb6ee8602a2b5e4739ae73a15bbcf71dce0ffd1
+# token_cost_estimate: 741
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: test_risk_scorer

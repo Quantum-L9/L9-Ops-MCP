@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_action_governor_loader__py
+# title: loader
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_action_governor/loader.py
+# content_hash: 64677f2c21d0e87d0a8ef3ca4b2ff8842ff32f7f19573b98a87efbcbd84cc9a7
+# token_cost_estimate: 409
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: loader

@@ -1,14 +1,34 @@
 ---
-title: Decision Ledger
-version: 4.0.0
+title: "Decision Ledger"
+version: "4.0.0"
 created: 2025-10-28T15:30:00Z
-owner: Igor Beylin
-platform: Odoo 19
-source: MANIFEST_v4.0.md + Governance Engine v4.0 + Audit Framework v4.0
-tags: [ledger, audit, accountability, governance, traceability, compliance, odoo, mack]
-domain: governance
-type: audit-system
+owner: "Igor Beylin"
+platform: "Odoo 19"
+source: "MANIFEST_v4.0.md + Governance Engine v4.0 + Audit Framework v4.0"
+tags: ["ledger", "audit", "accountability", "governance", "traceability", "compliance", "odoo", "mack"]
+domain: "governance"
+type: "audit-system"
 production_ready: true
+id: "L9-Ops-MCP.context.docs_decision_ledger_v6_0__md"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/Decision_Ledger_v6.0.md"
+content_hash: "60679032ad9d123252bfd188ea9e6d7507e90c2fc80ad1638fe2456f28ba8054"
+token_cost_estimate: 1361
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # Decision Ledger — Universal Record of Accountability (v4.0)

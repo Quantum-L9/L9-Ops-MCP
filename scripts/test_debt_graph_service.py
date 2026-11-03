@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_test_debt_graph_service__py
+# title: test debt graph service
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/test_debt_graph_service.py
+# content_hash: afbcc17c7e57307ccc9d6b6e0b24df704b51a3ebc947fd54c2b55818df139f6b
+# token_cost_estimate: 923
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: test_debt_graph_service

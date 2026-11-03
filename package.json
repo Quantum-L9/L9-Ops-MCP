@@ -1,0 +1,17 @@
+{
+  "name": "l9-ops-mcp-repository-tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Repository-local governed metadata tooling; not the Python MCP runtime",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "meta:inventory": "l9-meta-injector inventory . --dry-run --out .l9-meta-injector-out/inventory",
+    "meta:check": "l9-meta-injector check . --authority Quantum-L9 --namespace L9-Ops-MCP --out .l9-meta-injector-out/check",
+    "meta:apply": "l9-meta-injector apply . --authority Quantum-L9 --namespace L9-Ops-MCP --out .l9-meta-injector-out/apply"
+  },
+  "devDependencies": {
+    "l9-meta-injector": "git+https://github.com/Quantum-L9/l9-meta-injector.git#983654dfee9342702f755a11b10e7e562213b1b1"
+  }
+}

@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_inject_dora_complete__py
+# title: inject dora complete
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/inject_dora_complete.py
+# content_hash: 32d281d49ba2a2ec7357cfd5dfdcc687de29d7219c668e2294d87280d3ac35d7
+# token_cost_estimate: 22710
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: inject_dora_complete

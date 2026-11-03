@@ -1,33 +1,50 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.agent_retrieval_index__yaml
+# title: AGENT RETRIEVAL INDEX
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: AGENT_RETRIEVAL_INDEX.yaml
+# content_hash: fc23365c7eee2e26c94d8d0b3a6058389f9f0c6c925c59d6a5eb7d0effd46363
+# token_cost_estimate: 13030
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 canonical_contract: TransportPacket
 files:
   .editorconfig:
     retrieval: on_demand
     role: context
-    sha256: 39a7defae4a72fff7fec060034ddebab24c802d1b6ac3bf1d1c9b087363d422d
+    sha256: da65d23585bde6785f8ab050cb6a7b79a2bebc693bd3def30f1a093911c22606
     tags:
     - general
   .github/workflows/08-L11-CI-WORKFLOW-v3.3.yaml:
     retrieval: on_demand
     role: context
-    sha256: 3a08a55f9c9671f49b4609dea8ba3a2aeb34df71c3a44f59bd4842865e05c152
+    sha256: 08cbd4d1ffaec0bbe9dfcc8fba809ff31adbd4998d29f1f52e96379d530308e0
     tags:
     - general
   .github/workflows/governance.yml:
     retrieval: on_demand
     role: context
-    sha256: 8d77bc8ae85e7f5aeabfd697a6f4b8221454e7d09bf065f0b5d1bbc2648e12b7
+    sha256: bf2aa36b4eb4a2e2dd9f48a1edf5a4efc68ad064731fa8d4bf3bdff45d14e814
     tags:
     - general
   .gitignore:
     retrieval: on_demand
     role: context
-    sha256: e6e40ed44170c889fa14fd28b799288d578d22716858e8e53ce5c500d444ea91
+    sha256: f930f2a2ada80a4f0980c1dac910930a40118c3dea3b691d5edb2777192538c6
     tags:
     - general
   AGENTS.md:
     retrieval: on_demand
     role: context
-    sha256: 9c561d708887e54bed1188929751d3d267cce8467bc417b35ffac9a5c5e66731
+    sha256: a4e7884c9a1f26350489e35870933e8020d968028cb551130b0eb7a9cbdd2b76
     tags:
     - general
   AGENT_RETRIEVAL_INDEX.yaml:
@@ -39,85 +56,85 @@ files:
   ARCHITECTURE.md:
     retrieval: on_demand
     role: context
-    sha256: 578a9b5abf9671551005ffd91f838e2b39f5286458298cbbbd5576babd2ea14e
+    sha256: 05e648b9539da813816f4a776295081f92bfbb704d34a42fd1483dbf433a3df7
     tags:
     - general
   CHANGELOG.md:
     retrieval: on_demand
     role: context
-    sha256: 74b9dc16cdfb5cb5912c0e1fddd96a6959a16b18150bc86b57d87df9c37f297f
+    sha256: 34366a3b6c48bdfc1bcddcd6f25f9939abc3f060ad811ca83469c6bd5deff31b
     tags:
     - general
   CHANGE_SUMMARY.md:
     retrieval: on_demand
     role: context
-    sha256: e377de85030f0145fff9422a441db68dba08fb7a96f459eb543c022cc9881078
+    sha256: 13a7b1f2e88a61fdd3212e870bada4394c3c39cd02f024fffcb3afbfb7922b77
     tags:
     - general
   CONSOLIDATION_REPORT.md:
     retrieval: on_demand
     role: context
-    sha256: 5e4e13947f9f252b1da3bc992a5d0bc3f29548af39e96c657ce0f0a05803ac49
+    sha256: 04d8b7558e893befd38811851bd0c52d1284f9bdbccf9e8b757fc3f9021b0db5
     tags:
     - general
   CONTRIBUTING.md:
     retrieval: on_demand
     role: context
-    sha256: 9048aefa07b7a23cbdefd065060d154b1665d33a00d2975500328efd1f091e0c
+    sha256: 7a6838fd990f2aca4e6cbe290ec5f8a2727d3afadcd20db7f1988c762dccc87a
     tags:
     - general
   DEDUPLICATION_MATRIX.yaml:
     retrieval: on_demand
     role: context
-    sha256: f4346d7fcfc3e19cf2e43add0b186b242b230b52d836d78753a35ea9ed9ed00b
+    sha256: f93c5f8c8cc93a294b5da251831a93380a5e7db62daa8d79aff88d7c04e79ff5
     tags:
     - general
   MANIFEST.md:
     retrieval: on_demand
     role: context
-    sha256: e1c17f367d599e82fcfd52d38a7813873b356d3f80e238e5054d809eff02aa63
+    sha256: d166ef91722e884073a51de47c9a156e1ab521e2eedc32b7438922c9a99e82d6
     tags:
     - general
   Makefile:
     retrieval: on_demand
     role: context
-    sha256: 6eb294c57aae5851a1c931fa6442e94dc26517c0e0a07318fd7e88c768e2586d
+    sha256: e5581b7f1de7b8bd6e3f16a632381e708a77499af79acf40e056c262fc296fb2
     tags:
     - general
   PROVENANCE_MAP.yaml:
     retrieval: on_demand
     role: context
-    sha256: 5d3d530407e78035664c8534eb65b34c38e7074ed0092494cef2094e155b5f08
+    sha256: f3494a0a22beb529b1e4723e4dd722491d61ef8dc5cffaff18dc1fd332721ed2
     tags:
     - general
   README.md:
     retrieval: on_demand
     role: context
-    sha256: b273d9f0b2bf9d85ceb9c96e8fd3377e454046ec235a7a5a0b2c3f31bdc4e1ee
+    sha256: b538a3e14e44e19ec065ee39cdb428610332f97d2f3f54319cfa9a58d3cefcae
     tags:
     - general
   REGRESSION_GUARD.md:
     retrieval: on_demand
     role: context
-    sha256: 4f1e512f442ff8f48ef0d48ddfb20bedc2c37fe16829e048a8d63a9687c3b4da
+    sha256: a787ee75fb74a7505e1f81d53481d69467459a2ef9773c5be97a31a4c4581dfa
     tags:
     - general
   RUNBOOK.md:
     retrieval: on_demand
     role: context
-    sha256: 76539dea1d0bef16b541d0088548d0db4dd7f312dfd8d32f14bba37a4afc838b
+    sha256: 1be9cb2a634ac7dac76152cd42c622fca05e2f444dd693d276d8300c73be50bd
     tags:
     - general
   SECURITY.md:
     retrieval: on_demand
     role: context
-    sha256: c5d8e5da546863dca837044493f1d27aec8e60408ea1a7aaba07f373d3995f2f
+    sha256: ad56e9bc37d0b74edacb7c88013bd98fb1ca5ec899c3635ee7004d8ea8c0eed1
     tags:
     - general
   VALIDATION.md:
     retrieval: on_demand
     role: context
-    sha256: 0983d19edb977469398fa0d15bb9c5cb7bb63fe1e37769fe6542bc7436f89de9
+    sha256: 088ff56a24c077e968fd739e8fb3cacf643c8c450b927c5a3c4c9f54d4784a1b
     tags:
     - general
   assets/.l9/playbooks/vendor-onboarding/golden_tests/edge_cases.jsonl:
@@ -135,7 +152,7 @@ files:
   assets/CODEOWNERS:
     retrieval: on_demand
     role: context
-    sha256: 9f29cef213263d5623715d7f48a6934a8d57d4cb58630f544c5911b878e49bf2
+    sha256: 7f5b0cb3ea273435b1a4668842e225d83886726fcb184334d4207bd29673a33e
     tags:
     - general
   assets/COMMIT_MESSAGE.txt:
@@ -147,7 +164,7 @@ files:
   assets/Makefile:
     retrieval: on_demand
     role: context
-    sha256: 630dbca8f36b787f85e44c655e35a4036002016d15951e7ae889c2e7c40fe510
+    sha256: 7326ffc2e1af1451cfe195a0104b8f3c03e62df807f1f8277279f39cf86a0ab0
     tags:
     - general
   assets/evals/datasets/aci_tool_design_kernel.v1-basic.yaml:
@@ -297,19 +314,19 @@ files:
   assets/evals/promptfooconfig.yaml:
     retrieval: on_demand
     role: context
-    sha256: b214b6e7169a4b769111c8668990ac1a74d2c3374a58eec843906dde22bd42c9
+    sha256: a6f129a77be4b61fea36955c67ca1eca41c9ea6ec2fd6a46cfd45061f1419fe5
     tags:
     - general
   assets/evals/promptfooconfig__source_2fc57668.yaml:
     retrieval: on_demand
     role: context
-    sha256: 5c1ad47df1c611ec3dcbc9f63e3ce159d2a3e63fe9a3c1ca81b79b8f2569abd7
+    sha256: de26b45e29f8af74e960d747929114fcdf012a9f5bdd3b7771205e66e54e1433
     tags:
     - general
   config/INDEX.yaml:
     retrieval: on_demand
     role: context
-    sha256: 58e245609178854f991c2001d343fe9024ea420379f7854bea7f13b73d1747ea
+    sha256: 6f959e1d8d49e477eaae24a445f93b5d6673b3b6ab626b1be0321158ec1c53f1
     tags:
     - general
   config/MANIFEST.json:
@@ -321,79 +338,79 @@ files:
   config/aci_tool_design_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 75e0c52cdd823cc0d81c97d334780237aa6e75b1e5ca59fafdbb4e807aaedcbe
+    sha256: 30fa62307528481e11f7f322d44928791b6d80db2860ee6c88a7f06eb8288189
     tags:
     - kernels
   config/agent_observability_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 886a3aa12df1492212aaac24132a7431b83aef032de8287b37b7e78590dff4fb
+    sha256: 721903273cf11f5432915a308a525c77aaa33e79b45c5748353c432ca94c1ab5
     tags:
     - kernels
   config/agent_review_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 55c3ffc40da8efbe3624a8003a7de8469609498fab243173bbcc95d37f1be088
+    sha256: cb3e3af5ad86bec68063ff8e829d2408a1498c657e51fcb874375f0fc586382a
     tags:
     - kernels
   config/canonical-execution-profile.schema.yaml:
     retrieval: on_demand
     role: context
-    sha256: 671f8ba37f21f5267bcdde11be9a6c8b695c6683155f818146e68cda0021283f
+    sha256: eed3de15fda80ca7dc5de7ae1d1376bb30ff69d19d8bf65d9d534009be94ca81
     tags:
     - general
   config/context_budget_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 29fc78750d461b64d8acef7c55f041c589f524c54a32cb09f396ed616ffcf943
+    sha256: de3c9f1e9d071cb7f0f9943bf3da46a05a516bb5a6ce8470aab884758675c9a3
     tags:
     - kernels
   config/convergence_plan.yaml:
     retrieval: on_demand
     role: context
-    sha256: 48da09f9d74539dd7327468205d7964fb21d6fbaddd84d33c9b88b609872756d
+    sha256: 2c704a142a47ac0e5c44637f14df82b226cc61267770b308970869f35dc4d7a3
     tags:
     - general
   config/doc_gardener_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: fe8d143412dbdda74aaa262baea2eaf46a66d444f5c7f1a4320d36695d17aced
+    sha256: 5860cdcc6e8fda32427e46a0ba80a131e478bd6a575405dcb067fc329fae2b41
     tags:
     - kernels
   config/escalation_queue.yaml:
     retrieval: on_demand
     role: context
-    sha256: 2496578924bb7f8218a2b9aedab84773830e585c0ac324da969c6bec55e07b55
+    sha256: ed70e163d5e6cd578b4412581775d1576da1869782f100afb7a03737e0e96da1
     tags:
     - general
   config/eval_harness_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 215c06d141e5c9d10624dc86b54405d770778b90600004aa90199ac9aac31066
+    sha256: cdabe27ae11b3b5ffacb4a87ed94289c691256983696da792022d2e28bf6c077
     tags:
     - kernels
   config/execution_plan_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 17f97c5b002855e239baaf4f6b77a0440914d7f98bdb61a436502e56e3300d78
+    sha256: 15a6313cb0b812eda5fb4c86c4fd80c899190f53a4fe1a35d5882391ee79ffd0
     tags:
     - kernels
   config/execution_queue.yaml:
     retrieval: on_demand
     role: context
-    sha256: d0d947575bef8dea0bd95f21921319b97c1b2c5d88a88d0ed3845bd0a93f42c0
+    sha256: 02224df1a0739afafb04a4f34feed39f8d5f97d889b6d3ac0dd3f3ed47ac30b2
     tags:
     - general
   config/github-workflow-notes/01-L11-PIPELINE-CONFIG.yaml:
     retrieval: on_demand
     role: context
-    sha256: 022fbc366e20339998f5c1c06659d6bbe89e52da16af201d9f5bbf7ffa9d8dc8
+    sha256: 239e8ba99e39949d87a91b68d4d1baeaf2a9a43b3272ce567edbbc04c9273689
     tags:
     - general
   config/github-workflow-notes/NEW_WORKFLOW_JOBS.yaml:
     retrieval: on_demand
     role: context
-    sha256: 8d19ceb66d0b6544ff0e9a5f4231b5589dcf13f6df51d549a3c4b38ef8f761b1
+    sha256: 64b70035fe6a4d36e3c36791d4824c161b18efc3053cacca18051aa2648b11fc
     tags:
     - general
   config/governance_graph_ir.json:
@@ -405,271 +422,271 @@ files:
   config/industrial-recycling-v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 01f1866ca4a0efb9cae955f1c0f16315c6faed65100db4b4d3dfbb46d025eb53
+    sha256: 61c5b517efee92e5feffeca9acba5b21421225ab4ea357b93f84aa19f00165fc
     tags:
     - general
   config/l9_agents.yaml:
     retrieval: on_demand
     role: context
-    sha256: c149cc82e540b3730aace27cf5b0f1df0db45cf4e7c6074312ffdad23c191d52
+    sha256: 784f6fb180eb3ac7855eba0cadcd2f919f00cdf973ca42b49be6da4d986a9193
     tags:
     - general
   config/llc_1a_ty2025_profile.yaml:
     retrieval: on_demand
     role: context
-    sha256: bf28299edb525d04788926badfd658d0774196cc5051abc3824311f21cda2724
+    sha256: 932a620348dfdaa95ad8195b8634cb07246dbfd0d5e37dc7600c7323f5aae8a6
     tags:
     - general
   config/node-spec.schema.yaml:
     retrieval: on_demand
     role: context
-    sha256: 78e56784c0ec3bf0b1667cf475644c579309d1cd40ff779d9db92449b43170e3
+    sha256: 9418256ceb8c6da426fb78b8c1843c62a164bc1e1a7c2728d58ea028e7b80a2f
     tags:
     - general
   config/nonprofit_launch_profile.yaml:
     retrieval: on_demand
     role: context
-    sha256: dcd1ec7fdf0c8c6702028266519e2f8e706a05fefd87d4f1acba33acaefa444c
+    sha256: 9e8d0cd252a06bd13a8e0a5f6d9801b33dc45a3d4d0fdae5333a23850f419142
     tags:
     - general
   config/openai.yaml:
     retrieval: on_demand
     role: context
-    sha256: b8c128e08751d459bd045c7004c5d25ec8ce2c22ff17ff55548c26b6aa725e80
+    sha256: 09e89a618c34b25bf3be6c86d23ec007da9a1e8f3d71672bb9fdd34fc8574b53
     tags:
     - general
   config/optimize-kernel-fixture.yaml:
     retrieval: on_demand
     role: context
-    sha256: 8aab5876f72ed608ed3cd549a9db37e89768d3637f8d2684e40054e7f6cd8697
+    sha256: f700acfd5bd7d8239027437026a395da3f115e7cdeace4d27f157ef90ca4976b
     tags:
     - kernels
   config/playbook.yaml:
     retrieval: on_demand
     role: context
-    sha256: f77ee8cc424eed1020139745f9c5fa289f091e7e16c369d4397e5413d4a4539d
+    sha256: f75728579abfd093fb6c083ba87b1c9f39c3e0b87be0be299c16efbd998e2ea5
     tags:
     - general
   config/promptfooconfig.yaml:
     retrieval: on_demand
     role: context
-    sha256: 05a186175fb9fbea00f29ab7c35054ff1239f6345b1669c46c4f443dad3e1788
+    sha256: 44a75e0b63397ce567f595dde05455d1b02453a11d69f950f5aff8ec00228de4
     tags:
     - general
   config/ranked_decisions.yaml:
     retrieval: on_demand
     role: context
-    sha256: 364b51b383cde049aadddb2e3412dd5a34ff378d960563a3f53030493d87cf14
+    sha256: 56a8cf4760fc8c2b1ee9fb1f30f2943fcfcb8dd72689b90c9d333a1c45f450ae
     tags:
     - general
   config/registration-result.schema.yaml:
     retrieval: on_demand
     role: context
-    sha256: 7c3b68bdddf61037bb9c39b624b12d29496a5100021d5c4720bfa2cb2486c2d0
+    sha256: 196f8f76ae0bc774936d4f7dc9b9b38e4974c8b7a6206526e02394d2a24302cd
     tags:
     - general
   config/remediation_queue.yaml:
     retrieval: on_demand
     role: context
-    sha256: 15f043819bae35c8a66e5c16b4ac6055659573256380d51ae64cdbdbc622e308
+    sha256: 3990a0b993a966075d4b50f923a77beb8a551d68a021f938f2d7e197b950c524
     tags:
     - general
   config/rename_plan.yaml:
     retrieval: on_demand
     role: context
-    sha256: 4628c8f24134ba624803e7ade6a4d6529e2e5db3c779cad07177366dbc6b034c
+    sha256: 6503032265f302ce8c7d10d822e97c33aa7d4aef8bfdc88e040945c46826ef86
     tags:
     - general
   config/reorg_plan.yaml:
     retrieval: on_demand
     role: context
-    sha256: 8353eb5387dd8ee820d7628013df99ce959feba4bfe013937d9f3c2121c99906
+    sha256: 510503cd6e9479036a684aff19e670cb4b82b316678bf7912221cf12b78aa7ac
     tags:
     - general
   config/runtime_findings.yaml:
     retrieval: on_demand
     role: context
-    sha256: 93a90686b1502f6587591dbdaa8227cbe5f2b54f08cd882da69802d925c2cb2a
+    sha256: 8c13d745d312797112888414caeb83d18fd554d18cefce774bbefb1bc75e0618
     tags:
     - general
   config/sandbox_isolation_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: c1f67ac09c4b7847dd7eea330a04724d99f6f452554aa3ca29899e97de8ee07f
+    sha256: edc5628564a51ab7a6fbb82d2109ac6e4a47ca271e4a4d8311fa241e91740b85
     tags:
     - kernels
   contracts/TRANSPORT_PACKET.md:
     retrieval: on_demand
     role: contract
-    sha256: 852b10c4e388167edd6ca2157df692fdaeaa52039b197d121d1823d98c42dcb4
+    sha256: bcbc947dc0f5e0218e9e5f82dc8d3aa71accfe68f55117858d3044d6272ab8e5
     tags:
     - transportpacket
   docs/00-L11-MASTER-README.md:
     retrieval: on_demand
     role: context
-    sha256: 5d6d40ca78783cd35c12de6a3d3636ef2539cb0e7fbd79064193fc150cfac902
+    sha256: 127ec17497001d0643b2904fa932a0bb4b7da2745d5fd160b77753e043324951
     tags:
     - general
   docs/01-capture-spec.md:
     retrieval: on_demand
     role: context
-    sha256: 321d954fb3ab0b9dec2a0dcf250335a0e95219001a4776bbb42b33cd1d3e8401
+    sha256: 0b35f3760713bf6f01177af8269a1006fffb88609dc4d3c384312633229788ce
     tags:
     - general
   docs/02-validate-spec.md:
     retrieval: on_demand
     role: context
-    sha256: 35ef05b225e5d342fbc8b2ecf5f2666758d0702bde88cc4ab7132b7e1b3207ee
+    sha256: b6e97b1558c6042c16d7199f0c1ddbc96e2b3da6ffb8295424dd1821ba915d42
     tags:
     - general
   docs/03-scaffold-node.md:
     retrieval: on_demand
     role: context
-    sha256: 4249c88ede7fdec94606cdf43bd73177fe700c9e7f21b4343d2d3c19d29653d1
+    sha256: 304faecf7d180e703c23d8d2653bada69c267bc11e04a8d3108ab9a20848cbeb
     tags:
     - general
   docs/04-write-domain-logic.md:
     retrieval: on_demand
     role: context
-    sha256: 6b33b2845f60bec0b8623505f800aebf220d3e1d15aa08974f113ae570086553
+    sha256: b74db4f3161ae6ceaa6be448dda796f7183649af5b71ddd8801686aa166a920e
     tags:
     - general
   docs/05-run-ci.md:
     retrieval: on_demand
     role: context
-    sha256: 3efb9c7fcec3bed530ca0e3b70f3f1547b4b4fa9b7c35520f10dff37cd721151
+    sha256: d9c0bafe2867f576ba5cd8f65c8eab4bc24db8a539a1b8e394d560792f0840bf
     tags:
     - general
   docs/06-register-gate.md:
     retrieval: on_demand
     role: context
-    sha256: bfd35ff70ac562bd023aab0854b81a5a277827288d27c27deb4186289877b94b
+    sha256: d7d5e2d0063ad65935ffd8a115236a7a9714eaca9fa8cb02e87f64b69f9bd2eb
     tags:
     - general
   docs/07-verify-health.md:
     retrieval: on_demand
     role: context
-    sha256: 6582b0f86f5ba2446907b9870cf5a620497f53a6106315550a415f265f632dcf
+    sha256: 1607b93ec07718f6316c1e1e6f4b0c5da989bce31e0240eda7fbbc755443097f
     tags:
     - general
   docs/09-L11-RUNBOOK.md:
     retrieval: on_demand
     role: context
-    sha256: cc1099e79df5fddf2bf05e34f8527a084978d06900d5eea5d4809da2d530a721
+    sha256: 2ff153715afcfe2d63a5469e38725c2ddb6a02ba92050caba88d9a15376c0b3e
     tags:
     - general
   docs/10-L11-METRICS-DASHBOARD.md:
     retrieval: on_demand
     role: context
-    sha256: c9f6f0a62b7738bdc28dbde7ce498e97ce7f22213007ce631d3712495bb4bd3a
+    sha256: 38e6a2a989c9f9764dfdd2dbb524bdc102d91568bedfcdea78605a8b2fd9f484
     tags:
     - general
   docs/AI_Model_Drift_Monitoring_Policy_v6.0.md:
     retrieval: on_demand
     role: context
-    sha256: e430a2b8d1097ead9ee7ad38a672a7ed650e2534e69934fa6d2f897061c4e105
+    sha256: e22ff06bb20913381d0733b08c53fd1060ffdd16172eb6d949aa8d583b52f2be
     tags:
     - general
   docs/BRANCH-PROTECTION-SETTINGS.md:
     retrieval: on_demand
     role: context
-    sha256: 59fa540fc56e80ce602272bf13fac3b25d5aae1e5f22e166778c157f97c2c3db
+    sha256: b1e1a6567e447bc22685cdc408e72647cf6f0e63abdafd4d483d2ce39e1ff6d0
     tags:
     - general
   docs/COMPLETION_STATUS.md:
     retrieval: on_demand
     role: context
-    sha256: 837bea25b96d5ae25ce7c504faf240ccef9bfccb1307c0c1965b1f30e6e997c8
+    sha256: 822e6f670b073a75901b35ee5cc2620171e64c228c43d63bddc7b3e559a71c49
     tags:
     - general
   docs/Decision_Ledger_v6.0.md:
     retrieval: on_demand
     role: context
-    sha256: 581052a1ac412aa91cc16afc1804030e01f63cb6d2a714a97ee9ff1bdd6a4ce2
+    sha256: ecd78792a755340720a2781612a8b23875338b76d4fc03a6dce9e43da2e5ce91
     tags:
     - general
   docs/FILETREE.md:
     retrieval: on_demand
     role: context
-    sha256: f8af41feb99531582442325767aa75253dc0e0fac6081768391a4e004f6f6560
+    sha256: e5b7dc91983eaa3557d7f2c485ba88719311804e655e0d69f8c554e914894cb7
     tags:
     - general
   docs/Governance_Engine_v6.0.md:
     retrieval: on_demand
     role: context
-    sha256: 15bf0ad0c9cca824e30eb3a1c8c3afdfc06ca5b59e08617083794ac35e9ce043
+    sha256: 813a30addfa1c455d56e704bd827c462395f3310ced1e36d16452aad8db58dd2
     tags:
     - general
   docs/HARNESS_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: 4a6dc6a4a4064d4e94a0b919b3b942fddc189048df26d245e573361392a27de0
+    sha256: 6cb7e656271e2a61cd0be9f80b7b4badd1a73d12ba02e71d4beb425440ae0a26
     tags:
     - general
   docs/INTEGRATION_GUIDE.md:
     retrieval: on_demand
     role: context
-    sha256: 2847df9922e03b8e4a3c1dd286e50fda4ceda2fb62b60e97b9243e6c4f3b64f7
+    sha256: 15f1985ec824240492670fc408fe123a46990020393be075aa55a98bbfd0be9a
     tags:
     - general
   docs/KERNEL_AUTHORITY.md:
     retrieval: on_demand
     role: context
-    sha256: 633b3b4e7c388d4a37eed837a12d3e2e88c5be14fc58f5fdd6667f35b4cd8939
+    sha256: e9e9edc35964733acde60c4b2babf80a7855d62401a5a6b059f4f6b84fd1b870
     tags:
     - general
   docs/KERNEL_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: fcbbc528c9a69058566c0e75b595b1822bcd5c4d651b46eda834a381d9ef1e01
+    sha256: 2bea9fb6ec421fe7c02fd5d597c14f0f20e67428d0344dcb3985b8964a78aaa2
     tags:
     - kernels
   docs/L9-Microservice-Build-Pipeline.md:
     retrieval: on_demand
     role: context
-    sha256: d45b9eca6c820e9a0b00087f0dd96fb2f55ac8a6cf62c9667092b03bf132338a
+    sha256: cecb2cb028e4c92d1fec76f3c7a2690f6f64c289f46d2bf2fd9a7772b856e98a
     tags:
     - general
   docs/L9_GOVERNANCE.md:
     retrieval: on_demand
     role: context
-    sha256: 2c09c7fa35640ebce4be7fd1e6fbbad7f29f693ee4e272fb1afc1fec5d237f73
+    sha256: 04f5e7ea99877e7cafbbb78a640ffe6de39a3e2d6155b631af0193545b836263
     tags:
     - general
   docs/MASTER_LOAD_INSTRUCTIONS.md:
     retrieval: on_demand
     role: context
-    sha256: ee3b6f350a5be79f352019addf27ef16eb664f6761368eefa2ca57d1740587c1
+    sha256: 6cb1420c07c0086f53619e365e01593aeff54a291312b1a2f13bd62cf1086234
     tags:
     - general
   docs/PLAYBOOK.md:
     retrieval: on_demand
     role: context
-    sha256: 709972c163e9d6b7abf86f9bee1205bcb3c06320ee32831e24f8bbf7d071878c
+    sha256: 30bfa243c612bb94540013f72e904c1373678b2c81e66d8c4746e5c803fc44f9
     tags:
     - general
   docs/PLAYBOOKS_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: 2396b3dbdcadc45aaa80f2da9fa6b91fb14760df9e0e5fc93ade6c9d3a20f764
+    sha256: 85eb539d9694ba2c21ca61de623dffc77468841ef56afdc5ed1737567725841d
     tags:
     - general
   docs/PostToolUse.md:
     retrieval: on_demand
     role: context
-    sha256: 63b338d6331187744e4f49a3e902420e58a845f84f6a93b73196d7c5cc3296f1
+    sha256: a1fd6804acf70ea7f5c30466860bfbbdf96d557cdc3ae6b3a94821445f22c84b
     tags:
     - general
   docs/PreToolUse.md:
     retrieval: on_demand
     role: context
-    sha256: 812966691095e73fda031cc0557747283d90b6abd1074b6f9c1ebaf038d6d661
+    sha256: 968b1d16b497e31c281d7b95549739a85c4830bdeee1054f3b65fc34a475f9ac
     tags:
     - general
   docs/Relational_Trust_Model_v6.0.md:
     retrieval: on_demand
     role: context
-    sha256: 23d1967c2eb4fee910851d2a45de3ecdb28f4ce163de288df4ac3fbee9a3348e
+    sha256: 137aef25101204f68b0ef882fda2bc33790e177894b8d554dbd9be96007eed64
     tags:
     - general
   docs/SKILL.md:
@@ -681,175 +698,175 @@ files:
   docs/SKILLS_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: 4fe4c19ece149dc32605209e4d491d1b36cd3887bd341e16ac94ec1ebc025c6e
+    sha256: 03b3785dac6b3c02d5f3bc5009796824b99f132ff2644599106e6031e3022c3a
     tags:
     - skills
   docs/Stop.md:
     retrieval: on_demand
     role: context
-    sha256: 475b3f9ad827cbf6f29f7dd731dacdb5f69f02696400fe522a7d8e43dc5d89c1
+    sha256: 6e89fb622c6fd55cc8642cc58c5120a40112d0038ec71c555b78dea79bb302a0
     tags:
     - general
   docs/WIRING.md:
     retrieval: on_demand
     role: context
-    sha256: 5a3ea4d0121e6dca4a14391108ed2afcd3da454838978fd2a8c4d132b58942c2
+    sha256: 3d566eba2a4bdf0371ec5914724f694c839c9c2b0c28ae3eadd34ca2d456821f
     tags:
     - general
   docs/action_governor_spec.md:
     retrieval: on_demand
     role: context
-    sha256: a673a729ce0d394f1bddee06233b2a35505567370bb97708b2472fa9a9290777
+    sha256: ddea89acb3fc762e2b40b1ff22a230371ab1c0512788ad930622c5222d8f2999
     tags:
     - general
   docs/advisor-guide-parser.md:
     retrieval: on_demand
     role: context
-    sha256: 37a3591bfea8a75a3e61cc82c1fd86fc82d99d31ee9a598213683efee84c1202
+    sha256: 5fcf43a3bc82057793cb76cba5f32703eff5b5fde1d9cbfa8ae8b55400e8ba4c
     tags:
     - general
   docs/approval-policy.md:
     retrieval: on_demand
     role: context
-    sha256: 88e574d0a8bd76880d8d762531e8a2422449d197bd83194260d5f82cd82e93da
+    sha256: e2c3d1fb02d533f25133f2fbe88ee6432ac7b4e2b45111409c00a1f52f254b5f
     tags:
     - general
   docs/architecture.md:
     retrieval: on_demand
     role: context
-    sha256: d9ddf5d5d5b6ac70729db55e26a2d1d466d61adbeb5b6786eb802745210b6980
+    sha256: 18acab261011b06727a1b6bf1a46adf218d7b377dd5e9d532ce9c2d0ef62e69f
     tags:
     - general
   docs/architecture/identityos_adr_index.md:
     retrieval: on_demand
     role: context
-    sha256: ceb686201704fbb48b37d74a8b68b57d7117fd41d589752b4d67d9b07935e328
+    sha256: 5cd5e41c9a5422ab7509258eccd3657a3effd678a8463159ecc612185572808b
     tags:
     - general
   docs/canonical_epistemic_reality_validation_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 596433766ef0572d669f43a3a58be75b5704fcc5da44673d2385c90fd0a153f8
+    sha256: 7e4218344b1a92d677abe17e07153f0dfa6a92b4df3ea1568143315c348585b3
     tags:
     - general
   docs/canonical_evaluation_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: f291c5195fb290dd9d2f7cbfc4a016335f8311cc66bd10dd04be8c1311d755fe
+    sha256: de84a86634b9fb593bd7170becabb971bd8b920003aa70eea20edb58a4a0c214
     tags:
     - general
   docs/canonical_identity_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 5d658d27d0acaaa31d780ede1cf9f38db82e2d1276b728eb70f4faaf5b01cb7a
+    sha256: a353042a0899434ceef99fe6dc7985798de9378d270855c1e76f9cfc6d7c2b6c
     tags:
     - general
   docs/canonical_operational_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 204870693956ee21744902b02bd1efcd6c8b74191b91c3ad2fbc4b97bb7bb210
+    sha256: f79f59d407ef569da2169ad81e5be9f1ae2f0fbed59171fd0575712df3dfc1f3
     tags:
     - general
   docs/canonical_psyche_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 87ba6505745a3247f868ad2c49d6f0c24308e5941dcaa09a80984a41b86fba02
+    sha256: aba1a90968d6c78f0109e2baf16849fcf31443552eb1217c76b06c6967ffc36b
     tags:
     - general
   docs/canonical_relationship_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 50412a2f9692f87b3e489ae82814693ee0dd64f8d564ca6e5bb4c29bfca74b59
+    sha256: df997e4e168969c140540fd60471714092f767e3d9e68524a64a8e02a3e2c183
     tags:
     - general
   docs/canonical_semantic_language_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: fc7bef21a1b7d67531b27f04e3b28001768891dfa30396e95762a264652d3016
+    sha256: 24d2da9c56bdaad784fa8a34d8de9905d915aaf393ffc2b34c65b339ee2c7f9c
     tags:
     - general
   docs/canonical_state_routing_layer_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 3c32c789eace8f50c4bb7f7e3e01e3758d91f6769accc46cbd90997fefb9ad2d
+    sha256: ab02e346dee63afbf6ff567035b2a5f021062b7ebb1b867ed31192f7e9663e22
     tags:
     - general
   docs/continuity_handoff_packet_v1.md:
     retrieval: on_demand
     role: context
-    sha256: ebec027ad94a3ffa00c50ed0fec9d0d5df5c121296c40bdc577c4b10d7657573
+    sha256: 26e98e8a8c3e5577aad77841209df5923a1166c8cb8497dbc293f3cb805b0161
     tags:
     - general
   docs/contracts/L9_CONTRACT_SPECIFICATIONS.md:
     retrieval: on_demand
     role: context
-    sha256: 441c1eb8344260254c5f993a951e3be5cdc6027f43e8563bbace6a55a18f36f7
+    sha256: c4d510d3a6a40a8a95a0b4dc3663e54137f9b4cf4aabf1c462136bcc0458d0d2
     tags:
     - general
   docs/conventions.md:
     retrieval: on_demand
     role: context
-    sha256: fa2b23e25e23c63f6b2854806951633d1fc07b82444891776bf523ca4ceb4ccc
+    sha256: c958af80197496f032c9ddd9e451433dc27a68bda68cc46a7677a83794138212
     tags:
     - general
   docs/credential-requirements-contract.md:
     retrieval: on_demand
     role: context
-    sha256: 88c8e3737cec755132c5b692b37fb3d94794345df8eb81bed0d0e30691879fee
+    sha256: c01a8342a1ebd19cdd152a16d79f4c19c5aa3299e32b247df34fe9e5a3b22291
     tags:
     - general
   docs/decision_model.md:
     retrieval: on_demand
     role: context
-    sha256: a43f8f3b9de85844aa5fe2d5bad7bb058ba8c7a6b121e09bfe32e2a7937f6e37
+    sha256: 6f3d638ad4d79b4edfdda9e9f31c47ab4411fa84ea15243229f56e01214b5f23
     tags:
     - general
   docs/decision_report.md:
     retrieval: on_demand
     role: context
-    sha256: 8ec4c710fb8481481bbbbe3d765dec5b43853d52b52e6710261e98b423a47c74
+    sha256: ebd2b591a434e947f4656dda3ba4af9d7f3808d63525edb93b18e516ba14b8c1
     tags:
     - general
   docs/domain-specs/industrial-recycling-v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: a85119048ef716b68454b96808f27d4f3a45a8cfaa10dfa721250143a2ab70fc
+    sha256: dd038e73ad9f0a1576a087b6738de13562f8fc123ebaa4f626b1c1315e8f3360
     tags:
     - general
   docs/embodiment_context_schema_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 273843163a05225c64287e7921929ff0f1a4fde4856603773cdaf2c2b0a68afb
+    sha256: 33eb01c89cdfa58c0873b084da6777d5cb1dc41e2f907e108e6436ad103dc8e7
     tags:
     - general
   docs/evidence-log-contract.md:
     retrieval: on_demand
     role: context
-    sha256: 351b194ab6ec8819ba72ece72e9c30aa6d9ac1566b1586e51d39a4b5e36be20a
+    sha256: 3d48622c30fa3780b7b449ec5ca9e120956b63c47a802eec5082ca10a2f27fe7
     tags:
     - general
   docs/follow-up-engine.md:
     retrieval: on_demand
     role: context
-    sha256: 58f044a733e2a58d44d857134429880b82ffabd247c9871a17a97e441e4b431d
+    sha256: face54cd66046c8601b5735bdadcf5b8aeca0249867980d0fb9fcfe0dfad8ad8
     tags:
     - general
   docs/governance/L9_GOVERNANCE_STACK.md:
     retrieval: on_demand
     role: context
-    sha256: 2ecb5e08d5ae72a3e21a9abb00e42a4c1c37719fb13b00d06a2f50c8a1297864
+    sha256: 79db351f9c75310a6ee0b5f05f0bbe013876965a1129fca374d160e99e73407e
     tags:
     - general
   docs/handoff-packet-contract.md:
     retrieval: on_demand
     role: context
-    sha256: d2dede95cb70e01238f129d1329f1f7b8b4036e02d93eb2f4d500ad1620ce312
+    sha256: 83315a8a2e93e8f85548d91ba02667e088630f2b79e62dc6fb5546e14eb750a6
     tags:
     - general
   docs/jurisdiction-court-contract.md:
     retrieval: on_demand
     role: context
-    sha256: c717c8c7ed405cc86f4b799993afee84bfd444c2af820e3725fd371656a75af7
+    sha256: 947801c2d6e25028976dec5d1bf98150e0cb4df562d9f303484e09d4d10ab648
     tags:
     - general
   docs/kernels/R0/soul_kernel.v1.yaml:
@@ -861,31 +878,31 @@ files:
   docs/kernels/R5/context_budget_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 724551b43d6fc85a8c935e9a6f9a6c93edbe549fa969177c769d7b6724401fb4
+    sha256: 390ec8ec990bf81e2e7a799cc539ff5cf9da5b10b955ea08cc8629bebde17526
     tags:
     - kernels
   docs/kernels/R5/l9_build_kernel.v1.md:
     retrieval: on_demand
     role: context
-    sha256: bc7780e58a2733630ab0aba1c8dd79ca5b91a7ab8a87f118c3fcedec0d83d89c
+    sha256: 512242336662e58b264ae64485581110bf378cf2bdce1741a77d5014850a65f1
     tags:
     - kernels
   docs/kernels/R5/l9_coding_kernel.v1.md:
     retrieval: on_demand
     role: context
-    sha256: bed820ecd0b1216cb70fafe67212c9f38109a25bf5979ed16853130177226f8c
+    sha256: 18887140bf06240a89f717f72a82e812770731dc2da309512e5e801d5acc8929
     tags:
     - kernels
   docs/kernels/R5/memory_admission_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 2c6a56494c7e9799badee30a7e6d5f2b5525e0e928a847ec741f02ff92957418
+    sha256: 87e4ab3464b4895f157d421f0e76d49dabb4ea176b5956f41456520b6fa6b49a
     tags:
     - kernels
   docs/kernels/R5/model_governance_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 795323838e3d3543edd0f9e45a4a2422ef750bdea831a2cabe4a48d10ace6d8e
+    sha256: 942d082cb49a57fb30287be7e6bcf05b0108d98aaf884f28e7603a6ac836a9be
     tags:
     - kernels
   docs/kernels/R5/preferences_kernel.v1.yaml:
@@ -897,115 +914,115 @@ files:
   docs/kernels/R5/trust_ladder_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 30a257586cfdb7f05df5649266809e32998de50e8a63e4d867db2338ef4b5da7
+    sha256: c65e9d38606d63cff2c1f4de62efb7937af540381989c0b8c7e28e9320c0260c
     tags:
     - kernels
   docs/l9-operating-contract.md:
     retrieval: on_demand
     role: context
-    sha256: 2c3383a108bc4d6c141fab521438479396138d36a0d8fcd3c3f13ac4feaff945
+    sha256: 08c224664a36f13531c6846dc68aaca19499a39a34e410e242b979a329b31b43
     tags:
     - general
   docs/portable_identity_contract_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 0a20c086dc71203c6c41e738acc2da1ab14926773933ec404b4203b30aa5dd16
+    sha256: 8c6c5bf2e5078f0489887d56ee05297e81a22c3bdbe6627c68d5b9e4d8347b10
     tags:
     - general
   docs/profiles/USER.md:
     retrieval: on_demand
     role: context
-    sha256: 1c1ce7c1347106db246befc00a41f920837067815ff9865720e6e49f5bb36a75
+    sha256: f9df0fcfe19e6bf95ff3583af1f1253f874259cf3cdce8a99f22b4c214182377
     tags:
     - general
   docs/prompts/competitor-teardown-v1.md:
     retrieval: on_demand
     role: context
-    sha256: d0a5551b2ae293e7929a402b6abbf5926af37084aacac4eb91d35a88cffd9023
+    sha256: 1c1590eb8d644a5a3f9a3f428bf6584691f5e899e1ece992c8301e173e91613a
     tags:
     - general
   docs/prompts/improvement-pass-v1.md:
     retrieval: on_demand
     role: context
-    sha256: 967b95b36b0df33011052130a4189747f9da83d89e3130d971f63e30e2f1e3f3
+    sha256: 0375999c47cbe6f521f37aef0c41ea145107c6e334146e2f7851f9e44c2eb465
     tags:
     - general
   docs/source_doctrine/l9-pack-v3.4.1(3)__KERNEL_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: efc4db65bd11f0651d9e10829d9b4c95634f3a325c2295a82e004b2bbc2f9342
+    sha256: d425ecb1d81c31e1d0293d84f090e33ac43d6dc800ce6bfb5c2dcffde2ef4ad4
     tags:
     - kernels
   docs/source_doctrine/l9-pack-v3.4.1(3)__PLAYBOOKS_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: 2b84cd2c1eb54c91dabd458b2fe4b4d99af20f1d87c97913066a608c3ac12384
+    sha256: ad2d5bbc77a1da52cbf08e89034fc3c72fdd4b87b790b7f3186786634fcc4797
     tags:
     - general
   docs/source_doctrine/l9-pack-v3.4.1(3)__SKILLS_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: 009e2c88a6204d0cac014d15155f1f82f2d38c3814ac8a28e5afe58101f05166
+    sha256: 12c9c0bab309e442264ce074244176e4cacfb99a0193dce44e01e82236abf37c
     tags:
     - skills
   docs/source_doctrine/l9_final_pack__KERNEL_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: da53d73cc3a253b90e68ed5b78c251027c16e4228b049681e54c90929478b393
+    sha256: ffa6ce152d070aa1eac3e17b2cb9c14e776ed4547288cae63dbe08f2d8811941
     tags:
     - kernels
   docs/source_doctrine/l9_final_pack__PLAYBOOKS_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: 13a6fb5b6db3c37c5a0f1f44c5e1c591a2c4859bc5baba1181d0c79e30eba336
+    sha256: d8249f368a8c61c91f3af7f3055967b7d1133b11b35b25f1f8f6a71ee1b7ff1f
     tags:
     - general
   docs/source_doctrine/l9_final_pack__SKILLS_DOCTRINE.md:
     retrieval: on_demand
     role: context
-    sha256: a2da2d275caef8958f4fe44340b60ad62c701dccc1b294106ecea9a23b69d2c9
+    sha256: 8aafb81513dec73df2fa41f6600b2c292bfd102d4ec862eb8f2736397e2465db
     tags:
     - skills
   docs/substrate_adapter_schema_v1.md:
     retrieval: on_demand
     role: context
-    sha256: dbe885a32a2844541ed7116634016304c9ce31b065c4d8e552476a6057b0d45c
+    sha256: c939eecb468f16113bf808e1358f0ad742e3bcf87ae7b51b752866799e4d0a67
     tags:
     - general
   docs/task-graph-contract.md:
     retrieval: on_demand
     role: context
-    sha256: 01129e2813e4918085eafbaec9121a4b16865968c41eef2ecc919dd877300f1f
+    sha256: 0a8a0e1c03933597b26e95a68c859d6a583f6f93396f9ddfa4a6edf985939816
     tags:
     - general
   docs/topology_merge_rationale.md:
     retrieval: on_demand
     role: context
-    sha256: c630513471a33fe8186be99d524f546c630d24f93f6bfdc3d1eb50a5460a4cf5
+    sha256: f1448dcf5c09293cfc4435d6477e892643113a682313677028216f0d06f15d04
     tags:
     - general
   docs/trust_permission_ladder_v1.md:
     retrieval: on_demand
     role: context
-    sha256: 02fe9a2a05178ff9150f8bd84ddd0861a2222174882446b23635d346d6bf432f
+    sha256: 7c4a5fe5c8fc8744bf4e3a0dca856e37b560d611f9fe285ffaf03e955b51b3cb
     tags:
     - general
   docs/universal_hardbans.md:
     retrieval: on_demand
     role: context
-    sha256: 0f7a552076afaa499ab9e35f7cfe1e71a50617d1d8a16b0eda864e593cfeaf93
+    sha256: 5ea7b8033cb4d5975eb5aa3091946271f3b1d4bb7f969d8614dfd499d1bd9cb4
     tags:
     - general
   docs/validation-checklist.md:
     retrieval: on_demand
     role: context
-    sha256: c81f73e3422a92a6995a483997832661a3ab275d1b51df6b7c0ba2657266995f
+    sha256: 6063c73e276f710e7ebb74d104e616943d7e7ae45c74f4aa42f39f90e6fdc148
     tags:
     - general
   examples/l9_runs/example_run/convergence_plan.yaml:
     retrieval: on_demand
     role: context
-    sha256: 48da09f9d74539dd7327468205d7964fb21d6fbaddd84d33c9b88b609872756d
+    sha256: 50b7de2e332941c5de5b16749705e63c0956992e23f8b9f01c13813a61fb89a4
     tags:
     - general
   examples/l9_runs/example_run/governance_graph_ir.json:
@@ -1017,43 +1034,43 @@ files:
   examples/l9_runs/example_run/governance_scores.yaml:
     retrieval: on_demand
     role: context
-    sha256: f89e472369fedebe4cdeb7a166a8a30700ed8281420921f1180572b1d6708f4d
+    sha256: 96756ce63f19d9851062f3cfa83e44fd16c83185626f9dab11bb11109987316f
     tags:
     - general
   examples/l9_runs/example_run/runtime_findings.yaml:
     retrieval: on_demand
     role: context
-    sha256: 93a90686b1502f6587591dbdaa8227cbe5f2b54f08cd882da69802d925c2cb2a
+    sha256: db9932e7fb731a3290b049522149354363604c2460873153d04450bb001a554a
     tags:
     - general
   governance/acap-profile-template.yaml:
     retrieval: on_demand
     role: context
-    sha256: 897a9e0b57a8edf52e7da32475a32723ad7c1448ec48ecced59c9bfccf421dd2
+    sha256: 726673d23adfe6e7cd627757d08837fdee28a5ed297bcdbba47f565346b44d09
     tags:
     - general
   governance/governance_scores.yaml:
     retrieval: on_demand
     role: context
-    sha256: f89e472369fedebe4cdeb7a166a8a30700ed8281420921f1180572b1d6708f4d
+    sha256: 3a73439978f36e05936483d67ec7df424cc6fe93025e59736818f635bcf60a49
     tags:
     - general
   governance/model_governance_kernel.v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: eceb5938e09f809a7ffdd12b6c8a80aa52d2c554c4855074d33e09af794522b8
+    sha256: 0aad516bbae6ab2ea719e1819372cc42c96f0274c0aa67e3c82fef55d1fd9762
     tags:
     - kernels
   playbooks/document-extraction/playbook.yaml:
     retrieval: on_demand
     role: context
-    sha256: ce1da1735f31ee915afa5ec602fe2750156098b8e409875cf8d44632d7c96648
+    sha256: 02ad9820dff11c3af49a52db4e53b6ed6cb09dee7b59cabd225f776c80b2d3d5
     tags:
     - general
   playbooks/invoice-ar-processing/playbook.yaml:
     retrieval: on_demand
     role: context
-    sha256: f77ee8cc424eed1020139745f9c5fa289f091e7e16c369d4397e5413d4a4539d
+    sha256: a1773b31ef6b38f7d473e7878c1682baded58d131b6cfa6b395e1de923475b3f
     tags:
     - general
   playbooks/microservice-build/PLAYBOOK.md:
@@ -1065,73 +1082,73 @@ files:
   playbooks/microservice-build/source/L9-Microservice-Build-Pipeline.md:
     retrieval: on_demand
     role: context
-    sha256: d45b9eca6c820e9a0b00087f0dd96fb2f55ac8a6cf62c9667092b03bf132338a
+    sha256: aed6048bbb981b28460d6e9faa8fddde33011fcb5371cc658630f4297caf4af9
     tags:
     - general
   playbooks/multi-agent-routing/playbook.yaml:
     retrieval: on_demand
     role: context
-    sha256: 9572b9536aecf57dcdf3d3c4a9188f0a043b897be76333122e4064d45c1aefea
+    sha256: 12b992292dab1d6518fa7575e1e0f693cb20909a235aea309fc67e1857668cbe
     tags:
     - general
   playbooks/new-constellation-node/PLAYBOOK.md:
     retrieval: on_demand
     role: context
-    sha256: ae2a7fc09b3df4aa0e45074dcefa699b22f80bf99d63e452c6d40c95a623e851
+    sha256: ec907cf5151f98a3aa0bef0b5e2dc069b9411a69e74c7606f80ff62fec00e0cb
     tags:
     - general
   playbooks/new-constellation-node/handoffs/node-spec.schema.yaml:
     retrieval: on_demand
     role: context
-    sha256: 78e56784c0ec3bf0b1667cf475644c579309d1cd40ff779d9db92449b43170e3
+    sha256: 2a75d32e42ab019734479ba99ae0806b99abd3c2b3366b856dad9fd7c4cc2be4
     tags:
     - general
   playbooks/new-constellation-node/handoffs/registration-result.schema.yaml:
     retrieval: on_demand
     role: context
-    sha256: 7c3b68bdddf61037bb9c39b624b12d29496a5100021d5c4720bfa2cb2486c2d0
+    sha256: 4883acb2bfde47d8b23d3421a5a7e0bd789613ac79c3ab0df825b06c07c1936e
     tags:
     - general
   playbooks/new-constellation-node/steps/01-capture-spec.md:
     retrieval: on_demand
     role: context
-    sha256: 321d954fb3ab0b9dec2a0dcf250335a0e95219001a4776bbb42b33cd1d3e8401
+    sha256: fb924c0f9210332eaa91f7c965f18fd598c0b5c1d758aae5380cff882e753119
     tags:
     - general
   playbooks/new-constellation-node/steps/02-validate-spec.md:
     retrieval: on_demand
     role: context
-    sha256: 35ef05b225e5d342fbc8b2ecf5f2666758d0702bde88cc4ab7132b7e1b3207ee
+    sha256: 063a22c4fddbe32930cd3d24ca93312b642eedc09d5cca894ad37accddabb376
     tags:
     - general
   playbooks/new-constellation-node/steps/03-scaffold-node.md:
     retrieval: on_demand
     role: context
-    sha256: 4249c88ede7fdec94606cdf43bd73177fe700c9e7f21b4343d2d3c19d29653d1
+    sha256: 3b314217cdfea4059069625f4ae3d370adc1d83a0553f463889cfbf57fc822ed
     tags:
     - general
   playbooks/new-constellation-node/steps/04-write-domain-logic.md:
     retrieval: on_demand
     role: context
-    sha256: 6b33b2845f60bec0b8623505f800aebf220d3e1d15aa08974f113ae570086553
+    sha256: 77baefca4463ee2f0f4daae757b72a22dbd7adffa608653ec3258d80dd428610
     tags:
     - general
   playbooks/new-constellation-node/steps/05-run-ci.md:
     retrieval: on_demand
     role: context
-    sha256: 3efb9c7fcec3bed530ca0e3b70f3f1547b4b4fa9b7c35520f10dff37cd721151
+    sha256: 41ab59bc81ca1e7415188df6299cc4d87ead3da35a7774b1e8e571431f555e71
     tags:
     - general
   playbooks/new-constellation-node/steps/06-register-gate.md:
     retrieval: on_demand
     role: context
-    sha256: bfd35ff70ac562bd023aab0854b81a5a277827288d27c27deb4186289877b94b
+    sha256: b58f607f73f8b09074bc4b73a619fd27e68d2e6221db5e646b20afb8e322edcc
     tags:
     - general
   playbooks/new-constellation-node/steps/07-verify-health.md:
     retrieval: on_demand
     role: context
-    sha256: 6582b0f86f5ba2446907b9870cf5a620497f53a6106315550a415f265f632dcf
+    sha256: a04817a5795238e2b8d6a16987cc4c3df9f424a2fb739efb1a0d0a0828bf45c1
     tags:
     - general
   playbooks/vendor-onboarding/golden_tests/edge_cases.jsonl:
@@ -1149,25 +1166,25 @@ files:
   playbooks/vendor-onboarding/playbook.yaml:
     retrieval: on_demand
     role: context
-    sha256: c1fc641de66bf948d43b167f8aec71bebe59307b8857ddb7dac94ddf25641abd
+    sha256: 53491e42f4cddb1d446cfddff8e7b6069fae44fb5c6d6cd8b41a2fb4ea8aff92
     tags:
     - general
   prompts/analysis/competitor-teardown-v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: b18fb49e308130141798239348f09398d2cfcbcdd950e144c34abe63f1f055c2
+    sha256: c00731b0dacfdec6deefb5bc60e4db6bf763418b9d0e20dd2544c9fa169c7422
     tags:
     - general
   prompts/ops/improvement-pass-v1.yaml:
     retrieval: on_demand
     role: context
-    sha256: 37a8402f32bb124b663c070d33a93650036656e79b0e79eaf3381af94e62e7d2
+    sha256: d28e0760dc65ab8d4279eb710e0b0e23312aee0ca2ec94b1633ecae0db67ee4d
     tags:
     - general
   pyproject.toml:
     retrieval: on_demand
     role: context
-    sha256: 4f60e813f954758acd182ecfd4caf58009ab4b6f396341ee0655db5a362e7d60
+    sha256: d127752767c6d1ee07060b7ce9bc2233da55050aa02f5047e5d272c764b965fe
     tags:
     - general
   schemas/action_governor_outputs.schema.json:
@@ -1239,235 +1256,235 @@ files:
   scripts/02-L11-ORCHESTRATOR.py:
     retrieval: on_demand
     role: script
-    sha256: ca5b91e9c9c1303e8f30dc371de5555d21cb1799c7e4e1e99ec7baa5637f6eff
+    sha256: 4dc31680c27c4d6cb8c8d714546381de5747339db49eb6fab1cb40e199670134
     tags:
     - general
   scripts/03-L11-DETERMINISTIC-ENGINE.py:
     retrieval: on_demand
     role: script
-    sha256: 85cd8c4810a59d669edc1dde488d7512599341d276635a3ba78f6d1dcc86f5fc
+    sha256: 008b4c6aaf8ed136501dd31ec248810cf00f0d3aa7e77d8cc6ee7b7ee2546cb0
     tags:
     - general
   scripts/04-L11-AI-ENRICHMENT-ENGINE.py:
     retrieval: on_demand
     role: script
-    sha256: ce4d8fe307f59ff9220e7b0099729b628881062f1833923c7d11ad262a3ed767
+    sha256: b5756a9ed8dd5c5668070687c8fcf97cbfc81919ced355c5263e03927436e63e
     tags:
     - general
   scripts/05-L11-DEBT-GRAPH-SERVICE.py:
     retrieval: on_demand
     role: script
-    sha256: 376a21bf88f8cf19010b23e7c75e4f5b5f0a8e72b3df9522f34a1f6bec34e644
+    sha256: bf143ee1175d6215ad54019f9caf3f4bfd2e9bbd9d6c3842159b653ec2351479
     tags:
     - general
   scripts/06-L11-RISK-SCORER.py:
     retrieval: on_demand
     role: script
-    sha256: afc0b627c782ba904cc98dedb4a2f06e5cc6c2338dbd7e6eae50d2ae6073c7ce
+    sha256: 4bea6b1d143c71635fcc99f9600d40264d9d701029081510243ae35fc2a9de80
     tags:
     - general
   scripts/07-L11-AUTO-FIX-ENGINE.py:
     retrieval: on_demand
     role: script
-    sha256: a5f28e5e04f5f2d3cd8845d780d905c8e03ed85cc444aaea1302f505cf2ddb5c
+    sha256: 6f2b85d907677115c2fc6b21aaf4b48a25160a3bf4c9bf913c9fa6f1e817d2bb
     tags:
     - general
   scripts/DEPLOY-v3.3.sh:
     retrieval: on_demand
     role: script
-    sha256: 7337052bd8e44b6bc1c6d9c54e9bde8e61ce067c7be9fb65ff1c4605566a818c
+    sha256: b63d011dbc46e815254295d602b228d4148372e6d11544f214b9bea9faae68dc
     tags:
     - general
   scripts/DEPLOY_ADDITIONS.sh:
     retrieval: on_demand
     role: script
-    sha256: 8b30475775811571ae86ea71777455726e72c50bdb880ced3d95959aa3d34ea4
+    sha256: ef6301c6299aa43c185dd7811d7a8a3d7a342a2b05777016a8d3e983c9565024
     tags:
     - general
   scripts/__init__.py:
     retrieval: on_demand
     role: script
-    sha256: 9307c1c2f20706b05643a963570a4a689a717e32aab7ed5cfc033b0d0434f0b5
+    sha256: a2e5e7af8a78f735b4ea24854bbd8c0ac5485a691809e6f64e9b1f174ea8cb89
     tags:
     - general
   scripts/audit_hardban_duplication.sh:
     retrieval: on_demand
     role: script
-    sha256: 753eb428639e2b981b0993c9e7ea1bbdf83f6c5dc23e57ba608ef3fb5ddca4fd
+    sha256: af6d5b0556fc71bb0ebdd92c49ca33d990085de4f08ccba4a4a3c3e7631a9f7f
     tags:
     - general
   scripts/conftest.py:
     retrieval: on_demand
     role: script
-    sha256: 5f8c39f61d8c407f61b09362aefcc6f27c17d6dae32a75d98d900e5e835d0c4c
+    sha256: 9a8a11677eb32b4a156d57d3b34d1f521c619202cd560b7a8c784555b587a381
     tags:
     - general
   scripts/convergence_tracker.py:
     retrieval: on_demand
     role: script
-    sha256: 9595af3aa5740efbcab10e3a19d0809ba62f51f307415562988ac3220153c2ee
+    sha256: 6fcaa84d4a49697ed235e99f96f2a384338dc38f89a467862f4af275b8c32017
     tags:
     - general
   scripts/enforce_progressive_disclosure.sh:
     retrieval: on_demand
     role: script
-    sha256: d68647d4bdba28c1263b6bab14e18005fe3b608b15f7742104722536f14cfa4c
+    sha256: 04684f4bfdb529f1070d79d652677eb7159bdda7936dd3294090ae8533a7aac4
     tags:
     - general
   scripts/harvest_audit.py:
     retrieval: on_demand
     role: script
-    sha256: 20d69aa9853414ba6eb73e168e15371e669dd92eb3a6047b71bf652a69a5979d
+    sha256: 22e6142635efab15299c2db55eae3d50fc3a855b5b3403f99fadfbccaed34c44
     tags:
     - general
   scripts/impact_analysis.py:
     retrieval: on_demand
     role: script
-    sha256: 7694fbc0e93089cfb5cd533eff1b0ade40a697a961023edfac79c70c1cf13bf2
+    sha256: 31dd2f795039616c046136c8c5e3d8b0de2338aff238aa41f945003fef1e26d2
     tags:
     - general
   scripts/inject_dora_complete.py:
     retrieval: on_demand
     role: script
-    sha256: 32d281d49ba2a2ec7357cfd5dfdcc687de29d7219c668e2294d87280d3ac35d7
+    sha256: de2d371403e98fcc7eabeaf14a396e94bb0202da5494d28932e478e352b00eea
     tags:
     - general
   scripts/l11/__init__.py:
     retrieval: on_demand
     role: script
-    sha256: 0ee97bdce1f1c54cd7a21680b7001fe5bc21445286b562f0fcfbcbc5775b9af0
+    sha256: 0295d141955b7a712afbf54b0f3f0487e2686e168f37bd04a40a4b22097ae886
     tags:
     - general
   scripts/l11/ai_enrichment_engine.py:
     retrieval: on_demand
     role: script
-    sha256: 8500d09d7af7160d4973ce7ae009d08eff4fc4287475d09b024e7e03c696f7cc
+    sha256: 0ebd1712d490d6b55b68e71e08857f396f8976f4f823e456e47cbfe0a5544d02
     tags:
     - general
   scripts/l11/auto_fix_engine.py:
     retrieval: on_demand
     role: script
-    sha256: de9f9496fc81ed461386be7442b5e36d286036308c855bd73f0ffd821d1ed8a2
+    sha256: 9bbdd173107167f2390a8a45256da74b22937129aec6b54806dd492b72fb20e1
     tags:
     - general
   scripts/l11/debt_graph_service.py:
     retrieval: on_demand
     role: script
-    sha256: 17582f86fd9f00f8c98e28a59add011a8387cbb88070829cebc86e04b4c06cdb
+    sha256: d1e142de4c6991ddd371e713e9555967aa4c8a3d2f924f5c86859a4b2ad402c1
     tags:
     - general
   scripts/l11/deterministic_engine.py:
     retrieval: on_demand
     role: script
-    sha256: be7df0572eea2537fef5a8d4dea904e396eca727f9fbf0a89e3d5a454e4b1321
+    sha256: 93bd58dac762fe930cebe34f9cc2286a76d1e7a3d1ac77a5e0906aa4c8801f7e
     tags:
     - general
   scripts/l11/orchestrator.py:
     retrieval: on_demand
     role: script
-    sha256: 194ccb84dee2ba84d9368f52e708686f9aaf59516500d192ed20ca4a2df6de57
+    sha256: 398b0ddd8e3c1144f14195657640a7e2411643f6edc073eed1fb1b69cd040755
     tags:
     - general
   scripts/l11/pipeline_config.yaml:
     retrieval: on_demand
     role: script
-    sha256: 919c8636423afbaa29ae1a3b294da6a8aaf44f01637469899c179a6dd797fa7f
+    sha256: f1aaac71fcecb056b074f042ee48a09759c0b213a88a88ce32d95b3b85277b05
     tags:
     - general
   scripts/l11/risk_scorer.py:
     retrieval: on_demand
     role: script
-    sha256: 8a5ee7623b00d6e77bbcc57c766484579812578a083c86a582a85d13abf6a8ab
+    sha256: c996251297cd24a6a3cb20dae0632f7ed0f932c47429755ef93fe5fd2e425d46
     tags:
     - general
   scripts/library_health.py:
     retrieval: on_demand
     role: script
-    sha256: e2dd63445d7a3fd1d3739a59392b9806a29157e7cde69229052df45cfe5edece
+    sha256: 61c6b8ca53cd4b5340592d6450b4fa10cf2ce05fec8c9fa601fa8ea2603574ed
     tags:
     - general
   scripts/library_health.sh:
     retrieval: on_demand
     role: script
-    sha256: 4bc4230b2bcd15602261f3c23332bc98da7a793dac489ecda431ab84da596dcc
+    sha256: f914eabaf3f79f061ba505032b5be8fe1a6d987e70ccc68409464f95ddae2903
     tags:
     - general
   scripts/library_health_v341.sh:
     retrieval: on_demand
     role: script
-    sha256: 617932df8f0343b054b351733277d3129ae781b1d9079bd7131122882b1a77a2
+    sha256: 4d20152490a0159420f544d4ba2ff98dc4c5901d38949b050173cd5ebd43d338
     tags:
     - general
   scripts/refresh_retrieval_index.py:
     retrieval: on_demand
     role: script
-    sha256: 905b40a960c00c9a7f90d42e33880dfe6c9f8bf4b9e799d9f5bd99cffccbf75e
+    sha256: 0e008bbab323af73a6110be3a29f9cc48605187df1a9f7bbb6f4eb300ebaefa5
     tags:
     - general
   scripts/skill_endpoint_audit.py:
     retrieval: on_demand
     role: script
-    sha256: c3620b1a9313a52e3e38fed2d0078db75da0eea067e6d53704264d1d5edd0db0
+    sha256: 4c7f5dffc416c4df35a8d07b7fa601d8d8de3f989cf6be11f834d5a496f18ee9
     tags:
     - skills
   scripts/test_ai_enrichment_engine.py:
     retrieval: on_demand
     role: script
-    sha256: 871353668b638777be4301b5d82b1c86476979daf47413001165971cc0804cfb
+    sha256: b3465493684b035896ef26dff1670e3529a230ed60a52ffaf94413bb7ce8934d
     tags:
     - general
   scripts/test_auto_fix_engine.py:
     retrieval: on_demand
     role: script
-    sha256: bfab7b593d40264e3332a7f7c1eca9c23d99fc4c4745f341e426faae5096cf53
+    sha256: b108c18fd16a9be2cd4a64c9f24a2242029655901a15dca6b2c1dadd0cde1be6
     tags:
     - general
   scripts/test_debt_graph_service.py:
     retrieval: on_demand
     role: script
-    sha256: afbcc17c7e57307ccc9d6b6e0b24df704b51a3ebc947fd54c2b55818df139f6b
+    sha256: b549f07b32afd5b35adc6ff60786205e4cc34f9ba9ddf66009999357af3890be
     tags:
     - general
   scripts/test_deterministic_engine.py:
     retrieval: on_demand
     role: script
-    sha256: 21b335bd96c56988d17111d27bb316711dde0edbeead96edca7803e7c0aa6ffd
+    sha256: 85fa406909c615b019c268d5700048ee4351940bfb4812694470e8eaf16a7529
     tags:
     - general
   scripts/test_orchestrator.py:
     retrieval: on_demand
     role: script
-    sha256: 9d86ed822df7019bcaac0265f475708b75d6bf44a1700a6b1d0c5f6a72d15497
+    sha256: bb402e2c738531a69ee5f3e7f2f39d33911d4d9f6539a1d8528799f3f1279bce
     tags:
     - general
   scripts/test_risk_scorer.py:
     retrieval: on_demand
     role: script
-    sha256: 998a292ced76a7b0d55453e3fdb6ee8602a2b5e4739ae73a15bbcf71dce0ffd1
+    sha256: ddcc1a17329f8fcf92e8fc67e93a8d36c01fc7dce433ecfb5aae76a4e25815de
     tags:
     - general
   scripts/validate-protected-files-v6.py:
     retrieval: on_demand
     role: script
-    sha256: 38f9c3f343938edcedd3386dcdc16fc042be0aafc825db0c24bd8edc8bc5f583
+    sha256: 55ddc3915f9cecf9ff8c1280397423da564c4e4c85143072989c3567d0cf3b35
     tags:
     - general
   scripts/validate_headers.py:
     retrieval: on_demand
     role: script
-    sha256: 3db05e982dd81548f1e0d694c01311986cb41b543ccf79cbd806886f36caa1a3
+    sha256: 7f3eff189e4e0fd273ff69966121565e9014b20fbfdd5d46f8fd0b7d52249c9c
     tags:
     - general
   scripts/validate_wiring.py:
     retrieval: on_demand
     role: script
-    sha256: c69974e8eca428b75eca3c8f71489a46aaac9d7c22bc3ce126328afb7e6455c0
+    sha256: ef70dd62a67500b01ac079f382d4c5a5a883e03da89cb80352e10b64869e455b
     tags:
     - general
   skills/INDEX.yaml:
     retrieval: on_demand
     role: context
-    sha256: df212e8398568938f0d78c7c8a804e63d3a7312af2ef75c2299304be648483ec
+    sha256: 77d23f24d04d0e7ca048a2338948e59f968ad62618c12af90ea573ddccb75e59
     tags:
     - skills
   skills/agent/generate-execution-plan/SKILL.md:
@@ -1574,87 +1591,87 @@ files:
   src/l9_action_governor/__init__.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 710ed5e4ebcb1ec5a6ee127348934d08c18b53d0b71d1bfbb3fca3ff5422026e
+    sha256: 12bf9e8ea553f32b4944f4a35c8f6231210fd243ecbf5ed7f17edc14568e6989
     tags:
     - general
   src/l9_action_governor/cli.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 149e301c5c421f391f08a8f01e2b2955a172b599a498f3129cb3411f7efad72d
+    sha256: 94cb19c1f659afa066f0eec9ff5c67205e4196b4531b22013faa34db0f705b37
     tags:
     - general
   src/l9_action_governor/loader.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 64677f2c21d0e87d0a8ef3ca4b2ff8842ff32f7f19573b98a87efbcbd84cc9a7
+    sha256: d2b8d187ae22b4e4b32d849e96503f9427fb110f40c6c6eb3d72fcb7450aa937
     tags:
     - general
   src/l9_action_governor/models.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 6d9db0898fac1d72c24a303759b598b45f251a9c59aeb1c3ce13d6119b5c4a28
+    sha256: eeb665c1fc313a15caace986dca177bc0833b469e834b84755050f51a9888435
     tags:
     - general
   src/l9_action_governor/planner.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 3cab0abac81d590b789d44e74a937abdd3a0a6bda6d50ecfc3a760f2af9c6ed8
+    sha256: 0a0cb74463c1041e436697ad542eccb59f8ac5baa7c5ac2597ec8bd78f6bb9a0
     tags:
     - general
   src/l9_action_governor/renderer.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 488eced5c04b234fbdc470a81bb5ecf76a9e50fd12a0c7a1464baafcb57b8b3d
+    sha256: 3402543372f11f8a915b987890a8df22d760265496daa681fdf1ea4ddbc474a5
     tags:
     - general
   src/l9_action_governor/scorer.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 7495afa10812be6131689217432053c2cfe3dc91fd492882a589269a6d8ecb09
+    sha256: a98c1fb457cb31a48d2fff87049f6a7ababea972a9ebd5f45b4d3af210fc40f9
     tags:
     - general
   src/l9_action_governor/writer.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: bc08a7a4de9301c4c05c28144e7743b95f8a70bffe8966e8ee9a3b47323e09b3
+    sha256: 796770978c472ef66de6ef018d4cd697debc00d7a73fe9c0f19500b107181faf
     tags:
     - general
   src/l9_ops_mcp/__init__.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: c667073ed509b1d2eda4255ce3ee982dd435cf98abdf63cb91bb6054ecd65fe6
+    sha256: c2ccb48d511860a46d25d8c516a6b275b45b2f6a35fb581c183c1b8dd87d2679
     tags:
     - mcp
     - control-plane
   src/l9_ops_mcp/adapters/__init__.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    sha256: f3e73417c53fb38815fd7913ef7742bf579e6e1778df23dd720edbdb5677c7de
     tags:
     - mcp
     - control-plane
   src/l9_ops_mcp/kernel_models.py:
     retrieval: on_demand
     role: context
-    sha256: cd236ec1d27013aaf68f8244624e6181998041379384e83f76aae318fbf6c957
+    sha256: 7d5da3350b3ee5ad13e9de91ab941c6e0a8d8cd00099fccf30e64e082c7e1ff0
     tags:
     - general
   src/l9_ops_mcp/kernel_registry.py:
     retrieval: on_demand
     role: context
-    sha256: 27c48d0afeaad16aae70728d514db5454ab8f4a360f06c203f4ba06dc696a142
+    sha256: 19ac181e674cc9255cc45a1311abaf49d2776d2ffaee939f1ab8b4b5cb65edc3
     tags:
     - general
   src/l9_ops_mcp/kernel_resolver.py:
     retrieval: on_demand
     role: context
-    sha256: b26090c05e26f875d62af1544dd3a339620be1d826029bbd2c88053e6bb183ac
+    sha256: 51599cd585f05ed22562583c13f95724b366449e2c22dc15b1f18d6093b485ea
     tags:
     - general
   src/l9_ops_mcp/transport.py:
     retrieval: on_demand
     role: runtime_module
-    sha256: 36e5e246990c5d1aa9cb2b2711f2384820dcd68b646ce0dcd9fd0e2dbcc1e84f
+    sha256: ccd758a7732bbe25505506cb802a284c8c19345687914b1041f0a3b17f1b571e
     tags:
     - transportpacket
     - mcp
@@ -1662,43 +1679,43 @@ files:
   tests/test_action_governor.py:
     retrieval: on_demand
     role: context
-    sha256: 53faef1944bf251a6ba244183d2f8bc2577e79bca5da9007e8e9b2bcd442f20b
+    sha256: 6ef5507500b64e609df462177aee4cff8a3edf26868263ecad246515378493aa
     tags:
     - general
   tests/test_kernel_determinism.py:
     retrieval: on_demand
     role: context
-    sha256: 4ae6f8c8d14f0e2227e9bf8030259896e0e88f363fae6be2842b6d78452ffcf4
+    sha256: 964451fd218e62b54c746e7ff555a709a5e85cf6a944fa84ed19ec09553799bf
     tags:
     - general
   tests/test_kernel_index_and_projection.py:
     retrieval: on_demand
     role: context
-    sha256: 026cd798d7c6e3f8bfacb3fa35a30a1fb0bd6466920e10101d12da2d681349f8
+    sha256: 630a33413b2501213d4d5862782c9fc56120fcfb3bcdc1f70ec461eec9eca813
     tags:
     - general
   tests/test_kernel_mcp_tool.py:
     retrieval: on_demand
     role: context
-    sha256: 8f562220886c93d1a1772e6dec04372eb45a0640b4ea5efbc904d5132bcb5942
+    sha256: 6136eee69a2dbad2e10afb5a02167ca2c3c0b33fde13c01b1c6cacd351875e3f
     tags:
     - general
   tests/test_kernel_projection_and_envelope.py:
     retrieval: on_demand
     role: context
-    sha256: a204c459bb70f723d45e1bb4c24a87b374aa424e1b59eca5226286d1b97e7cec
+    sha256: d72e5fde82fc094d41ef947c2681aecf529e4f739cdfdb65f7d442f5a68cc4cf
     tags:
     - general
   tests/test_kernel_registry.py:
     retrieval: on_demand
     role: context
-    sha256: 0f3b68fd7a15f0156791153bcd1d2833f910b1af3b9be1a84dda2515e36a2363
+    sha256: c5f033df06d6629e900319934c8f7f98c63eac3b0d21c1a8ea19984ffe98539a
     tags:
     - general
   tests/test_kernel_resolver.py:
     retrieval: on_demand
     role: context
-    sha256: 7f47f80157b3d653a695e657b2be5de2b386186e0e584e9d68ee101bf3700514
+    sha256: 423ced94d5cc64198195ccacdabd12681563eed315d344d476088183701c3517
     tags:
     - general
   validation_results_doctrine_pass.json:

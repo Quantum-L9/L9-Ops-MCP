@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_validate_pyproject_entrypoints__py
+# title: validate pyproject entrypoints
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/validate_pyproject_entrypoints.py
+# content_hash: 3f4d8a357935568b25f9544ff6563d8819f70f592dd7bf725e0afd1aa697421e
+# token_cost_estimate: 375
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 from __future__ import annotations
 
 import importlib

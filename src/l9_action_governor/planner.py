@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_action_governor_planner__py
+# title: planner
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_action_governor/planner.py
+# content_hash: 3cab0abac81d590b789d44e74a937abdd3a0a6bda6d50ecfc3a760f2af9c6ed8
+# token_cost_estimate: 3307
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: planner

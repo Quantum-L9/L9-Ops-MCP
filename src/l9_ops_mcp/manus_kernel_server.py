@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_ops_mcp_manus_kernel_server__py
+# title: manus kernel server
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_ops_mcp/manus_kernel_server.py
+# content_hash: 63c1579369aa730bfd097759fed8caab8a0506db660d7931ccc88deee1f84c53
+# token_cost_estimate: 549
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # origin: l9-ops-mcp

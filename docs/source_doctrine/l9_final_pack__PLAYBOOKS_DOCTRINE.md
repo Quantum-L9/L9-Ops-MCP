@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_source_doctrine_l9_final_pack_playbooks_doctrine__md"
+title: "l9 final pack  PLAYBOOKS DOCTRINE"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/source_doctrine/l9_final_pack__PLAYBOOKS_DOCTRINE.md"
+content_hash: "13a6fb5b6db3c37c5a0f1f44c5e1c591a2c4859bc5baba1181d0c79e30eba336"
+token_cost_estimate: 1877
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "compiler"
+description: "Unknown"
+activation_signals: ["produce", "kernel", "agent", "contract"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 <!-- L9_META
 l9_schema: 1
 origin: l9-kernel

@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.agents__md"
+title: "AGENTS"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "AGENTS.md"
+content_hash: "d3b1a3841bd94e440807cb3fa9643d0126e1297c259a31eed65383dc01cab08e"
+token_cost_estimate: 970
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["meta", "kernel", "agent", "compliance"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # AGENTS.md
 
@@ -69,6 +89,7 @@ Governance/contracts: load when task touches policy, validation, compliance, or 
 - [docs/contracts/L9_CONTRACT_SPECIFICATIONS.md](docs/contracts/L9_CONTRACT_SPECIFICATIONS.md)
 - [docs/governance/L9_GOVERNANCE_STACK.md](docs/governance/L9_GOVERNANCE_STACK.md)
 - [schemas/kernel.canonical.schema.json](schemas/kernel.canonical.schema.json)
+- [docs/METADATA_HEADER_POLICY.md](docs/METADATA_HEADER_POLICY.md)
 
 ## Source gap policy
 

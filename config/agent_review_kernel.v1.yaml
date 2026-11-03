@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_agent_review_kernel_v1__yaml
+# title: agent review kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/agent_review_kernel.v1.yaml
+# content_hash: 55c3ffc40da8efbe3624a8003a7de8469609498fab243173bbcc95d37f1be088
+# token_cost_estimate: 1036
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

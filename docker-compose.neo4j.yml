@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.docker_compose_neo4j__yml
+# title: docker compose neo4j
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: docker-compose.neo4j.yml
+# content_hash: 0f1480d828459ab0a40473ce06c2779b7891f1688727c871417106a04a38d4c1
+# token_cost_estimate: 129
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 services:
   neo4j:
     image: neo4j:5.26-community

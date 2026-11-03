@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_github_workflow_notes_new_workflow_jobs__yaml
+# title: NEW WORKFLOW JOBS
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/github-workflow-notes/NEW_WORKFLOW_JOBS.yaml
+# content_hash: 8d19ceb66d0b6544ff0e9a5f4231b5589dcf13f6df51d549a3c4b38ef8f761b1
+# token_cost_estimate: 1795
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # ── Add these jobs to l11-debt-governance.yaml ──
 
   # ════════════════════════════════════════════════════════════

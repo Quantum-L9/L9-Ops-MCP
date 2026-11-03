@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_agent_observability_kernel_v1__yaml
+# title: agent observability kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/agent_observability_kernel.v1.yaml
+# content_hash: 886a3aa12df1492212aaac24132a7431b83aef032de8287b37b7e78590dff4fb
+# token_cost_estimate: 966
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

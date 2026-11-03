@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.schemas_org_invariant_schema__yaml
+# title: org invariant schema
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: schemas/org_invariant.schema.yaml
+# content_hash: cafea705363855dced049507ea62c1758bb900bf1e3e54363678aff6da0a5afb
+# token_cost_estimate: 89
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 type: object
 required: [org_invariants]
 properties:

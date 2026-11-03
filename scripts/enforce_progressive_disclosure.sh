@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_enforce_progressive_disclosure__sh
+# title: enforce progressive disclosure
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/enforce_progressive_disclosure.sh
+# content_hash: d68647d4bdba28c1263b6bab14e18005fe3b608b15f7742104722536f14cfa4c
+# token_cost_estimate: 236
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fail=0

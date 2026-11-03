@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.examples_l9_runs_example_run_governance_scores__yaml
+# title: governance scores
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: examples/l9_runs/example_run/governance_scores.yaml
+# content_hash: f89e472369fedebe4cdeb7a166a8a30700ed8281420921f1180572b1d6708f4d
+# token_cost_estimate: 305
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

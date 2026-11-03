@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.prompt.prompts_analysis_competitor_teardown_v1__yaml
+# title: competitor teardown v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: prompts/analysis/competitor-teardown-v1.yaml
+# content_hash: b18fb49e308130141798239348f09398d2cfcbcdd950e144c34abe63f1f055c2
+# token_cost_estimate: 299
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

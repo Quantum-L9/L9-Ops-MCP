@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_architecture_identityos_adr_index__md"
+title: "identityos adr index"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/architecture/identityos_adr_index.md"
+content_hash: "a6cb6991f7d9bbc3fe219d181ebd5e7ffc23ee639da19dc305c64f984ce857f2"
+token_cost_estimate: 613
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # IdentityOS ADR Index — L9 Harvest Registry
 <!-- SOURCE: IdentityOS (2026-05-16) -->

@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.kernel.docs_kernels_r5_memory_admission_kernel_v1__yaml
+# title: memory admission kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: docs/kernels/R5/memory_admission_kernel.v1.yaml
+# content_hash: 2c6a56494c7e9799badee30a7e6d5f2b5525e0e928a847ec741f02ff92957418
+# token_cost_estimate: 1166
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9_META
 # l9_schema: 1 | origin: identityos-harvest | source_adr: ADR-009
 # source_repo: IdentityOS (2026-05-16) | layer: kernel | ring: R5

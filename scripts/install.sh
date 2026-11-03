@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_install__sh
+# title: install
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/install.sh
+# content_hash: 2cbbba2ab197e0038fb1de2c5d5cc3ca295f1b88d6e39662e808f7cbc2432651
+# token_cost_estimate: 549
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9-Ops-MCP one-shot install: Neo4j + deps + indices + seed + client configs
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.examples_l9_runs_example_run_convergence_plan__yaml
+# title: convergence plan
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: examples/l9_runs/example_run/convergence_plan.yaml
+# content_hash: 48da09f9d74539dd7327468205d7964fb21d6fbaddd84d33c9b88b609872756d
+# token_cost_estimate: 349
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

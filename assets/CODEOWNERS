@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.assets_codeowners
+# title: CODEOWNERS
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: assets/CODEOWNERS
+# content_hash: 9f29cef213263d5623715d7f48a6934a8d57d4cb58630f544c5911b878e49bf2
+# token_cost_estimate: 544
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9 Code Ownership — used by GitHub branch protection + L11 debt assignment
 # Ref: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 #

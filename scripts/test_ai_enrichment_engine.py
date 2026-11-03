@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_test_ai_enrichment_engine__py
+# title: test ai enrichment engine
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/test_ai_enrichment_engine.py
+# content_hash: 871353668b638777be4301b5d82b1c86476979daf47413001165971cc0804cfb
+# token_cost_estimate: 1146
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: test_ai_enrichment_engine
