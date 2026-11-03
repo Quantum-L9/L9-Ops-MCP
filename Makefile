@@ -27,7 +27,7 @@ meta-setup: ## Install the pinned repository-local metadata injector (Node >=18)
 meta-inventory: ## Inventory repository artifacts without modifying sources
 	npm run meta:inventory
 
-meta-apply: ## Refresh the canonical central metadata index without inline rewrites
+meta-apply: ## Inject metadata headers into eligible Markdown and refresh the index
 	npm run meta:apply
 
 meta-check: ## Check metadata drift without modifying sources

@@ -2,6 +2,6 @@ schema: l9.meta-authority/v1
 writer:
   repository: Quantum-L9/l9-meta-injector
   ref: c53ef3aa0ccea04af2adfe67800ad09843b6e0fe
-default_carrier: central_manifest
+default_carrier: inline_managed
 legacy_writers: forbidden
-inline_allow: []
+inline_allow: ["**/*.md"]

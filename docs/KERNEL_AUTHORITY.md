@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_kernel_authority__md"
+title: "KERNEL AUTHORITY"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/KERNEL_AUTHORITY.md"
+content_hash: "633b3b4e7c388d4a37eed837a12d3e2e88c5be14fc58f5fdd6667f35b4cd8939"
+token_cost_estimate: 2274
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["kernel", "search"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Kernel Authority Plane (Slice 1)
 
 L9-Ops-MCP owns the **canonical context authority** boundary. Slice 1 of the

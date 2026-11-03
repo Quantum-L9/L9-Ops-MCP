@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_repo_identity__md"
+title: "REPO IDENTITY"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/REPO_IDENTITY.md"
+content_hash: "08001922d4cded5ff1e56018e549b5a39b0a96c8c01edb5db43be4df895367d9"
+token_cost_estimate: 169
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "domain_agent"
+description: "Unknown"
+activation_signals: ["agent"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Repo Identity
 
 L9-Ops-MCP is the Quantum-L9 MCP context control plane.

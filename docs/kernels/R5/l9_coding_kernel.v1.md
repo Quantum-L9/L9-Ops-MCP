@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.kernel.docs_kernels_r5_l9_coding_kernel_v1__md"
+title: "l9 coding kernel v1"
+artifact_type: "kernel"
+mcp_primitive: "tool"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/kernels/R5/l9_coding_kernel.v1.md"
+content_hash: "bed820ecd0b1216cb70fafe67212c9f38109a25bf5979ed16853130177226f8c"
+token_cost_estimate: 6443
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["kernel", "agent"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 <!-- L9_META
 l9_schema: 1
 origin: l9-kernel

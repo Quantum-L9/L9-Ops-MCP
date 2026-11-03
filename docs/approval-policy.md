@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_approval_policy__md"
+title: "approval policy"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/approval-policy.md"
+content_hash: "8c4c408de880f02d0bb88b50e07e284a79eba98fa0661e219bee3f397fee65ec"
+token_cost_estimate: 379
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Approval Policy
 

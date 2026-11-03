@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.playbook.playbooks_github_upload_capture_playbook__md"
+title: "PLAYBOOK"
+artifact_type: "playbook"
+mcp_primitive: "tool"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "playbooks/github-upload-capture/PLAYBOOK.md"
+content_hash: "817c2920ab31d76ee56cfbe0e8d3af212180921e8cfc6a576326ea642a47d3dd"
+token_cost_estimate: 258
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["validate", "generate", "produce", "plan", "route"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: ["Upload cannot be inspected.", "Repo route requires owner outside Quantum-L9.", "Validation evidence cannot be produced.", "WRITE requested without explicit authorization."]
+---
 # GitHub Upload Capture Playbook
 
 ## Objective

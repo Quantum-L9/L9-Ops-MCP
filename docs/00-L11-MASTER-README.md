@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_00_l11_master_readme__md"
+title: "00 L11 MASTER README"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/00-L11-MASTER-README.md"
+content_hash: "8e5c9f62caf3a35c644f1451a63db5319b8ca4ae6c505cf9dcc80cfaf6b54d90"
+token_cost_estimate: 1398
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "research"
+description: "Unknown"
+activation_signals: ["research", "agent", "compliance"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # L11 Debt Governance Pipeline v3.0
 

@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.decision_log__md"
+title: "DECISION LOG"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "DECISION_LOG.md"
+content_hash: "2e2d12a8c4167beb2dda8ad42814fe56c18b9e1caa13c51146717b804f051792"
+token_cost_estimate: 237
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Decision Log
 
 ## D1 — Keep repo canonical, graph projected
