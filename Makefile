@@ -12,13 +12,26 @@ PYTHON ?= python3
 .PHONY: help setup validate health skill-audit playbook-audit wiring ci eval zip \
         progressive-disclosure hardban-audit impact convergence command-parity \
         mcp-dev preflight graph-export graph-verify graph-sync \
-        pr-fix pr-fix-dry pr-fix-propose pr-fix-verify pr-fix-learn
+        pr-fix pr-fix-dry pr-fix-propose pr-fix-verify pr-fix-learn \
+        meta-setup meta-inventory meta-apply meta-check
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*##"; printf "\nL9-Ops-MCP commands\n\n"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "  %-28s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 setup: ## Install declared package dependencies when pyproject is present
 	@if command -v uv >/dev/null 2>&1; then uv sync --locked || uv sync; else $(PYTHON) -m pip install -e ".[dev]"; fi
+
+meta-setup: ## Install the pinned repository-local metadata injector (Node >=18)
+	npm ci --no-audit --no-fund
+
+meta-inventory: ## Inventory repository artifacts without modifying sources
+	npm run meta:inventory
+
+meta-apply: ## Refresh the canonical central metadata index without inline rewrites
+	npm run meta:apply
+
+meta-check: ## Check metadata drift without modifying sources
+	npm run meta:check
 
 validate: ## Run structural repo validation
 	$(PYTHON) scripts/validate_wiring.py --all
