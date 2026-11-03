@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_decision_report__md"
+title: "decision report"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/decision_report.md"
+content_hash: "b5512a241119a1a1c35161e04418aaf7e4b416583631ac52150543863782a85a"
+token_cost_estimate: 393
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "builder"
+description: "Unknown"
+activation_signals: ["create", "plan"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # L9 Action Governor Decision Report
 

@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.manifest__md"
+title: "MANIFEST"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "MANIFEST.md"
+content_hash: "e1c17f367d599e82fcfd52d38a7813873b356d3f80e238e5054d809eff02aa63"
+token_cost_estimate: 2881
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Manifest
 
 ```yaml

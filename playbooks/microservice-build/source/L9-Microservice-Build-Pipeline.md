@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.playbook.playbooks_microservice_build_source_l9_microservice_build_pipeline__md"
+title: "L9 Microservice Build Pipeline"
+mcp_primitive: "tool"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "playbooks/microservice-build/source/L9-Microservice-Build-Pipeline.md"
+content_hash: "9c130413f1fe7c93f9bd9814f566f649a4bdcf25d1f8812b59b27251567f17a8"
+token_cost_estimate: 15045
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "compiler"
+description: "Unknown"
+activation_signals: ["build", "search"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # OPTIMIZED WORKFLOW PROMPT CHAIN
 ## L9 Labs Microservice Build Pipeline

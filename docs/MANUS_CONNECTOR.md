@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: [manus, mcp, kernel-authority, security]
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["manus", "mcp", "kernel-authority", "security"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_manus_connector__md"
+title: "MANUS CONNECTOR"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/MANUS_CONNECTOR.md"
+content_hash: "47086901596629df457d88de05115a8ac143c3e95b1166648a9af3eb1be49c15"
+token_cost_estimate: 520
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["kernel"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # Manus Kernel Authority Connector

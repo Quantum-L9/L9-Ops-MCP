@@ -19,3 +19,7 @@ protected_files_gate_report.json
 dora_dryrun_report.json
 dora_injection_report.json
 *.egg-info/
+
+# Repository-local metadata tooling
+node_modules/
+.l9-meta-injector-out/

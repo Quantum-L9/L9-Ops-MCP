@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_architecture_l9_precision_context_injection_plan__md"
+title: "L9 PRECISION CONTEXT INJECTION PLAN"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/architecture/L9_PRECISION_CONTEXT_INJECTION_PLAN.md"
+content_hash: "0ba7826ded80d46b55df6807e41cedb61fd8d9a7962c6e28bb189aa6f9dfccb5"
+token_cost_estimate: 1750
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["kernel", "plan"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: documentation

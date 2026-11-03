@@ -1,9 +1,36 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.prompt.docs_prompts_competitor_teardown_v1__md"
+title: "competitor teardown v1"
+mcp_primitive: "prompt"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/prompts/competitor-teardown-v1.md"
+content_hash: "5001ef20cc2c346edf1a1cc8436facefde24fbd79d0c5f0625036f1ea51de361"
+token_cost_estimate: 274
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "compiler"
+description: "Unknown"
+activation_signals: ["produce", "kernel", "analyze"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+role: "Unknown"
+objective: "Unknown"
+input_variables: "Unknown"
+output_format: "Unknown"
+model_target: "claude-sonnet-4"
+constraints: "Unknown"
+phase_model: "Unknown"
 ---
 # competitor-teardown-v1
 

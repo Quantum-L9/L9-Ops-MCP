@@ -1,14 +1,34 @@
 ---
-title: AI_Model_Drift_Monitoring_Policy
-version: 4.0.0
+title: "AI_Model_Drift_Monitoring_Policy"
+version: "4.0.0"
 created: 2025-10-28T15:30:00Z
-owner: Igor Beylin
-platform: Odoo 19
-source: Chat Summar3.md
-tags: [ai, drift, monitoring, governance, compliance, odoo]
-domain: governance
-type: monitoring-policy
+owner: "Igor Beylin"
+platform: "Odoo 19"
+source: "Chat Summar3.md"
+tags: ["ai", "drift", "monitoring", "governance", "compliance", "odoo"]
+domain: "governance"
+type: "monitoring-policy"
 production_ready: true
+id: "L9-Ops-MCP.context.docs_ai_model_drift_monitoring_policy_v6_0__md"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/AI_Model_Drift_Monitoring_Policy_v6.0.md"
+content_hash: "175c75514af9f1e2da41850c22ce535d3bf6d8afefd116ffb7a0cb44de8d559c"
+token_cost_estimate: 2120
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "legal"
+description: "Unknown"
+activation_signals: ["compliance"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # AI_Model_Drift_Monitoring_Policy_v4.0.md  

@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_integrations_hydrator_integration__md"
+title: "HYDRATOR INTEGRATION"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/integrations/HYDRATOR_INTEGRATION.md"
+content_hash: "56a0ea62c33b2c4c2bb1ff381947c077ed08420c90163a171d1390eaa9c6e49f"
+token_cost_estimate: 187
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "research"
+description: "Unknown"
+activation_signals: ["retrieve"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Hydrator Integration
 
 ## Role

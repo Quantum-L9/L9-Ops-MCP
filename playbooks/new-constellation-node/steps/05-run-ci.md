@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.playbook.playbooks_new_constellation_node_steps_05_run_ci__md"
+title: "05 run ci"
+mcp_primitive: "tool"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "playbooks/new-constellation-node/steps/05-run-ci.md"
+content_hash: "14eb272ff39b7b3b27b8075f0133ce0089b934122ddef84ad305b5442c4fa169"
+token_cost_estimate: 249
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["review", "check", "install"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Step 05 — Run CI
 

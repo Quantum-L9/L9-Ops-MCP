@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_integrations_graph_export_adapter_consumer__md"
+title: "GRAPH EXPORT ADAPTER CONSUMER"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/integrations/GRAPH_EXPORT_ADAPTER_CONSUMER.md"
+content_hash: "184b9989a51bcda7ba3558833bc396823d17360254e54c70da3c8fe8ffed7190"
+token_cost_estimate: 250
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["validate", "agent", "contract"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Graph Export Adapter Consumer Contract
 
 ## Consumers

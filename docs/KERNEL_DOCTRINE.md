@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['doctrine', 'kernel']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["doctrine", "kernel"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_kernel_doctrine__md"
+title: "KERNEL DOCTRINE"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/KERNEL_DOCTRINE.md"
+content_hash: "645a0eba164c45df127ef89db50e48277a5529fb7c39ca033a60cf74d4ce7c5b"
+token_cost_estimate: 4343
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "compiler"
+description: "Unknown"
+activation_signals: ["build", "kernel", "agent", "law"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # KERNEL DOCTRINE — L9 Agent System
 <!-- version: 3.4.1 | date: 2026-06-18 | author: Igor Beylin -->

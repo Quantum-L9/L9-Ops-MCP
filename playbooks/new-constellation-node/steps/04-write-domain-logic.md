@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.playbook.playbooks_new_constellation_node_steps_04_write_domain_logic__md"
+title: "04 write domain logic"
+mcp_primitive: "tool"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "playbooks/new-constellation-node/steps/04-write-domain-logic.md"
+content_hash: "c142b83e4eea15abe379aacc1ce42ebc2113cde8c3105815ff22fdaa4b6ff255"
+token_cost_estimate: 298
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "domain_agent"
+description: "Unknown"
+activation_signals: ["domain"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Step 04 — Write Domain Logic
 

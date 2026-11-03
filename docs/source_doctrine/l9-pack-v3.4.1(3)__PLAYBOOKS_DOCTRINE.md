@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['doctrine']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["doctrine"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_source_doctrine_l9_pack_v3_4_1_3_playbooks_doctrine__md"
+title: "l9 pack v3 4 1(3)  PLAYBOOKS DOCTRINE"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/source_doctrine/l9-pack-v3.4.1(3)__PLAYBOOKS_DOCTRINE.md"
+content_hash: "bf7165029eeef5f70b57e256afa2e0b1c7f6c6f81895fc6f426b4d9768f7bbf1"
+token_cost_estimate: 1990
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "compiler"
+description: "Unknown"
+activation_signals: ["build", "law"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # PLAYBOOKS DOCTRINE — L9 Library System
 <!-- version: 3.4.1 | date: 2026-06-18 | author: Igor Beylin -->

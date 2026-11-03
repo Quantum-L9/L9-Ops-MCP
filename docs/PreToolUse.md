@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_pre_tool_use__md"
+title: "PreToolUse"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/PreToolUse.md"
+content_hash: "e93f72aa86162d9fb69590eb6ffd1f95a2a419c0442641b49d1dd550ef603729"
+token_cost_estimate: 439
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["check", "agent"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # L9 PreToolUse Hook
 ## Source: danielmiessler/Personal_AI_Infrastructure#HookSystem.md + vasilyu1983/AI-Agents-public#agents-hooks/SKILL.md

@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: [docs, mcp, context-control-plane, graphiti, governance]
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs", "mcp", "context-control-plane", "graphiti", "governance"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.readme__md"
+title: "README"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "README.md"
+content_hash: "c0a3d5449524e07b150cb5f3ef732e80cd7d231884b9533cd265358ed47f24b5"
+token_cost_estimate: 1435
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["validate", "build", "agent"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # L9-Ops-MCP
@@ -63,6 +83,46 @@ make playbook-audit
 make wiring
 make ci
 ```
+
+## Repository Metadata Injector
+
+The repository-local development tool is `l9-meta-injector` v4.3.0, pinned to
+`Quantum-L9/l9-meta-injector` commit
+`c53ef3aa0ccea04af2adfe67800ad09843b6e0fe` in `package.json`,
+`package-lock.json`, and `.l9/meta-authority.yaml`. Node.js >=18 and GitHub
+access to that repository are required; this does not alter the Python MCP
+runtime or start a server.
+
+```bash
+make meta-setup
+make meta-inventory
+make meta-apply
+make meta-check
+```
+
+The corresponding npm commands are `npm run meta:inventory`,
+`npm run meta:apply`, and `npm run meta:check`. Inventory and check are
+read-only observations. Apply injects actual YAML metadata headers into
+eligible Markdown artifacts under authority `Quantum-L9`, with namespace
+`L9-Ops-MCP`, and refreshes the tracked `.l9/metadata-index.jsonl`. The authority
+uses `inline_managed` with `inline_allow: ["**/*.md"]`; document bodies and
+existing legacy L9 metadata comments are preserved. The injector routes
+executable/configuration formats and unsupported complex frontmatter through
+the central index instead of adding unsafe inline headers. Normal modes
+protect `SKILL.md`; no skill-description improvement or LLM mode is enabled.
+
+After intentional changes to canonical Markdown kernel headers, update their
+SHA-256 entries in `AGENT_RETRIEVAL_INDEX.yaml`, refresh non-canonical index
+entries, then rerun apply and check so both indexes match the actual files.
+
+Run apply after changing repository content, then check before committing.
+The initial check before the first apply reports a missing index as drift;
+later checks must exit zero. Keep the central index in Git. Installed
+`node_modules/` and inventory reports in `.l9-meta-injector-out/` are ignored;
+`.l9metaignore` also excludes secret files, virtual environments, and generated
+outputs from artifact discovery while retaining `.env.example`. The installed
+CLI prints its check/apply report location. Do not use the
+injector checkout's legacy `npm run inventory`, which can annotate files.
 
 ## Runtime Commands
 

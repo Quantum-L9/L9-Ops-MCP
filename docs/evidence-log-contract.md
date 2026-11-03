@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_evidence_log_contract__md"
+title: "evidence log contract"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/evidence-log-contract.md"
+content_hash: "fe7d12a15083063cfc92c0392185926f30b7ff48df42274ec6d4d3d860586048"
+token_cost_estimate: 247
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "domain_agent"
+description: "Unknown"
+activation_signals: ["agent", "contract"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Evidence Log Contract
 
