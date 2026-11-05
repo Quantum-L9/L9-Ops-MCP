@@ -55,9 +55,9 @@ Governance/contracts: load when task touches policy, validation, compliance, or 
 
 - [playbooks/document-extraction/playbook.yaml](playbooks/document-extraction/playbook.yaml)
 - [playbooks/invoice-ar-processing/playbook.yaml](playbooks/invoice-ar-processing/playbook.yaml)
-- [playbooks/microservice-build/PLAYBOOK.md](playbooks/microservice-build/PLAYBOOK.md)
+- [playbooks/microservice-build/PLAYBOOK.md](playbooks/microservice-build/PLAYBOOK.md) — historical, superseded, non-executable; original requirements retained.
 - [playbooks/multi-agent-routing/playbook.yaml](playbooks/multi-agent-routing/playbook.yaml)
-- [playbooks/new-constellation-node/PLAYBOOK.md](playbooks/new-constellation-node/PLAYBOOK.md)
+- [playbooks/new-constellation-node/PLAYBOOK.md](playbooks/new-constellation-node/PLAYBOOK.md) — primary active node-build playbook and replacement for the historical microservice guide.
 - [playbooks/vendor-onboarding/playbook.yaml](playbooks/vendor-onboarding/playbook.yaml)
 
 ## Key doctrine docs

@@ -135,8 +135,7 @@ jobs:
       # ── pytest (fast tests only, matches "make test-fast") ──
       - name: pytest (fast)
         run: |
-          pytest tests/ -m "not slow" --tb=short -q --co -q 2>/dev/null || \
-            pytest tests/ -m "not slow" --tb=short -q
+          pytest tests/ -m "not slow" --tb=short -q
 
       # ── Bandit Security Scan ──
       - name: Bandit Security Scan

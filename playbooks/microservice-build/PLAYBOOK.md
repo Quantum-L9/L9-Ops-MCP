@@ -1,7 +1,8 @@
 ---
 name: microservice-build
 version: 0.1.0
-status: active
+status: superseded
+superseded_by: ../new-constellation-node/PLAYBOOK.md
 author: Igor Beylin
 last-tested: 2026-06-17
 eval-status: untested
@@ -49,6 +50,13 @@ estimated-turns: 40-60
 ---
 
 # Microservice Build Pipeline
+
+> **Historical guide — superseded, not executable.** Use the existing
+> [New Constellation Node playbook](../new-constellation-node/PLAYBOOK.md) for the
+> active node-build workflow. The original requirements and 17-step design below
+> are preserved for provenance; unavailable dependencies and step files are not
+> implemented or certified by structural CI. This does not claim that the active
+> replacement implements every proposed capability of this historical design.
 
 ## Purpose
 End-to-end orchestration for building an L9-compliant microservice. 17 steps from intake to ship verdict. Steps 02-04 and 06-16 pending authoring — author using `templates/playbook/step.md.template`.

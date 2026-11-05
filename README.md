@@ -57,6 +57,8 @@ For the restricted Manus integration, see
 make help
 make setup
 make validate
+make check
+make test
 make health
 make skill-audit
 make playbook-audit
@@ -74,20 +76,48 @@ make graph-verify
 make graph-sync
 ```
 
+The advertised `l9-preflight` console entrypoint delegates to the existing
+eight-gate `scripts/preflight.sh`. Editable installs detect the checkout;
+wheel installs outside a checkout must pass `l9-preflight --repo /path/to/repo`.
+Invocation performs the existing live Graphiti/Neo4j smoke checks. CI verifies
+that the entrypoint resolves, but does not claim those live checks were run.
+
 ## CI Proof Contract
 
-CI is meaningful only when it proves all referenced automation exists and runs from a clean checkout using declared dependencies. The governance workflow runs:
+The organization Core runner requires `.l9/repo-workflow.json` with the exact
+`l9.repo-execution/v2` contract and `make-v1` facade. `Makefile` is generated
+byte-for-byte by Core; repository commands and phase implementations live in
+`Repo.mk`. Do not edit the generated facade or inject a header into it.
+
+`make setup` creates `.venv` and installs the complete declared `.[dev]`
+dependencies. Subsequent commands select `.venv/bin/python` automatically.
+The governance workflow and organization Core run the same four phases:
 
 ```bash
-bash scripts/library_health.sh
-bash scripts/enforce_progressive_disclosure.sh
-bash scripts/audit_hardban_duplication.sh
-python3 scripts/impact_analysis.py --all
-python3 scripts/convergence_tracker.py
-python3 scripts/validate_wiring.py --all
+make setup
+make validate
+make check
+make test
 ```
 
-The wiring layer covers skill installability, playbook schema validity, AGENTS registry links, pyproject console scripts, README/Makefile parity, upload-to-repo routing, and Quantum-L9 org invariant enforcement.
+`validate` checks current repository wiring and command parity, including
+`Repo.mk` and both workflow extensions. `check` runs library health,
+progressive disclosure, hardban auditing, declared-dependency impact,
+convergence, Ruff and the strictly typed MCP package's mypy check. `test`
+executes all product and L11 tests, not collection alone. Every phase propagates
+failure; `make ci` runs the same three verification phases after setup.
+
+The wiring and impact commands use the consolidated repository's actual
+registries. The historical `config/MANIFEST.json` is retained as upstream pack
+provenance, not promoted to an invented root manifest or used to claim that
+zero artifacts were validated. See [docs/WIRING.md](docs/WIRING.md) for scope
+and [docs/CI_PROOF_CONTRACT.md](docs/CI_PROOF_CONTRACT.md) for proof boundaries.
+
+The incomplete historical `microservice-build` guide is superseded, not
+certified as an implemented 17-step pipeline. Active node-build work uses the
+existing [new-constellation-node playbook](playbooks/new-constellation-node/PLAYBOOK.md).
+Its declared steps and dependencies must pass wiring validation; the old guide
+and its unresolved requirements are retained for provenance.
 
 ## Layout
 
@@ -96,6 +126,8 @@ The wiring layer covers skill installability, playbook schema validity, AGENTS r
 ├── AGENTS.md
 ├── README.md
 ├── Makefile
+├── Repo.mk
+├── .l9/repo-workflow.json
 ├── ORG_INVARIANTS.yaml
 ├── docs/
 ├── skills/
