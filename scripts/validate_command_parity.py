@@ -3,29 +3,44 @@ from __future__ import annotations
 
 import re
 import sys
-from validate_helpers import (
-    ROOT,
-    read,
-    extract_make_targets,
-    extract_readme_make_commands,
-    status_line,
-)
+
+if __package__:
+    from .validate_helpers import (
+        ROOT,
+        read,
+        extract_make_targets,
+        extract_readme_make_commands,
+        status_line,
+        read_makefile_tree,
+    )
+else:
+    from validate_helpers import (
+        ROOT,
+        read,
+        extract_make_targets,
+        extract_readme_make_commands,
+        status_line,
+        read_makefile_tree,
+    )
 
 
 def workflow_commands() -> set[str]:
     cmds: set[str] = set()
-    for wf in (
-        (ROOT / ".github" / "workflows").glob("*.yml")
-        if (ROOT / ".github" / "workflows").exists()
-        else []
-    ):
+    workflows = ROOT / ".github" / "workflows"
+    for wf in sorted(workflows.glob("*")):
+        if wf.suffix not in {".yml", ".yaml"}:
+            continue
         text = read(wf)
         cmds.update(re.findall(r"\bmake\s+([A-Za-z0-9_.-]+)", text))
     return cmds
 
 
 def main() -> int:
-    makefile = read(ROOT / "Makefile")
+    try:
+        makefile = read_makefile_tree(ROOT / "Makefile")
+    except (OSError, ValueError) as exc:
+        print(status_line("FAIL", "command-parity", str(exc)))
+        return 1
     readme = read(ROOT / "README.md")
     agents = read(ROOT / "AGENTS.md")
     targets = extract_make_targets(makefile)

@@ -2,348 +2,250 @@
 # l9_schema: 1
 # component: validate_wiring
 # artifact_type: context
-# tags: [general]
+# tags: [validation, wiring]
 # retrieval: on_demand
 # status: active
 # --- /L9_META ---
+"""Validate actual repository wiring, not authored completeness or content evals.
 
-#!/usr/bin/env python3
+The consolidated repository uses AGENTS, the canonical runtime kernel registry,
+its integrity index, and declared artifact references. Typed legacy root manifests
+remain supported; missing/unknown/empty authority never becomes a zero-check pass.
 """
-l9-ops: Wiring Validator (v1.2.2)
-9-dimension check that every artifact is fully wired.
 
-Usage:
-  python3 scripts/validate_wiring.py           # all artifacts
-  python3 scripts/validate_wiring.py --id X    # one artifact (auto-detect type)
-  python3 scripts/validate_wiring.py --type kernel|skill|playbook|prompt
-
-Exit: 0 = fully wired, 1 = gaps found
-"""
+from __future__ import annotations
 
 import argparse
-import json
+import ast
 import re
+import subprocess
 import sys
 from pathlib import Path
 
-LIBRARY_ROOT = Path(__file__).parent.parent
+import yaml
+
+try:
+    from .repo_structure import ROOT, Repository, StructureError, load_repository
+    from .validate_helpers import extract_make_targets, read_makefile_tree
+except ImportError:  # Direct CLI execution from any working directory.
+    from repo_structure import ROOT, Repository, StructureError, load_repository
+    from validate_helpers import extract_make_targets, read_makefile_tree
+
+LIBRARY_ROOT = ROOT
+
+# Literal interpreter script invocations, including Make's declared Python variable.
+SCRIPT_COMMAND = re.compile(
+    r"(?:\bpython(?:3(?:\.\d+)?)?|\$\(PYTHON\)|\bbash|\bsh)\s+"
+    r"(?:-[A-Za-z]+\s+)*[\"']?([A-Za-z0-9_./-]+\.(?:py|sh))\b"
+)
+DIRECT_SCRIPT = re.compile(r"(?:^|[;&|\s])(?:\./)((?:scripts|ci)/[A-Za-z0-9_./-]+\.(?:py|sh))\b")
 
 
-def load():
-    m = json.loads((LIBRARY_ROOT / "MANIFEST.json").read_text())
-    a = (LIBRARY_ROOT / "AGENTS.md").read_text()
-    pf_path = LIBRARY_ROOT / "evals" / "promptfooconfig.yaml"
-    pf = pf_path.read_text() if pf_path.exists() else ""
-    return m, a, pf
-
-
-class R:
-    def __init__(self):
-        self.passes = []
-        self.fails = []
-
-    def ok(self, c, msg):
-        self.passes.append(f"  ✓ [{c}] {msg}")
-
-    def fail(self, c, msg, fix=None):
-        e = f"  ✗ [{c}] {msg}"
-        if fix:
-            e += f"\n    FIX: {fix}"
-        self.fails.append(e)
-
-    def print(self, aid):
-        print(f"\n{'─' * 55}\n  Wiring: {aid}")
-        for line in self.passes:
-            print(line)
-        for line in self.fails:
-            print(line)
-        status = "FULLY WIRED" if not self.fails else f"GAPS FOUND ({len(self.fails)})"
-        print(f"  Status: {status}")
-        return len(self.fails) == 0, self
-
-
-def check_kernel(kid, m, agents, pf):
-    r = R()
-    reg = m.get("kernels", {}).get("registry", [])
-    entry = next((k for k in reg if k.get("id") == kid), None)
-    if not entry:
-        r.fail(
-            "manifest",
-            f"'{kid}' not in MANIFEST kernels.registry",
-            f"python3 scripts/add_artifact.py kernel --id {kid} ...",
+def _scripts(repo: Repository, text: str, source: str) -> int:
+    references = set(SCRIPT_COMMAND.findall(text)) | set(DIRECT_SCRIPT.findall(text))
+    for rel in sorted(references):
+        # A same-path literal existence guard makes an absent upstream script
+        # inapplicable, not an active command. Authority cannot be skipped this
+        # way: this validator always loads and validates the real repository.
+        escaped = re.escape(rel)
+        guard_pattern = re.compile(
+            rf"(?:if|elif)\s+\[\s+-[fx]\s+[\"']?{escaped}[\"']?\s*\]\s*;\s*then"
+            rf"(?:(?!\b(?:else|elif|fi)\b).)*",
+            re.S,
         )
-        return r.print(kid)
-    r.ok("manifest", "In MANIFEST kernels.registry")
-
-    fpath = LIBRARY_ROOT / entry.get("file", "")
-    if not fpath.exists():
-        r.fail("file", f"Not found: {entry.get('file')}")
-    else:
-        r.ok("file", f"Exists: {entry['file']}")
-        c = fpath.read_text()
-        if "Use when:" in c and "Signals:" in c:
-            r.ok("trigger-triad", "Trigger Triad present")
-        else:
-            r.fail(
-                "trigger-triad",
-                "Missing Use when:/Signals: in description",
-                "Fill per KERNEL_DOCTRINE.md §2.3",
+        guarded = guard_pattern.findall(text)
+        unguarded_text = guard_pattern.sub("", text)
+        unguarded_references = set(SCRIPT_COMMAND.findall(unguarded_text)) | set(
+            DIRECT_SCRIPT.findall(unguarded_text)
+        )
+        if guarded and rel not in unguarded_references and not (repo.root / rel).is_file():
+            repo.record(
+                "NOT_APPLICABLE_WITH_REASON",
+                f"optional-command ({source})",
+                f"{rel}: absent and invocation has a same-path literal existence guard",
             )
-        if "tier2_load:" in c and "tier3_load:" in c:
-            r.ok("tiers", "Tier 2 and 3 markers present")
-        else:
-            r.fail(
-                "tiers",
-                "Missing tier2_load or tier3_load",
-                "Add tier markers per KERNEL_DOCTRINE.md §3",
+            continue
+        repo.check_reference(rel, f"command-script ({source})")
+    return len(references)
+
+
+def validate_commands(repo: Repository) -> None:
+    """Static command reference checks; never execute Make or workflow recipes."""
+    try:
+        make_text = read_makefile_tree(repo.root / "Makefile")
+    except (OSError, ValueError) as exc:
+        repo.record("FAIL", "make-includes", str(exc))
+        return
+    targets = extract_make_targets(make_text)
+    if not targets:
+        repo.record("FAIL", "make-targets", "no declared Make targets")
+    else:
+        repo.record("PASS", "make-targets", f"{len(targets)} targets from contained includes")
+    recipes = "\n".join(line for line in make_text.splitlines() if line.startswith("\t"))
+    command_count = _scripts(repo, recipes, "Makefile/includes")
+    workflow_dir = repo.root / ".github/workflows"
+    workflows = sorted(p for p in workflow_dir.glob("*") if p.suffix in (".yaml", ".yml"))
+    if not workflows:
+        repo.record("FAIL", "workflows", "no .yaml/.yml workflows found")
+    for workflow in workflows:
+        try:
+            data = yaml.safe_load(workflow.read_text(encoding="utf-8"))
+            if (
+                not isinstance(data, dict)
+                or not isinstance(data.get("jobs"), dict)
+                or not data["jobs"]
+            ):
+                raise StructureError("workflow requires a nonempty jobs mapping")
+            for job_id, job in data["jobs"].items():
+                if not isinstance(job, dict):
+                    raise StructureError(f"job {job_id} must be a mapping")
+                # Reusable workflow jobs legitimately have uses instead of steps.
+                steps = job.get("steps", [])
+                if not isinstance(steps, list):
+                    raise StructureError(f"job {job_id} steps must be a list")
+                for step in steps:
+                    if not isinstance(step, dict):
+                        raise StructureError(f"job {job_id}: step must be a mapping")
+                    run = step.get("run")
+                    if run is not None:
+                        if not isinstance(run, str):
+                            raise StructureError(f"job {job_id}: run must be a string")
+                        command_count += _scripts(repo, run, workflow.name)
+                    uses = step.get("uses", "")
+                    if isinstance(uses, str) and uses.startswith("./"):
+                        from_path = (repo.root / uses).resolve()
+                        if not from_path.is_relative_to(repo.root) or not from_path.is_dir():
+                            repo.record("FAIL", "local-action", f"invalid local action: {uses}")
+                        elif not any(
+                            (from_path / f"action.{suffix}").is_file() for suffix in ("yml", "yaml")
+                        ):
+                            repo.record(
+                                "FAIL", "local-action", f"missing action.yml/action.yaml: {uses}"
+                            )
+                        else:
+                            repo.record("PASS", "local-action", uses)
+            repo.record("PASS", "workflow-structure", workflow.relative_to(repo.root).as_posix())
+        except (OSError, ValueError, yaml.YAMLError) as exc:
+            repo.record("FAIL", "workflow-structure", f"{workflow.name}: {exc}")
+    if not command_count:
+        repo.record(
+            "FAIL", "command-script-inventory", "no repository scripts referenced by build/CI"
+        )
+    else:
+        repo.record(
+            "PASS", "command-script-inventory", f"{command_count} literal script references checked"
+        )
+    syntax_paths = set()
+    for directory in ("scripts", "src", "tests"):
+        syntax_paths.update((repo.root / directory).rglob("*.py"))
+    for path in sorted(syntax_paths):
+        try:
+            # Check containment before reading a symlinked Python source.
+            if not path.resolve().is_relative_to(repo.root):
+                raise StructureError("Python source escapes repository")
+            ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        except (OSError, ValueError, SyntaxError) as exc:
+            repo.record("FAIL", "python-syntax", f"{path.relative_to(repo.root)}: {exc}")
+    if syntax_paths:
+        repo.record(
+            "PASS",
+            "python-syntax-inventory",
+            f"{len(syntax_paths)} Python files parsed; see failures",
+        )
+    else:
+        repo.record("FAIL", "python-syntax-inventory", "no Python files found")
+
+
+def run_existing_validators(repo: Repository) -> None:
+    """Reuse callable/import and command-parity authorities, with explicit cwd."""
+    for name in ("validate_command_parity.py", "validate_pyproject_entrypoints.py"):
+        validator = repo.root / "scripts" / name
+        if not validator.is_file():
+            repo.record("FAIL", "validator", f"missing scripts/{name}")
+            continue
+        try:
+            proc = subprocess.run(
+                [sys.executable, str(validator)],
+                cwd=repo.root,
+                text=True,
+                capture_output=True,
+                timeout=60,
             )
-        if "lastRunDate:" in c:
-            r.ok("convergence", "convergence_footer.lastRunDate present")
-        else:
-            r.fail(
-                "convergence", "Missing lastRunDate in convergence_footer", "Add lastRunDate: null"
+            output = (proc.stdout + proc.stderr).strip()
+            # Preserve the existing validator's details, not only its return code.
+            for line in output.splitlines():
+                status, separator, detail = line.partition(":")
+                if separator and status in (
+                    "PASS",
+                    "FAIL",
+                    "BLOCKED",
+                    "UNKNOWN",
+                    "NOT_APPLICABLE_WITH_REASON",
+                ):
+                    repo.record(status, f"{name}-detail", detail.strip())
+                else:
+                    repo.record("UNKNOWN", f"{name}-detail", line)
+            repo.record(
+                "PASS" if proc.returncode == 0 else "FAIL",
+                name,
+                f"exit={proc.returncode}; {len(output.splitlines())} diagnostic lines",
             )
-        stubs = re.findall(r"<[A-Z][^>]{3,}>", c)
-        if not stubs:
-            r.ok("authored", "No unfilled placeholders")
-        else:
-            r.fail(
-                "authored",
-                f"Unfilled placeholders (warn, not blocking merge): {stubs[:2]}",
-                "Fill before marking eval-status: passing",
-            )
-
-    if kid in agents:
-        r.ok("agents-md", "In AGENTS.md")
-    else:
-        r.fail("agents-md", f"'{kid}' missing from AGENTS.md", "Add a row to the Kernels table")
-
-    fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{kid}*.yaml"))
-    if fixtures:
-        r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
-    else:
-        r.fail(
-            "eval-fixture",
-            f"No evals/datasets/{kid}*.yaml",
-            f"Create evals/datasets/{kid}-basic.yaml",
-        )
-
-    if kid in pf:
-        r.ok("promptfoo", "In evals/promptfooconfig.yaml")
-    else:
-        r.fail("promptfoo", f"'{kid}' not in promptfooconfig.yaml", "Add a test block")
-
-    return r.print(kid)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            repo.record("BLOCKED", name, str(exc))
 
 
-def check_skill(sid, m, agents, pf):
-    r = R()
-    reg = m.get("skills", {}).get("registry", [])
-    entry = next((s for s in reg if s.get("id") == sid), None)
-    if not entry:
-        r.fail(
-            "manifest",
-            f"'{sid}' not in MANIFEST skills.registry",
-            f"python3 scripts/add_artifact.py skill --id {sid} ...",
-        )
-        return r.print(sid)
-    r.ok("manifest", "In MANIFEST skills.registry")
-
-    fpath = LIBRARY_ROOT / entry.get("file", "")
-    if not fpath.exists():
-        r.fail("file", f"SKILL.md not found: {entry.get('file')}")
-    else:
-        r.ok("file", f"Exists: {entry['file']}")
-        c = fpath.read_text()
-        if "Use when:" in c and "Signals:" in c:
-            r.ok("trigger-triad", "Trigger Triad present")
-        else:
-            r.fail("trigger-triad", "Missing Trigger Triad", "Fill per SKILLS_DOCTRINE.md §2.2")
-        if "eval-status:" in c:
-            r.ok("eval-status", "eval-status field present")
-        else:
-            r.fail("eval-status", "Missing eval-status in frontmatter")
-
-        # Dep graph consistency
-        mentioned = list(set(re.findall(r"([a-z][a-z0-9_]+kernel\.v\d+)", c)))
-        dep_kernels = m.get("dependencyGraph", {}).get("skillsRequiringKernels", {}).get(sid, [])
-        known_ids = {k["id"] for k in m.get("kernels", {}).get("registry", [])}
-        for mk in mentioned:
-            if mk in known_ids and mk not in dep_kernels:
-                r.fail(
-                    "dep-graph",
-                    f"Skill uses '{mk}' but not in dep graph",
-                    f"Add '{mk}' to MANIFEST dependencyGraph.skillsRequiringKernels.{sid}",
-                )
-            elif mk in known_ids:
-                r.ok("dep-graph", f"Kernel dep '{mk}' wired")
-        for dk in dep_kernels:
-            if dk not in known_ids:
-                r.fail("dep-graph-integrity", f"Dep graph ref '{dk}' not in kernels.registry")
-            else:
-                r.ok("dep-graph-integrity", f"Dep graph ref '{dk}' resolves")
-
-    if sid in agents:
-        r.ok("agents-md", "In AGENTS.md")
-    else:
-        r.fail("agents-md", f"'{sid}' not in AGENTS.md", "Add to Skills table")
-
-    fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{sid}*.yaml"))
-    if fixtures:
-        r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
-    else:
-        r.fail("eval-fixture", f"No fixture for '{sid}'", f"Create evals/datasets/{sid}-basic.yaml")
-
-    if sid in pf:
-        r.ok("promptfoo", "In promptfooconfig.yaml")
-    else:
-        r.fail("promptfoo", f"'{sid}' not in promptfooconfig.yaml")
-
-    return r.print(sid)
+def validate_repository(
+    root: Path = ROOT, manifest: str | None = None, run_validators: bool = True
+) -> Repository:
+    repo = load_repository(root, manifest)
+    validate_commands(repo)
+    if run_validators:
+        run_existing_validators(repo)
+    return repo
 
 
-def check_playbook(pid, m, agents, pf):
-    r = R()
-    reg = m.get("playbooks", {}).get("registry", [])
-    entry = next((p for p in reg if p.get("id") == pid), None)
-    if not entry:
-        r.fail(
-            "manifest",
-            f"'{pid}' not in MANIFEST playbooks.registry",
-            f"python3 scripts/add_artifact.py playbook --id {pid} ...",
-        )
-        return r.print(pid)
-    r.ok("manifest", "In MANIFEST playbooks.registry")
-
-    fpath = LIBRARY_ROOT / entry.get("file", "")
-    if fpath.exists():
-        r.ok("file", f"Exists: {entry['file']}")
-        c = fpath.read_text()
-        if "Use when:" in c and "Signals:" in c:
-            r.ok("trigger-triad", "Trigger Triad present")
-        else:
-            r.fail("trigger-triad", "Missing Trigger Triad", "Fill per PLAYBOOKS_DOCTRINE.md §2.2")
-    else:
-        r.fail("file", "PLAYBOOK.md not found")
-
-    pbdir = LIBRARY_ROOT / "playbooks" / pid
-    if (pbdir / "steps").exists():
-        r.ok("dir-steps", "steps/ present")
-    else:
-        r.fail("dir-steps", "Missing steps/", f"mkdir playbooks/{pid}/steps/")
-    if (pbdir / "data-types").exists():
-        r.ok("dir-dt", "data-types/ present")
-    else:
-        r.fail("dir-dt", "Missing data-types/", f"mkdir playbooks/{pid}/data-types/")
-
-    dep_kernels = m.get("dependencyGraph", {}).get("playbookKernelRequirements", {}).get(pid, [])
-    known_ids = {k["id"] for k in m.get("kernels", {}).get("registry", [])}
-    for dk in dep_kernels:
-        if dk not in known_ids:
-            r.fail("dep-graph", f"'{dk}' not in kernels.registry")
-        else:
-            r.ok("dep-graph", f"Kernel ref '{dk}' resolves")
-
-    if pid in agents:
-        r.ok("agents-md", "In AGENTS.md")
-    else:
-        r.fail("agents-md", f"'{pid}' not in AGENTS.md")
-
-    fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{pid}*.yaml"))
-    if fixtures:
-        r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
-    else:
-        r.fail("eval-fixture", f"No fixture for '{pid}'")
-
-    return r.print(pid)
-
-
-def check_prompt(pid, m, agents, pf):
-    r = R()
-    reg = m.get("prompts", {}).get("registry", [])
-    entry = next((p for p in reg if p.get("id") == pid), None)
-    if not entry:
-        r.fail("manifest", f"'{pid}' not in MANIFEST prompts.registry")
-        return r.print(pid)
-    r.ok("manifest", "In MANIFEST prompts.registry")
-
-    fpath = LIBRARY_ROOT / entry.get("file", "")
-    if fpath.exists():
-        r.ok("file", f"Exists: {entry['file']}")
-        c = fpath.read_text()
-        if "eval-status:" in c:
-            r.ok("eval-status", "eval-status present")
-        else:
-            r.fail("eval-status", "Missing eval-status field")
-    else:
-        r.fail("file", f"File not found: {entry.get('file')}")
-
-    fixtures = list((LIBRARY_ROOT / "evals" / "datasets").glob(f"{pid}*.yaml"))
-    if fixtures:
-        r.ok("eval-fixture", f"Fixture: {fixtures[0].name}")
-    else:
-        r.fail("eval-fixture", f"No fixture for '{pid}'", f"Create evals/datasets/{pid}-basic.yaml")
-
-    return r.print(pid)
-
-
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--id")
-    p.add_argument("--type", choices=["kernel", "skill", "playbook", "prompt"])
-    p.add_argument("--all", action="store_true")
-    a = p.parse_args()
-    if not a.id and not a.type and not a.all:
-        a.all = True
-
-    m, agents, pf = load()
-    print("\nl9-ops Wiring Validator\n" + "=" * 55)
-
-    total = total_gaps = 0
-
-    def run(fn, aid):
-        nonlocal total, total_gaps
-        total += 1
-        passed, rep = fn(aid, m, agents, pf)
-        if not passed:
-            total_gaps += len(rep.fails)
-
-    if a.id:
-        all_ids = (
-            {k["id"]: check_kernel for k in m.get("kernels", {}).get("registry", [])}
-            | {s["id"]: check_skill for s in m.get("skills", {}).get("registry", [])}
-            | {pb["id"]: check_playbook for pb in m.get("playbooks", {}).get("registry", [])}
-            | {pr["id"]: check_prompt for pr in m.get("prompts", {}).get("registry", [])}
-        )
-        if a.id in all_ids:
-            run(all_ids[a.id], a.id)
-        else:
-            print(f"ERROR: '{a.id}' not found in any registry.", file=sys.stderr)
-            sys.exit(1)
-    else:
-        if a.type in ("kernel", None) or a.all:
-            for k in m.get("kernels", {}).get("registry", []):
-                run(check_kernel, k["id"])
-        if a.type in ("skill", None) or a.all:
-            for s in m.get("skills", {}).get("registry", []):
-                run(check_skill, s["id"])
-        if a.type in ("playbook", None) or a.all:
-            for pb in m.get("playbooks", {}).get("registry", []):
-                run(check_playbook, pb["id"])
-        if a.type in ("prompt", None) or a.all:
-            for pr in m.get("prompts", {}).get("registry", []):
-                run(check_prompt, pr["id"])
-
-    print("\n" + "=" * 55)
-    print(f"  Artifacts checked: {total}")
-    print(f"  Wiring gaps:       {total_gaps}")
-    result = (
-        "ALL FULLY WIRED ✓" if total_gaps == 0 else f"{total_gaps} WIRING GAPS — fix before merging"
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--all", action="store_true", help="check every registered artifact (default)"
     )
-    print(f"  Result: {result}")
-    print("=" * 55)
-    sys.exit(0 if total_gaps == 0 else 1)
+    parser.add_argument(
+        "--id", help="artifact ID; consolidated skills/playbooks use scoped directory IDs"
+    )
+    parser.add_argument("--type", choices=("kernel", "skill", "playbook", "prompt"))
+    parser.add_argument("--root", type=Path, default=LIBRARY_ROOT)
+    parser.add_argument("--manifest", help="explicit contained legacy manifest path")
+    args = parser.parse_args(argv)
+    try:
+        repo = validate_repository(args.root, args.manifest)
+        selected = [
+            a
+            for a in repo.artifacts.values()
+            if (not args.id or a.id == args.id) and (not args.type or a.kind == args.type)
+        ]
+        if not selected:
+            raise StructureError("artifact selection is empty or unknown")
+        # Selection is a reporting filter, never a way to ignore broken global authority.
+        print(f"Source: {repo.source}")
+        print(f"Artifacts selected: {len(selected)} / inventoried: {len(repo.artifacts)}")
+        for finding in repo.findings:
+            print(finding.line())
+        passes = sum(f.status == "PASS" for f in repo.findings)
+        print(
+            f"Artifacts checked: {len(repo.artifacts)}; structural checks passed: {passes}; "
+            f"wiring gaps: {len(repo.failures)}"
+        )
+        print(
+            "FAIL: repository wiring has gaps"
+            if repo.failures
+            else "PASS: repository structural wiring"
+        )
+        return 1 if repo.failures or not passes else 0
+    except Exception as exc:
+        # Registry/schema/import failures must remain a failed gate, not a traceback-only skip.
+        print(f"FAIL: repository-structure: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
