@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_trust_ladder__py
+# title: test trust ladder
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_trust_ladder.py
+# content_hash: 8f6abc04843cb0b885ff1659522463b7e792e810207efcd0037221d5ac634ed7
+# token_cost_estimate: 149
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Unit tests for trust-ladder scope resolution."""
 
 from l9_ops_mcp.trust_ladder import allowed_scopes

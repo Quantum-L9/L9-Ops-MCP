@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.schemas_skill_installability_schema__yaml
+# title: skill installability schema
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: schemas/skill_installability.schema.yaml
+# content_hash: 8d00e1f684f586e789dc0084f5dc70481339548539f056e801a39ed3d6ed0c41
+# token_cost_estimate: 89
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 type: object
 required: [path, has_skill_md, frontmatter, trigger_quality, installability_status]
 properties:

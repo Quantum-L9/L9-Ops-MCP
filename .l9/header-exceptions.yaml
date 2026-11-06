@@ -1,0 +1,44 @@
+schema: l9.header-exceptions/v1
+policy_document: docs/METADATA_HEADER_POLICY.md
+exceptions:
+  - name: protected-native-skills
+    patterns: ["docs/SKILL.md", "skills/**/SKILL.md"]
+    treatment: existing-native-frontmatter
+    reason: "Normal governed modes protect SKILL.md entrypoints; this rollout does not rewrite skill behavior or descriptions."
+  - name: existing-yaml-frontmatter
+    paths:
+      - ORG_INVARIANTS.yaml
+      - docs/kernels/R0/soul_kernel.v1.yaml
+      - docs/kernels/R5/preferences_kernel.v1.yaml
+    treatment: existing-native-metadata-and-central-index
+    reason: "These existing leading YAML metadata documents are already consumed by repository parsers; prepending comments would change their recognition boundary."
+  - name: complex-markdown-frontmatter
+    paths:
+      - playbooks/microservice-build/PLAYBOOK.md
+      - skills/meta/optimize-kernel/SKILL__source_ecaa3134.md
+    treatment: existing-native-frontmatter-and-central-index
+    reason: "Complex YAML frontmatter is outside the safe patch subset and must remain byte-identical."
+  - name: byte-sensitive-fixtures
+    patterns: ["tests/fixtures/**", "**/golden_tests/**", "**/datasets/**"]
+    treatment: central-index-or-protected-internal-copy
+    reason: "Test payloads, golden inputs, and evaluation prompts depend on exact bytes; do not add headers to fixture content."
+  - name: strict-json-and-jsonl
+    patterns: ["**/*.json", "**/*.jsonl"]
+    treatment: central-index
+    reason: "Strict JSON and JSONL have no inert comment header syntax; generated lock and internal-index exceptions take precedence."
+  - name: plain-text-payloads
+    patterns: ["**/*.txt"]
+    treatment: central-index
+    reason: "Do not invent a comment convention or change exact text payloads."
+  - name: generated-lock-state
+    paths: [package-lock.json]
+    treatment: inventory-only
+    reason: "The dependency resolver owns lockfile bytes; metadata belongs in inventory, never in the generated file."
+  - name: protected-tool-state
+    patterns: [".l9/**", "**/.l9/**", ".git/**", "node_modules/**", ".l9-meta-injector-out/**"]
+    treatment: excluded-internal-state
+    reason: "Authority, metadata indexes, Git state, dependencies, and reports are not self-annotating source inputs."
+  - name: secret-and-ephemeral-inputs
+    patterns: [".env", ".env.*", ".venv/**", "dist/**", "build/**", "__pycache__/**", "*.pyc"]
+    treatment: omitted-or-generated-inventory-only
+    reason: "Do not read/annotate secrets or generated environments; .env.example is the explicitly authorized non-secret template exception."

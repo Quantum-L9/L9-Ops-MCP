@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_05_l11_debt_graph_service__py
+# title: 05 L11 DEBT GRAPH SERVICE
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/05-L11-DEBT-GRAPH-SERVICE.py
+# content_hash: 376a21bf88f8cf19010b23e7c75e4f5b5f0a8e72b3df9522f34a1f6bec34e644
+# token_cost_estimate: 248
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: 05-L11-DEBT-GRAPH-SERVICE

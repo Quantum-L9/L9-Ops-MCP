@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_integration_guide__md"
+title: "INTEGRATION GUIDE"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/INTEGRATION_GUIDE.md"
+content_hash: "9cc892d7427039fce673590c6414c1c633527b4f1bb80aa0287132fa0e28101b"
+token_cost_estimate: 528
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["validate"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Protected Files Enforcement v6.0 — L11 Integration Guide
 #

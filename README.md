@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: [docs, mcp, context-control-plane, graphiti, governance]
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs", "mcp", "context-control-plane", "graphiti", "governance"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.readme__md"
+title: "README"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "README.md"
+content_hash: "94c1022c60c548d79830984679674d9d7f97a5303e965fe7f68b1903478305e1"
+token_cost_estimate: 1323
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["validate", "build", "agent"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # L9-Ops-MCP
@@ -63,6 +83,39 @@ make playbook-audit
 make wiring
 make ci
 ```
+
+## Format-Safe Metadata Headers
+
+Repository-local `l9-meta-injector` tooling is pinned to one immutable GitHub
+commit in `package.json`, `package-lock.json`, and `.l9/meta-authority.yaml`.
+This rollout is based on `main`, not on an earlier metadata PR. Node.js >=18
+and GitHub access to the pinned dependency are required.
+
+```bash
+make meta-setup
+make meta-inventory
+make meta-apply
+make meta-check
+```
+
+Apply uses explicitly authorized carriers: YAML frontmatter for eligible
+Markdown and language-valid metadata comments for source, scripts, tests,
+and supported configuration/control files. The renderer preserves document
+bodies, shebangs, encoding declarations, and newline conventions. Check and
+inventory are read-only. No LLM mode is enabled.
+
+The [metadata header policy](docs/METADATA_HEADER_POLICY.md) and
+`.l9/header-exceptions.yaml` declare generated, fixture, strict-format,
+existing-frontmatter, and protected-skill exceptions. `inline_exclude` wins
+over `inline_allow`; neither can override protected internal state or generated
+lockfiles. Exception files remain byte-identical and use the central index,
+existing native metadata, or an explicit generated/internal exemption.
+
+After intentionally changing canonical kernel bytes, update their full-file
+SHA-256 entries in `AGENT_RETRIEVAL_INDEX.yaml`; the refresh script will not
+silently bless canonical drift. Then run the noncanonical retrieval refresh,
+apply again to synchronize `.l9/metadata-index.jsonl`, and run both metadata
+and retrieval checks. The Python MCP runtime is not started by these commands.
 
 ## Runtime Commands
 

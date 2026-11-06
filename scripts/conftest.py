@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_conftest__py
+# title: conftest
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/conftest.py
+# content_hash: 5f8c39f61d8c407f61b09362aefcc6f27c17d6dae32a75d98d900e5e835d0c4c
+# token_cost_estimate: 1173
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: conftest

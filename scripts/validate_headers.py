@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_validate_headers__py
+# title: validate headers
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/validate_headers.py
+# content_hash: 3db05e982dd81548f1e0d694c01311986cb41b543ccf79cbd806886f36caa1a3
+# token_cost_estimate: 589
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: validate_headers

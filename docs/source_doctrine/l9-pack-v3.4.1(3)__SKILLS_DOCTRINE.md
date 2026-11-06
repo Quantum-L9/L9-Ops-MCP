@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['doctrine']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["doctrine"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_source_doctrine_l9_pack_v3_4_1_3_skills_doctrine__md"
+title: "l9 pack v3 4 1(3)  SKILLS DOCTRINE"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/source_doctrine/l9-pack-v3.4.1(3)__SKILLS_DOCTRINE.md"
+content_hash: "b55dbdd8e7eb4a2c29fecc7b70ba6656b708c6e137d5226caef4d3a03436c0ed"
+token_cost_estimate: 1904
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "compiler"
+description: "Unknown"
+activation_signals: ["build", "kernel", "agent", "law"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # SKILLS DOCTRINE — L9 Library System
 <!-- version: 3.4.1 | date: 2026-06-18 | author: Igor Beylin -->

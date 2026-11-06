@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_sync_graph__py
+# title: sync graph
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/sync_graph.py
+# content_hash: c6aee282df9ba926ffeb54b31e3b871337676a3765099d40296b9f24bf0fa50f
+# token_cost_estimate: 272
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """CLI: export, verify, and ingest graph seed records in one deterministic pass."""
 
 from __future__ import annotations

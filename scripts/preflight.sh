@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_preflight__sh
+# title: preflight
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/preflight.sh
+# content_hash: 65b67cf3222bc0aa1f8cb79046ba974d21594cd0a67d94270e2fda475d50b735
+# token_cost_estimate: 1459
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9-Ops-MCP preflight — 8 gates, exits 0=green 1=blocking failure
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

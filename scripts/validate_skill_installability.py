@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_validate_skill_installability__py
+# title: validate skill installability
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/validate_skill_installability.py
+# content_hash: 06a77d5f35b0af0cd2ea4fb896baab2205581ba5db0e8765f6b486df41f123c4
+# token_cost_estimate: 624
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 from __future__ import annotations
 
 import sys

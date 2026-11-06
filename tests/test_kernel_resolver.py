@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_kernel_resolver__py
+# title: test kernel resolver
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_kernel_resolver.py
+# content_hash: 7f47f80157b3d653a695e657b2be5de2b386186e0e584e9d68ee101bf3700514
+# token_cost_estimate: 3353
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Unit tests for :mod:`l9_ops_mcp.kernel_resolver` (execution contract §41).
 
 Uses synthetic fixture repositories in ``tmp_path`` for every adversarial

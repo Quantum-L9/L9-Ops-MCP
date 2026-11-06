@@ -13,6 +13,26 @@ ring: "R0"
 production_ready: true
 retrieval_keys: ["Igor", "Boss", "operator", "user profile", "collaboration rules", "who is Igor", "cryptoxdog"]
 supersedes: ["USER.md v4.x", "Igor_Beylin_Preferences_v4.5.yaml", "PREFERENCES_v4.5.yaml"]
+id: "L9-Ops-MCP.context.docs_profiles_user__md"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/profiles/USER.md"
+content_hash: "53420c174ed25e1f2851055c62dfd2592ecfa7d87d8349aa675d5c795df64417"
+token_cost_estimate: 1137
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["meta"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # USER.md — Igor Beylin Operator Profile

@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_universal_hardbans__md"
+title: "universal hardbans"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/universal_hardbans.md"
+content_hash: "d38f447cdb35d968da6ceaecb78eeb9af249e7892b09af3e6aea3f4731f39bf6"
+token_cost_estimate: 373
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["kernel", "agent"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 <!-- l9-ops: Universal Hard Bans | R0 | Always active | 2026-06-17 -->
 

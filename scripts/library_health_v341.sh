@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_library_health_v341__sh
+# title: library health v341
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/library_health_v341.sh
+# content_hash: 617932df8f0343b054b351733277d3129ae781b1d9079bd7131122882b1a77a2
+# token_cost_estimate: 683
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # library_health_v341.sh — L9 library health check v3.4.1
 # Checks: stale last_tested, missing tier markers, v3.4.1 compliance fields,
 #         trust_ladder requires, memory_admission requires, placeholder detection

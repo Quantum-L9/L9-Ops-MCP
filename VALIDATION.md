@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.validation__md"
+title: "VALIDATION"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "VALIDATION.md"
+content_hash: "0983d19edb977469398fa0d15bb9c5cb7bb63fe1e37769fe6542bc7436f89de9"
+token_cost_estimate: 335
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "auditor"
+description: "Unknown"
+activation_signals: ["check"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Validation Report
 
 ## Commands executed

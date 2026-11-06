@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_ranked_decisions__yaml
+# title: ranked decisions
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/ranked_decisions.yaml
+# content_hash: 364b51b383cde049aadddb2e3412dd5a34ff378d960563a3f53030493d87cf14
+# token_cost_estimate: 717
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_ops_mcp_adapters_graph_export_exporter__py
+# title: exporter
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_ops_mcp/adapters/graph_export/exporter.py
+# content_hash: 21cd809972c14a4b9799dbd9df2415b475af5a85f2a12bc239ad488f4ca910f5
+# token_cost_estimate: 3096
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Graph export adapter for L9-Ops-MCP.
 
 Converts V2 metadata/retrieval indexes into graph-seed JSONL records that can be

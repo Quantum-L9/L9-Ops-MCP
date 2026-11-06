@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_l9_agents__yaml
+# title: l9 agents
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/l9_agents.yaml
+# content_hash: c149cc82e540b3730aace27cf5b0f1df0db45cf4e7c6074312ffdad23c191d52
+# token_cost_estimate: 833
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_wiring__md"
+title: "WIRING"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/WIRING.md"
+content_hash: "63f41e342a60133131b15723be7b1d92d8c8810e078a3639806dbdb6704835e4"
+token_cost_estimate: 690
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["kernel"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 <!-- l9-ops WIRING.md | v1.2.2 | 2026-06-17 -->
 

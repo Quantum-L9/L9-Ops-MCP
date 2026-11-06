@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.playbook.playbooks_document_extraction_playbook__yaml
+# title: playbook
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: playbooks/document-extraction/playbook.yaml
+# content_hash: ce1da1735f31ee915afa5ec602fe2750156098b8e409875cf8d44632d7c96648
+# token_cost_estimate: 1233
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

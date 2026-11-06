@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.governance_acap_profile_template__yaml
+# title: acap profile template
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: governance/acap-profile-template.yaml
+# content_hash: 897a9e0b57a8edf52e7da32475a32723ad7c1448ec48ecced59c9bfccf421dd2
+# token_cost_estimate: 694
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

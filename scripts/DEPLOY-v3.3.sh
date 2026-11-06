@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_deploy_v3_3__sh
+# title: DEPLOY v3 3
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/DEPLOY-v3.3.sh
+# content_hash: 7337052bd8e44b6bc1c6d9c54e9bde8e61ce067c7be9fb65ff1c4605566a818c
+# token_cost_estimate: 5638
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # ══════════════════════════════════════════════════════════════
 # L11 Debt Governance Pipeline — Deployment Script v3.3
 #

@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_follow_up_engine__md"
+title: "follow up engine"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/follow-up-engine.md"
+content_hash: "bb20ac50b25a459e89228c6a47256da82b753624f484693b4b5db09251639fdc"
+token_cost_estimate: 694
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "legal"
+description: "Unknown"
+activation_signals: ["compliance"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Follow-Up Engine
 

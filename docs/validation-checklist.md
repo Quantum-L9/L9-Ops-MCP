@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.context.docs_validation_checklist__md"
+title: "validation checklist"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/validation-checklist.md"
+content_hash: "3edc297043fb9d3fb14edba91a61cd4c1e9a066310f55ee5666b2faddcb24014"
+token_cost_estimate: 263
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Validation Checklist
 

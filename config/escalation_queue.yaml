@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_escalation_queue__yaml
+# title: escalation queue
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/escalation_queue.yaml
+# content_hash: 2496578924bb7f8218a2b9aedab84773830e585c0ac324da969c6bec55e07b55
+# token_cost_estimate: 226
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

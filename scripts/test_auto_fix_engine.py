@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_test_auto_fix_engine__py
+# title: test auto fix engine
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/test_auto_fix_engine.py
+# content_hash: bfab7b593d40264e3332a7f7c1eca9c23d99fc4c4745f341e426faae5096cf53
+# token_cost_estimate: 573
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: test_auto_fix_engine

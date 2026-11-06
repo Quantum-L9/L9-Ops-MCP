@@ -1,14 +1,34 @@
 ---
-title: Relational_Trust_Model
-version: 4.0.0
+title: "Relational_Trust_Model"
+version: "4.0.0"
 created: 2025-10-28T15:30:00Z
-owner: Igor Beylin
-platform: Odoo 19
-source: Chat Summar3.md
-tags: [trust, ai, behavioral-intelligence, governance, reinforcement, odoo]
-domain: governance
-type: trust-framework
+owner: "Igor Beylin"
+platform: "Odoo 19"
+source: "Chat Summar3.md"
+tags: ["trust", "ai", "behavioral-intelligence", "governance", "reinforcement", "odoo"]
+domain: "governance"
+type: "trust-framework"
 production_ready: true
+id: "L9-Ops-MCP.context.docs_relational_trust_model_v6_0__md"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/Relational_Trust_Model_v6.0.md"
+content_hash: "d4bb02452237aa9bd8cc0acb84d7d6d7f8f62a8f23c6dd2c8326150e92c8c95c"
+token_cost_estimate: 1099
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 
 # Relational_Trust_Model_v4.0.md  

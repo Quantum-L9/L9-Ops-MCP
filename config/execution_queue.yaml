@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_execution_queue__yaml
+# title: execution queue
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/execution_queue.yaml
+# content_hash: d0d947575bef8dea0bd95f21921319b97c1b2c5d88a88d0ed3845bd0a93f42c0
+# token_cost_estimate: 180
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

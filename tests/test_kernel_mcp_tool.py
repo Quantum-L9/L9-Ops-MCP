@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_kernel_mcp_tool__py
+# title: test kernel mcp tool
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_kernel_mcp_tool.py
+# content_hash: 8f562220886c93d1a1772e6dec04372eb45a0640b4ea5efbc904d5132bcb5942
+# token_cost_estimate: 1908
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """MCP-surface tests for ``kernel_resolve`` (execution contract §44).
 
 These tests import the server module and drive the tool through both the

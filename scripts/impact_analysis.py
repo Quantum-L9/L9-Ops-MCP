@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_impact_analysis__py
+# title: impact analysis
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/impact_analysis.py
+# content_hash: 7694fbc0e93089cfb5cd533eff1b0ade40a697a961023edfac79c70c1cf13bf2
+# token_cost_estimate: 983
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: impact_analysis

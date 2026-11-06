@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_admission__py
+# title: test admission
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_admission.py
+# content_hash: 1ed6345943d832789f412d38a6a1887bcf7abc1241127c91bce947fea1fa9874
+# token_cost_estimate: 542
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Unit tests for the admission gate. No Neo4j required."""
 
 import asyncio

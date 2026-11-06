@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_kernel_determinism__py
+# title: test kernel determinism
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_kernel_determinism.py
+# content_hash: 4ae6f8c8d14f0e2227e9bf8030259896e0e88f363fae6be2842b6d78452ffcf4
+# token_cost_estimate: 1459
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Determinism, digest sensitivity, and canonical JSON tests.
 
 Covers execution contract §25 (canonical serialization), §26 (deterministic

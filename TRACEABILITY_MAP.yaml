@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.traceability_map__yaml
+# title: TRACEABILITY MAP
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: TRACEABILITY_MAP.yaml
+# content_hash: 1d7bd046e65ef7e9016c2885a64206c6922d0b1ae7bfecda3e8bb7d45ed50c9a
+# token_cost_estimate: 224
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 traceability:
   objective:
     source: "User request to build PR-ready overlay for graph export adapter and integration docs."

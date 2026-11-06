@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_wire_governance_sink__py
+# title: wire governance sink
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/wire_governance_sink.py
+# content_hash: d48732c925d828fcc81ad141b7f7aea0385320cba3fc029535b4abafbefb95fd
+# token_cost_estimate: 572
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Patch Cursor-Governance context-extractor.py to emit Graphiti episodes.
 
 Idempotent: skips if already patched. Creates .pre-graphiti.bak backup.

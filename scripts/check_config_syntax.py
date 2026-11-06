@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_check_config_syntax__py
+# title: check config syntax
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/check_config_syntax.py
+# content_hash: 61d9099bb6c0627731d67a4e4dbb604bcd37adc082095381332e438f29c521ff
+# token_cost_estimate: 497
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: check_config_syntax

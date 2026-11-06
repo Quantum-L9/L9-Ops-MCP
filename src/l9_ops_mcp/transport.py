@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_ops_mcp_transport__py
+# title: transport
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_ops_mcp/transport.py
+# content_hash: 36e5e246990c5d1aa9cb2b2711f2384820dcd68b646ce0dcd9fd0e2dbcc1e84f
+# token_cost_estimate: 777
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: runtime_module

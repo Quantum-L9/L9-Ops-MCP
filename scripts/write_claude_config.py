@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_write_claude_config__py
+# title: write claude config
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/write_claude_config.py
+# content_hash: ded844fcb0e792e6bc90f9b2ff01737699b0e59b3465788e5fceaa8a319a2eb7
+# token_cost_estimate: 431
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Write or merge l9-ops-mcp into Claude Desktop MCP config. Idempotent."""
 
 from __future__ import annotations

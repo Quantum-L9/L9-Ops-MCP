@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_action_governor_models__py
+# title: models
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_action_governor/models.py
+# content_hash: 6d9db0898fac1d72c24a303759b598b45f251a9c59aeb1c3ce13d6119b5c4a28
+# token_cost_estimate: 929
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: models

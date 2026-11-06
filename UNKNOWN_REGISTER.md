@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.unknown_register__md"
+title: "UNKNOWN REGISTER"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "UNKNOWN_REGISTER.md"
+content_hash: "ff21ab700037b0cc989029a2090666de54cbbb54f5ae7807f07bd9ebd3d1d227"
+token_cost_estimate: 167
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "Unknown"
+description: "Unknown"
+activation_signals: "Unknown"
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # Unknown Register
 
 | ID | Unknown | Impact | Handling |

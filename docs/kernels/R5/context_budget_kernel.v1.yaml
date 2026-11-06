@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.kernel.docs_kernels_r5_context_budget_kernel_v1__yaml
+# title: context budget kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: docs/kernels/R5/context_budget_kernel.v1.yaml
+# content_hash: 724551b43d6fc85a8c935e9a6f9a6c93edbe549fa969177c769d7b6724401fb4
+# token_cost_estimate: 1421
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L9_META
 # l9_schema: 1 | origin: l9-kernel | source_file: context_budget_kernel.v1.yaml (v3.3.0)
 # layer: kernel | ring: R5 | category: developer_support | status: active | version: 1.1.0

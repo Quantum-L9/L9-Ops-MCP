@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.assets_evals_promptfooconfig__yaml
+# title: promptfooconfig
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: assets/evals/promptfooconfig.yaml
+# content_hash: b214b6e7169a4b769111c8668990ac1a74d2c3374a58eec843906dde22bd42c9
+# token_cost_estimate: 1208
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

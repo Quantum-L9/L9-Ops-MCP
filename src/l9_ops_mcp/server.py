@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_ops_mcp_server__py
+# title: server
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_ops_mcp/server.py
+# content_hash: cf68d536e556dda364e822a3b154cc8187a991766686b9dbc8bf62d70616dad2
+# token_cost_estimate: 2660
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """L9-Ops-MCP MCP server.
 
 Two planes are exposed:

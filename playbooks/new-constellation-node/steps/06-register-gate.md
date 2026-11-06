@@ -1,9 +1,29 @@
 ---
 l9_schema: 1
-artifact_type: documentation
-tags: ['docs']
-retrieval: on_demand
-status: active
+artifact_type: "documentation"
+tags: ["docs"]
+retrieval: "on_demand"
+status: "active"
+id: "L9-Ops-MCP.playbook.playbooks_new_constellation_node_steps_06_register_gate__md"
+title: "06 register gate"
+mcp_primitive: "tool"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "playbooks/new-constellation-node/steps/06-register-gate.md"
+content_hash: "6dd333c8d1ba09cce6a6573752c4bcd01c9d3fc8c596a10a0bcee2a08304bcae"
+token_cost_estimate: 280
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "builder"
+description: "Unknown"
+activation_signals: ["construct", "contract"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
 ---
 # Step 06 — Register at Gate
 

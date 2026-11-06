@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_convergence_tracker__py
+# title: convergence tracker
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/convergence_tracker.py
+# content_hash: 9595af3aa5740efbcab10e3a19d0809ba62f51f307415562988ac3220153c2ee
+# token_cost_estimate: 1651
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: convergence_tracker

@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_validate_playbooks__py
+# title: validate playbooks
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/validate_playbooks.py
+# content_hash: d41bb03c0d23371aa66f8dbb7b8c514f0829809aa109cc004916ee4647b6c076
+# token_cost_estimate: 429
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 from __future__ import annotations
 
 import sys

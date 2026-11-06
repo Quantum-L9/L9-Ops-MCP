@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.assets_makefile
+# title: Makefile
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: assets/Makefile
+# content_hash: 630dbca8f36b787f85e44c655e35a4036002016d15951e7ae889c2e7c40fe510
+# token_cost_estimate: 1396
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # =============================================================================
 # L9 IgorOS Pack — Makefile
 # Automation for: harvest, validate, format-check, health, eval, and zip

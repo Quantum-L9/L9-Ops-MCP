@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_github_workflow_notes_01_l11_pipeline_config__yaml
+# title: 01 L11 PIPELINE CONFIG
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/github-workflow-notes/01-L11-PIPELINE-CONFIG.yaml
+# content_hash: 022fbc366e20339998f5c1c06659d6bbe89e52da16af201d9f5bbf7ffa9d8dc8
+# token_cost_estimate: 2100
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # L11 Debt Governance Pipeline Configuration v3.1
 # Philosophy: Deterministic-Core + AI-Augmentation
 # Alignment: Unified with L9 existing CI toolchain

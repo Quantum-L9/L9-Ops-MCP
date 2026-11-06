@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_kernel_projection_and_envelope__py
+# title: test kernel projection and envelope
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_kernel_projection_and_envelope.py
+# content_hash: a204c459bb70f723d45e1bb4c24a87b374aa424e1b59eca5226286d1b97e7cec
+# token_cost_estimate: 3623
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Tier-1 projection semantics + MCP envelope failure-closed tests.
 
 Covers the two blockers identified in review of PR #20:

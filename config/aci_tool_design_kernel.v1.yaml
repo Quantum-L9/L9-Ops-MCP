@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_aci_tool_design_kernel_v1__yaml
+# title: aci tool design kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/aci_tool_design_kernel.v1.yaml
+# content_hash: 75e0c52cdd823cc0d81c97d334780237aa6e75b1e5ca59fafdbb4e807aaedcbe
+# token_cost_estimate: 991
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

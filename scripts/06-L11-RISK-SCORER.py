@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_06_l11_risk_scorer__py
+# title: 06 L11 RISK SCORER
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/06-L11-RISK-SCORER.py
+# content_hash: afc0b627c782ba904cc98dedb4a2f06e5cc6c2338dbd7e6eae50d2ae6073c7ce
+# token_cost_estimate: 238
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: 06-L11-RISK-SCORER

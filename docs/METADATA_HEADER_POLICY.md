@@ -1,0 +1,66 @@
+---
+id: "L9-Ops-MCP.context.docs_metadata_header_policy__md"
+title: "METADATA HEADER POLICY"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/METADATA_HEADER_POLICY.md"
+content_hash: "6ba410da2732b1ddc97c8e1a5629147c910340a8cc144cfb775cba3fdbb667cd"
+token_cost_estimate: 1123
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["meta", "contract"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
+# Format-Safe Metadata Header Policy
+
+This repository requires metadata coverage, not syntactically invalid headers on every byte stream. The `L9_META` header contract is implemented with a format-valid carrier or a named exception. `.l9/meta-authority.yaml` is the executable authorization; `.l9/header-exceptions.yaml` records the repository-owned exception rationale.
+
+## Valid carriers
+
+Eligible Markdown receives managed YAML frontmatter. Python, shell, raw YAML, TOML, Makefiles, and supported control files receive language-valid metadata comments, only when their paths match `inline_allow`. Source/test/script classification is no longer a blanket reason to deny a comment-compatible carrier. Existing legacy metadata comment blocks remain part of the original body and are not deleted.
+
+The injector preserves BOMs, first-line shebangs, encoding declarations, newline conventions, and original body bytes. `inline_exclude` wins over `inline_allow`. Hard-protected, generated, binary, dependency, and byte-sensitive fixture rules cannot be overridden by either list. Hidden controls require explicit patterns naming those controls; a blanket grant does not unlock hidden directories or secrets.
+
+The authorized hidden controls are `.editorconfig`, `.gitignore`, `.github/CODEOWNERS`, `.github/workflows/` YAML, `.pre-commit-config.yaml`, `.env.example`, and `.l9metaignore`. `.env.example` is a non-secret template, not permission to read `.env` or arbitrary secret files.
+
+## Explicit exceptions
+
+| Paths/formats | Treatment | Why |
+| --- | --- | --- |
+| `docs/SKILL.md`, `skills/**/SKILL.md` | Preserve native frontmatter; omitted in ordinary modes | Skill entrypoints are a separately governed editing surface. |
+| `ORG_INVARIANTS.yaml`, `docs/kernels/R0/soul_kernel.v1.yaml`, `docs/kernels/R5/preferences_kernel.v1.yaml` | Preserve existing native headers; central records | Their parsers recognize an existing leading YAML metadata document. |
+| `playbooks/microservice-build/PLAYBOOK.md`, `skills/meta/optimize-kernel/SKILL__source_ecaa3134.md` | Preserve existing complex frontmatter; central records | The frontmatter is outside the safe patch subset. |
+| `tests/fixtures/**`, `**/golden_tests/**`, `**/datasets/**` | Preserve exact payload bytes; central records where discoverable | These are fixture/evaluation data, not the test implementation code. |
+| JSON/JSONL, including schemas and manifests | Central metadata index; no inline comments | Comments would invalidate strict JSON parsers. |
+| Plain `.txt` payloads | Central metadata index | There is no universally inert header syntax. |
+| `package-lock.json` | Inventory-only | Dependency state is generated and resolver-owned. |
+| `.l9/**`, nested internal `.l9` copies, `.git/**`, dependencies, reports | Excluded internal/tool state | Prevent self-annotation, recursive discovery, and authority mutation. |
+| Secrets, bytecode, environments, build artifacts | Omitted or generated inventory-only | Not source inputs. |
+
+A native header or central record must not be described as an injected inline header. An inventory record must not be described as an annotated lockfile. Omitted internal files must be named as explicit exemptions rather than counted as successful annotations.
+
+## Execution and validation
+
+```bash
+make meta-setup
+make meta-inventory
+make meta-apply
+make meta-check
+python3 scripts/refresh_retrieval_index.py --check
+```
+
+The package dependency and writer authority bind to one immutable injector Git commit. No npm publication, live MCP deployment, or LLM calls are required. This rollout is independently based on `main`, not stacked on an earlier metadata branch.
+
+After an intentional kernel header mutation, update the canonical kernels' full-file SHA-256 entries explicitly in `AGENT_RETRIEVAL_INDEX.yaml`. The kernel authority hashes include headers; injector `content_hash` values describe carrier-free bodies and are not interchangeable with full-file hashes. Use the existing refresh command for noncanonical retrieval drift, then run apply again to synchronize the central metadata record of the retrieval index.
+
+The acceptance proof is a read-only check with zero metadata drift, a repeat apply with zero writes, valid Python/shell/YAML syntax, unchanged fixture/generated bytes, matching kernel integrity hashes, and passing kernel/connector tests. A running immutable kernel connector must be restarted against a newly deployed checkout; this PR does not deploy or restart it.

@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.deploy__md"
+title: "DEPLOY"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "DEPLOY.md"
+content_hash: "c3c7660bbc0a930606b62cee443dc4c1bbc963d56b41c52852fdff6a6061c6cb"
+token_cost_estimate: 383
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["bootstrap", "install"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 # L9-Ops-MCP Deployment Guide
 
 ## Prerequisites

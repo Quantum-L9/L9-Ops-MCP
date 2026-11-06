@@ -1,3 +1,26 @@
+---
+id: "L9-Ops-MCP.context.docs_harness_doctrine__md"
+title: "HARNESS DOCTRINE"
+artifact_type: "context"
+mcp_primitive: "resource"
+callable: true
+retrievable: true
+injectable: true
+namespace: "L9-Ops-MCP"
+sharing_scope: "agnostic"
+source_path: "docs/HARNESS_DOCTRINE.md"
+content_hash: "4a6dc6a4a4064d4e94a0b919b3b942fddc189048df26d245e573361392a27de0"
+token_cost_estimate: 1032
+authority: "Quantum-L9"
+created_or_detected_at: "Unknown"
+family: "meta_kernel_forge"
+description: "Unknown"
+activation_signals: ["kernel", "agent", "contract"]
+input_contract: "Unknown"
+output_contract: "Unknown"
+validation_gates: "Unknown"
+stop_conditions: "Unknown"
+---
 <!-- L9_META
 l9_schema: 1
 origin: l9-kernel

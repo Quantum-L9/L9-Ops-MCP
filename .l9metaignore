@@ -1,0 +1,29 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.l9metaignore
+# title: l9metaignore
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: .l9metaignore
+# content_hash: 55f85df10e756546cb36031026b5c82b1ef845c196553999f29f780d4faf9f02
+# token_cost_estimate: 44
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
+# Repository-local inputs that must not be indexed.
+.l9-meta-injector-out/
+.venv/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/

@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_doc_gardener_kernel_v1__yaml
+# title: doc gardener kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/doc_gardener_kernel.v1.yaml
+# content_hash: fe8d143412dbdda74aaa262baea2eaf46a66d444f5c7f1a4320d36695d17aced
+# token_cost_estimate: 897
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

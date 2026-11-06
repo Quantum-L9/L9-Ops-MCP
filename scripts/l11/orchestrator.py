@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.script.scripts_l11_orchestrator__py
+# title: orchestrator
+# artifact_type: script
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: scripts/l11/orchestrator.py
+# content_hash: 194ccb84dee2ba84d9368f52e708686f9aaf59516500d192ed20ca4a2df6de57
+# token_cost_estimate: 2179
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # component: orchestrator

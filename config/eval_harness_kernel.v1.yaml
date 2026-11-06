@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_eval_harness_kernel_v1__yaml
+# title: eval harness kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/eval_harness_kernel.v1.yaml
+# content_hash: 215c06d141e5c9d10624dc86b54405d770778b90600004aa90199ac9aac31066
+# token_cost_estimate: 923
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

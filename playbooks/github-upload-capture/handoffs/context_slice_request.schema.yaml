@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.playbook.playbooks_github_upload_capture_handoffs_context_slice_request_schema__yaml
+# title: context slice request schema
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: playbooks/github-upload-capture/handoffs/context_slice_request.schema.yaml
+# content_hash: bb1d0e87b5f1fdc5c07ec65b6895caa7a6ce15e2890a111ffc65b11b903d7a73
+# token_cost_estimate: 60
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 type: object
 required: [request_id, objective, token_budget, allowed_scopes]
 properties:

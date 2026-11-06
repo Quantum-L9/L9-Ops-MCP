@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.test.tests_test_kernel_index_and_projection__py
+# title: test kernel index and projection
+# artifact_type: test
+# mcp_primitive: none
+# callable: false
+# retrievable: false
+# injectable: false
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: tests/test_kernel_index_and_projection.py
+# content_hash: 026cd798d7c6e3f8bfacb3fa35a30a1fb0bd6466920e10101d12da2d681349f8
+# token_cost_estimate: 892
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 """Retrieval-index drift + progressive-disclosure tests.
 
 Contract §42 (progressive disclosure), §46 (schema validation over the real

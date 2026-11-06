@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.playbook.playbooks_github_upload_capture_handoffs_upload_manifest_schema__yaml
+# title: upload manifest schema
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: playbooks/github-upload-capture/handoffs/upload_manifest.schema.yaml
+# content_hash: 6d16405dd6267311324834a9e3b8aa8e8b99abd4a83a2685fb5bf39e8bddd4a5
+# token_cost_estimate: 50
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 type: object
 required: [request_id, uploads, extracted_files, checksums]
 properties:

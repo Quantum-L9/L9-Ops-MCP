@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.config_context_budget_kernel_v1__yaml
+# title: context budget kernel v1
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: config/context_budget_kernel.v1.yaml
+# content_hash: 29fc78750d461b64d8acef7c55f041c589f524c54a32cb09f396ed616ffcf943
+# token_cost_estimate: 971
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

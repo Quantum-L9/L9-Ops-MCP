@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.src_l9_ops_mcp_kernel_resolver__py
+# title: kernel resolver
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: src/l9_ops_mcp/kernel_resolver.py
+# content_hash: b26090c05e26f875d62af1544dd3a339620be1d826029bbd2c88053e6bb183ac
+# token_cost_estimate: 3308
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: runtime_module

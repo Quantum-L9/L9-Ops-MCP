@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.examples_l9_runs_example_run_runtime_findings__yaml
+# title: runtime findings
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: examples/l9_runs/example_run/runtime_findings.yaml
+# content_hash: 93a90686b1502f6587591dbdaa8227cbe5f2b54f08cd882da69802d925c2cb2a
+# token_cost_estimate: 156
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 # --- L9_META ---
 # l9_schema: 1
 # artifact_type: context

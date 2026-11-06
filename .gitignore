@@ -1,3 +1,20 @@
+# >>> l9:meta >>>
+# id: L9-Ops-MCP.source.gitignore
+# title: gitignore
+# artifact_type: source
+# mcp_primitive: resource
+# callable: false
+# retrievable: true
+# injectable: true
+# namespace: L9-Ops-MCP
+# sharing_scope: agnostic
+# source_path: .gitignore
+# content_hash: 622f10b1509a88f53a657c42562e58634b520058020023fc951658b398e53e82
+# token_cost_estimate: 90
+# authority: Quantum-L9
+# created_or_detected_at: Unknown
+# owner: Unknown
+# <<< l9:meta <<<
 __pycache__/
 *.py[cod]
 .env
@@ -19,3 +36,7 @@ protected_files_gate_report.json
 dora_dryrun_report.json
 dora_injection_report.json
 *.egg-info/
+
+# Repository-local metadata tooling
+node_modules/
+.l9-meta-injector-out/
